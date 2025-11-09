@@ -1,0 +1,74 @@
+/* Unified Mobile Scrolling Fix */
+
+/* Remove individual section scrolling on mobile */
+@media (max-width: 768px) {
+    /* Make checkout content a single scrolling unit */
+    .checkout-content {
+        display: block !important; /* Remove grid layout */
+        overflow-y: visible !important; /* Remove container scroll */
+        max-height: none !important; /* Remove height limit */
+        padding: 1rem !important;
+    }
+    
+    /* Remove individual section scrolling */
+    .checkout-section {
+        overflow-y: visible !important; /* No individual scrolling */
+        max-height: none !important; /* Remove height constraints */
+        margin-bottom: 1.5rem !important; /* Space between sections */
+        height: auto !important; /* Natural height */
+    }
+    
+    /* Stack sections vertically without scroll conflicts */
+    .order-summary,
+    .customer-info, 
+    .payment-section {
+        grid-column: unset !important; /* Remove grid positioning */
+        width: 100% !important;
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    /* Ensure the main container handles all scrolling */
+    .checkout-main {
+        overflow-y: auto !important; /* Main container scrolls */
+        max-height: 100vh !important; /* Full viewport height */
+        -webkit-overflow-scrolling: touch !important; /* Smooth iOS scrolling */
+    }
+    
+    /* Remove any nested scrolling areas */
+    .cart-items-list,
+    .checkout-form {
+        overflow-y: visible !important;
+        max-height: none !important;
+    }
+}
+
+/* Ultra-small mobile - even more unified */
+@media (max-width: 480px) {
+    .checkout-container {
+        overflow-y: visible !important; /* Let page scroll naturally */
+        max-height: none !important;
+        min-height: auto !important;
+    }
+    
+    .checkout-content {
+        gap: 1rem !important; /* Consistent spacing */
+    }
+    
+    .checkout-section {
+        margin-bottom: 1rem !important; /* Tighter spacing on small screens */
+    }
+}
+
+/* Tiny screens - minimal spacing */
+@media (max-width: 360px) {
+    .checkout-content {
+        padding: 0.5rem !important;
+        gap: 0.75rem !important;
+    }
+    
+    .checkout-section {
+        margin-bottom: 0.75rem !important;
+        padding: 0.75rem !important;
+    }
+}

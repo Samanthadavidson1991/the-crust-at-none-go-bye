@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Checkout - The Crust at NGB</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="checkout-styles.css">
+	<link rel="stylesheet" href="mobile-fixes.css">
+	<link rel="stylesheet" href="unified-scroll.css">
+	<link rel="stylesheet" href="delivery-styles.css">
+</head>
+<body class="checkout-page app-body">
+	<header>
+		<h1 class="main-heading no-underline">Inspired by Naples, perfected at None Go Bye.</h1>
+		<nav class="main-nav">
+			<a href="index.html">Home</a>
+			<a href="menu.html">Menu</a>
+			<a href="checkout-enhanced.html" class="active">Checkout</a>
+			<a href="allergens.html">Allergens</a>
+		</nav>
+		<!-- Mobile back button -->
+		<div class="mobile-nav-helper">
+			<a href="menu.html" class="mobile-back-btn">← Back to Menu</a>
+		</div>
+	</header>
+	
+	<main class="checkout-main">
+		<div class="checkout-container">
+			<!-- Progress Indicator -->
+			<div class="checkout-progress">
+				<div class="progress-step active">
+					<span class="step-number">1</span>
+					<span class="step-label">Review Order</span>
+				</div>
+				<div class="progress-step active">
+					<span class="step-number">2</span>
+					<span class="step-label">Your Details</span>
+				</div>
+				<div class="progress-step">
+					<span class="step-number">3</span>
+					<span class="step-label">Complete</span>
+				</div>
+			</div>
+
+			<div class="checkout-content">
+				<!-- Order Summary -->
+				<div class="checkout-section order-summary">
+					<h2><span class="step-icon">🛒</span> Your Order</h2>
+					<div id="cart-items" class="cart-items-list">
+						<div class="empty-cart">Your cart is empty</div>
+					</div>
+					<div class="order-total-display">
+						<div class="total-row">
+							<span>Subtotal:</span>
+							<span id="cart-subtotal">£0.00</span>
+						</div>
+						<div class="total-row final-total">
+							<span>Total:</span>
+							<span id="cart-total">£0.00</span>
+						</div>
+					</div>
+					<a href="menu.html" class="add-more-btn">+ Add More Items</a>
+				</div>
+
+				<!-- Customer Information -->
+				<div class="checkout-section customer-info">
+					<h2><span class="step-icon">👤</span> Your Information</h2>
+					<form id="checkout-form" class="checkout-form">
+						
+						<!-- Contact Details Section -->
+						<div class="form-section">
+							<h3 class="section-title">📞 Contact Details</h3>
+							<div class="form-row">
+								<div class="form-group">
+									<label for="customer-name" class="required">Full Name</label>
+									<input type="text" id="customer-name" name="customerName" required 
+										   placeholder="Enter your full name" class="form-input"
+										   autocomplete="name">
+									<div class="error-message" id="name-error"></div>
+								</div>
+
+								<div class="form-group">
+									<label for="customer-phone" class="required">Phone Number</label>
+									<input type="tel" id="customer-phone" name="customerPhone" required 
+										   placeholder="Enter your phone number" class="form-input"
+										   autocomplete="tel">
+									<div class="error-message" id="phone-error"></div>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="customer-email">Email Address</label>
+								<input type="email" id="customer-email" name="customerEmail" 
+									   placeholder="Enter email for order confirmation (optional)" class="form-input"
+									   autocomplete="email" inputmode="email">
+								<small class="field-hint">We'll send you an order confirmation</small>
+							</div>
+						</div>
+
+						<!-- Delivery Details Section -->
+						<div class="form-section">
+							<h3 class="section-title">🚚 Delivery Details</h3>
+							
+							<!-- Order Type -->
+							<div class="form-group order-type-group">
+								<label class="group-label required">Delivery Service</label>
+								<div class="radio-group">
+									<label class="radio-option">
+										<input type="radio" name="orderType" value="delivery" checked>
+										<span class="radio-custom"></span>
+										<div class="radio-content">
+											<strong>Home Delivery</strong>
+											<small>We'll deliver to your address</small>
+										</div>
+									</label>
+								</div>
+							</div>
+
+							<!-- Delivery Address -->
+							<div id="delivery-fields" class="delivery-section">
+								<div class="form-row">
+									<div class="form-group address-group">
+										<label for="customer-address" class="required">Delivery Address</label>
+										<input type="text" id="customer-address" name="customerAddress" 
+											   placeholder="Enter your full address" class="form-input"
+											   autocomplete="street-address">
+										<div class="error-message" id="address-error"></div>
+									</div>
+
+								<div class="form-group postcode-group">
+									<label for="customer-postcode" class="required">Postcode</label>
+									<div class="postcode-input-wrapper">
+										<input type="text" id="customer-postcode" name="customerPostcode" 
+											   placeholder="Enter your postcode (e.g. LS18 5HZ)" class="form-input postcode-uppercase"
+											   autocomplete="postal-code" maxlength="8">
+										<button type="button" id="check-delivery-btn" class="check-delivery-btn">
+											Check Delivery
+										</button>
+									</div>
+									<div class="delivery-status" id="delivery-status"></div>
+									<div class="error-message" id="postcode-error"></div>
+									<div class="delivery-info">
+										<small>We deliver within 4 miles of LS18 5HZ</small>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Order Preferences Section -->
+						<div class="form-section">
+							<h3 class="section-title">⏰ Order Preferences</h3>
+							
+							<div class="form-group">
+								<label for="order-date" class="required">Delivery Date</label>
+								<input type="date" id="order-date" name="orderDate" required class="form-select" min="">
+								<div class="error-message" id="date-error"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="order-time-slot" class="required">Preferred Delivery Time</label>
+								<select id="order-time-slot" name="orderTimeSlot" required class="form-select">
+									<option value="">Select your preferred time...</option>
+									<!-- Time slots will be populated dynamically -->
+								</select>
+								<div class="error-message" id="timeslot-error"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="order-comments">Special Instructions</label>
+								<textarea id="order-comments" name="orderComments" 
+										  placeholder="Any special requests, allergies, or delivery notes..." 
+										  class="form-textarea" rows="3"></textarea>
+								<small class="field-hint">Optional: Let us know about allergies or special requirements</small>
+							</div>
+						</div>
+					</form>
+				</div>
+
+				<!-- Payment & Completion -->
+				<div class="checkout-section payment-section">
+					<h2><span class="step-icon">💳</span> Complete Your Order</h2>
+					
+					<div class="payment-summary">
+						<div class="summary-row">
+							<span>Order Total:</span>
+							<span id="final-total" class="final-amount">£0.00</span>
+						</div>
+					</div>
+
+					<div class="payment-buttons">
+						<button type="button" id="pay-with-cash" class="payment-btn cash-btn">
+							<span class="btn-icon">💵</span>
+							<div class="btn-content">
+								<strong>Place Order - Pay Cash</strong>
+								<small>Complete order now, pay on delivery</small>
+							</div>
+						</button>
+						
+						<button type="button" id="pay-with-card" class="payment-btn card-btn" disabled>
+							<span class="btn-icon">💳</span>
+							<div class="btn-content">
+								<strong>Pay with Card</strong>
+								<small>Coming Soon - Currently unavailable</small>
+							</div>
+						</button>
+					</div>
+
+					<div class="order-actions">
+						<button type="button" id="back-to-menu" class="payment-btn">
+							← Back to Menu
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Loading Overlay -->
+		<div id="loading-overlay" class="loading-overlay hidden">
+			<div class="loading-content">
+				<div class="spinner"></div>
+				<p>Processing your order...</p>
+			</div>
+		</div>
+	</main>
+
+	<script src="delivery-validator.js"></script>
+	<script src="checkout-streamlined.js"></script>
+	<script src="mobile-debug.js"></script>
+</body>
+</html>
