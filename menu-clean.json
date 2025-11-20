@@ -1,0 +1,26 @@
+[
+  {
+    "name": "marg",
+    "category": "Pizza",
+    "description": "cheese",
+    "price": 8.99,
+    "toppings": ["tomato"],
+    "sizes": [
+      { "name": "12in", "price": 8.99 },
+      { "name": "8in", "price": 6.99 },
+      { "name": "Gluten Free", "price": 9.99 }
+    ],
+    "sideOptions": [],
+    "glutenFree": true
+  },
+  {
+    "name": "caesar salad",
+    "category": "Salad",
+    "description": "classic caesar",
+    "price": 6.99,
+    "toppings": ["lettuce", "croutons"],
+    "sizes": [],
+    "sideOptions": [],
+    "glutenFree": false
+  }
+]

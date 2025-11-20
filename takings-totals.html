@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Takings Totals | None Go Bye</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .summary-section { margin-bottom: 32px; }
+    .totals-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    .totals-table th, .totals-table td { padding: 12px; border-bottom: 1px solid #ccc; text-align: left; }
+    .totals-table th { background: #e9ece5; }
+    .totals-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body class="admin-page">
+  <script>
+    // Redirect to login if not authenticated
+    fetch('/api/admin/check', { credentials: 'include' })
+      .then(r => {
+        if (!r.ok) window.location.href = 'login.html';
+      });
+  </script>
+  <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
+  <header>
+    <h1 class="main-heading underline">Admin  Takings Totals</h1>
+    <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
+      <a href="admin-menu.html">Menu Editor</a>
+      <a href="stock-management.html">Stock Management</a>
+      <a href="timeslots.html">Time Slots</a>
+      <a href="orders.html">Orders</a>
+      <a href="running-orders.html">Running Orders</a>
+      <a href="takings.html">Takings</a>
+      <a href="takings-totals.html" class="active">Totals</a>
+      <a href="pos.html">POS Manual Order</a>
+      <a href="offers.html">Special Offers</a>
+      <a href="#" class="nav-disabled">Dashboard (coming soon)</a>
+    </nav>
+  </header>
+  <main>
+    <main id="main-content">
+    <section class="admin-section summary-section">
+      <h2>Daily, Weekly, and Monthly Takings</h2>
+      <div id="totals-summary" style="margin-top: 18px; font-size: 1.15em;"></div>
+    </section>
+  </main>
+  <script>
+    function formatMoney(val) {
+      return Number(val).toFixed(2);
+    }
+    function getMonday(d) {
+      d = new Date(d);
+      var day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(d.setDate(diff));
+    }
+    function getLastSundayOfMonth(date) {
+      let d = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      while (d.getDay() !== 0) d.setDate(d.getDate() - 1);
+      return d;
+    }
+    async function fetchTotals() {
+      const today = new Date();
+      const monday = getMonday(today);
+      const lastSunday = getLastSundayOfMonth(today);
+      // Format dates for API
+      const yyyyMMdd = d => d.toISOString().slice(0, 10);
+      // Fetch all orders for this month
+      let url = `http://localhost:8081/api/orders?from=${yyyyMMdd(new Date(today.getFullYear(), today.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
+      try {
+        const res = await fetch(url);
+        const orders = await res.json();
+        if (!Array.isArray(orders) || !orders.length) {
+          document.getElementById('totals-summary').innerHTML = '<b>No orders for this period.</b>';
+          return;
+        }
+        // Calculate totals
+        let daily = 0, weekly = 0, monthly = 0;
+        let now = new Date();
+        for (const order of orders) {
+          let orderTotal = 0;
+          if (Array.isArray(order.items)) {
+            for (const item of order.items) {
+              orderTotal += (Number(item.price) || 0) * (Number(item.quantity) || 1);
+            }
+          }
+          if (order.refundAmount && order.refundAmount > 0) {
+            orderTotal -= Number(order.refundAmount);
+          }
+          let orderDate = new Date(order.createdAt || order.date || order.time || order.placedAt || order.updatedAt || now);
+          // Daily: today only
+          if (orderDate.toDateString() === now.toDateString()) daily += orderTotal;
+          // Weekly: from this Monday
+          if (orderDate >= monday && orderDate <= now) weekly += orderTotal;
+          // Monthly: from 1st to last Sunday
+          if (orderDate >= new Date(now.getFullYear(), now.getMonth(), 1) && orderDate <= lastSunday) monthly += orderTotal;
+        }
+        document.getElementById('totals-summary').innerHTML = `
+          <b>Daily Total (resets midnight):</b> £${formatMoney(daily)}<br>
+          <b>Weekly Running Total (resets Monday):</b> £${formatMoney(weekly)}<br>
+          <b>Monthly Running Total (resets last Sunday):</b> £${formatMoney(monthly)}<br>
+          <hr style='margin:10px 0;'>
+          <span style='font-size:0.98em;color:#888'>Daily resets at midnight. Weekly resets every Monday. Monthly resets on the last Sunday of each month.</span>
+        `;
+      } catch (err) {
+        document.getElementById('totals-summary').innerHTML = '<b>Error loading totals.</b>';
+      }
+    }
+    fetchTotals();
+  </script>
+</body>
+</html>

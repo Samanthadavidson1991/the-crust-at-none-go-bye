@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Special Offers | None Go Bye</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-section { max-width: 700px; margin: 40px auto; background: #f3f7ef; border-radius: 16px; padding: 32px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .admin-section h2 { margin-top: 0; }
+    .offer-list { margin-top: 32px; }
+    .offer-item { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; }
+    .offer-item span { font-weight: bold; }
+    .offer-item button { margin-left: 12px; }
+    .admin-nav { margin: 24px 0; }
+    .admin-nav a { font-size: 1.1rem; margin: 0 18px; color: #7c232a; text-decoration: underline; }
+  </style>
+</head>
+<body class="admin-page">
+  <script>
+    // Redirect to login if not authenticated
+    fetch('/api/admin/check', { credentials: 'include' })
+      .then(r => {
+        if (!r.ok) window.location.href = 'login.html';
+      });
+  </script>
+  <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
+  <header>
+    <h1 class="main-heading underline">Admin  Special Offers</h1>
+    <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
+      <a href="admin-menu.html">Menu Editor</a>
+      <a href="stock-management.html">Stock Management</    git remote set-url origin https://github.com/Samanthadavidson1991/the-crust-at-none-go-bye.gitgit remote -va>
+      <a href="timeslots.html">Time Slots</a>
+      <a href="orders.html">Orders</a>
+      <a href="running-orders.html">Running Orders</a>
+      <a href="takings.html">Takings</a>
+      <a href="pos.html">POS Manual Order</a>
+      <a href="offers.html">Special Offers</a>
+      <a href="#" class="nav-disabled">Dashboard (coming soon)</a>
+    </nav>
+  </header>
+  <main>
+    <main id="main-content">
+    <section class="admin-section">
+      <h2>Manage Special Offers</h2>
+      <form id="add-offer-form" style="margin-bottom:24px;display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+        <input type="text" id="offerTitle" placeholder="Offer title (e.g. Family Pizza Night)" required style="width:100%">
+        <textarea id="offerDesc" placeholder="Main offer wording (e.g. Any 2 pizzas, 2 sides, and a drink for £25)" required style="width:100%"></textarea>
+        <div style="display:flex;gap:8px;width:100%">
+          <input type="text" class="offer-section" placeholder="Section (e.g. Pizzas)">
+          <input type="text" class="offer-section" placeholder="Section (e.g. Sides)">
+          <input type="text" class="offer-section" placeholder="Section (optional)">
+          <input type="text" class="offer-section" placeholder="Section (optional)">
+        </div>
+        <input type="number" id="offerPrice" placeholder="Offer Price (£)" step="0.01" min="0" style="width:180px;">
+        <div style="display:flex;gap:12px;width:100%">
+          <label>Start: <input type="date" id="offerStart"></label>
+          <label>End: <input type="date" id="offerEnd"></label>
+        </div>
+        <button type="submit">Add Offer</button>
+      </form>
+      <div class="offer-list" id="offer-list"></div>
+      <hr style="margin:32px 0;">
+      <section>
+        <h3>Voucher Codes</h3>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+          <select id="voucher-offer-select"></select>
+          <input type="number" id="voucher-days" min="1" max="365" placeholder="Days valid" style="width:110px;">
+          <input type="number" id="voucher-price" min="0" step="0.01" placeholder="Voucher Price/Discount (£)" style="width:140px;">
+          <button id="generate-voucher-btn" type="button">Generate Voucher Code</button>
+        </div>
+        <div id="voucher-list"></div>
+      </section>
+    </section>
+  </main>
+  <script>
+    let offers = [];
+    let vouchers = [];
+
+    async function fetchOffers() {
+      const res = await fetch('/api/offers');
+      offers = await res.json();
+      renderOffers();
+      renderVoucherOfferSelect();
+      fetchVouchers();
+    }
+
+    function renderOffers() {
+      const list = document.getElementById('offer-list');
+      if (!offers.length) {
+        list.innerHTML = '<em>No special offers set.</em>';
+        return;
+      }
+      list.innerHTML = offers.map((offer, idx) => {
+        let sections = (offer.sections || []).filter(Boolean).join(', ');
+        let price = offer.price ? `£${parseFloat(offer.price).toFixed(2)}` : '';
+        let dateStr = '';
+        if (offer.startDate || offer.endDate) {
+          dateStr = `<span style='color:#888;font-size:0.95em'>${offer.startDate ? 'From ' + new Date(offer.startDate).toLocaleDateString() : ''}${offer.endDate ? ' to ' + new Date(offer.endDate).toLocaleDateString() : ''}</span>`;
+        }
+        return `
+          <div class='offer-item'>
+            <span><b>${offer.title}</b> - ${offer.desc}${sections ? ' <span style=\'color:#2e7d32\'>['+sections+']</span>' : ''}${price ? ' <b>'+price+'</b>' : ''} ${dateStr}</span>
+            <button onclick='removeOffer("${offer._id}")'>Remove</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function removeOffer(id) {
+      await fetch('/api/offers/' + id, { method: 'DELETE' });
+      fetchOffers();
+    }
+
+    document.getElementById('add-offer-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const title = document.getElementById('offerTitle').value.trim();
+      const desc = document.getElementById('offerDesc').value.trim();
+      const sectionInputs = Array.from(document.querySelectorAll('.offer-section'));
+      const sections = sectionInputs.map(i => i.value.trim()).filter(Boolean);
+      const price = document.getElementById('offerPrice').value;
+      const startDate = document.getElementById('offerStart').value;
+      const endDate = document.getElementById('offerEnd').value;
+      if (!title || !desc) return;
+      await fetch('/api/offers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, desc, sections, price, startDate, endDate })
+      });
+      fetchOffers();
+      this.reset();
+      sectionInputs.forEach(i => i.value = '');
+    };
+
+    // --- Voucher Code Management ---
+    async function fetchVouchers() {
+      const res = await fetch('/api/vouchers');
+      vouchers = await res.json();
+      renderVouchers();
+    }
+
+    function renderVoucherOfferSelect() {
+      const sel = document.getElementById('voucher-offer-select');
+      sel.innerHTML = offers.map(o => `<option value="${o._id}">${o.title}</option>`).join('');
+    }
+
+    document.getElementById('generate-voucher-btn').onclick = async function() {
+      const offerId = document.getElementById('voucher-offer-select').value;
+      const days = parseInt(document.getElementById('voucher-days').value, 10);
+      const price = document.getElementById('voucher-price').value;
+      if (!offerId || !days) return; // alert removed for production
+      await fetch('/api/vouchers/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerId, expiresInDays: days, price })
+      });
+      fetchVouchers();
+    };
+
+    function renderVouchers() {
+      const list = document.getElementById('voucher-list');
+      if (!vouchers.length) {
+        list.innerHTML = '<em>No voucher codes generated yet.</em>';
+        return;
+      }
+      list.innerHTML = `<table style='width:100%;border-collapse:collapse'><thead><tr><th>Code</th><th>Offer</th><th>Voucher Price</th><th>Expires</th><th>Status</th></tr></thead><tbody>` +
+        vouchers.map(v => {
+          let exp = v.expiresAt ? new Date(v.expiresAt).toLocaleDateString() : '-';
+          let status = v.used ? `<span style='color:#b9472e'>Used</span>` : `<span style='color:#2e7d32'>Live</span>`;
+          let price = v.price !== undefined && v.price !== null ? `£${parseFloat(v.price).toFixed(2)}` : '-';
+          return `<tr><td><b>${v.code}</b></td><td>${v.offer ? v.offer.title : ''}</td><td>${price}</td><td>${exp}</td><td>${status}</td></tr>`;
+        }).join('') + '</tbody></table>';
+    }
+
+    fetchOffers();
+  </script>
+</body>
+</html>

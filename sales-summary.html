@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Sales & Takings Summary | None Go Bye</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .summary-section { background: #f3f7ef; border-radius: 16px; padding: 32px 24px; margin: 32px auto; max-width: 900px; box-shadow: 0 2px 8px #0001; }
+    .summary-section h2 { margin-top: 0; }
+    .summary-table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    .summary-table th, .summary-table td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
+    .summary-table th { background: #e9ece5; }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .item-sales-table { margin-top: 24px; }
+    .item-sales-table th, .item-sales-table td { padding: 8px; border-bottom: 1px solid #eee; }
+    .item-sales-table th { background: #fcf8e6; }
+    .item-sales-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body class="admin-page">
+  <script>
+    // Redirect to login if not authenticated
+    fetch('/api/admin/check', { credentials: 'include' })
+      .then(r => {
+        if (!r.ok) window.location.href = 'login.html';
+      });
+  </script>
+  <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
+  <header>
+    <h1 class="main-heading underline">Admin  Sales & Takings Summary</h1>
+    <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
+      <a href="admin-menu.html">Menu Editor</a>
+      <a href="stock-management.html">Stock Management</a>
+      <a href="timeslots.html">Time Slots</a>
+      <a href="orders.html">Orders</a>
+      <a href="running-orders.html">Running Orders</a>
+      <a href="takings.html">Takings</a>
+      <a href="pos.html">POS Manual Order</a>
+      <a href="offers.html">Special Offers</a>
+      <a href="#" class="nav-disabled">Dashboard (coming soon)</a>
+    </nav>
+  </header>
+  <main>
+    <main id="main-content">
+    <section class="summary-section">
+      <h2>Takings Breakdown</h2>
+      <div id="takings-summary">Loading...</div>
+    </section>
+    <section class="summary-section">
+      <h2>Item Sales</h2>
+      <div id="item-sales-summary">Loading...</div>
+    </section>
+  </main>
+  <script>
+    async function fetchSummary() {
+      // Fetch all orders for today, this week, this month
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+      // Week: get Monday and Sunday
+      const dayOfWeek = today.getDay();
+      const diffToMonday = (dayOfWeek + 6) % 7;
+      const monday = new Date(today); monday.setDate(today.getDate() - diffToMonday);
+      const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+      const weekStartStr = `${monday.getFullYear()}-${String(monday.getMonth()+1).padStart(2,'0')}-${String(monday.getDate()).padStart(2,'0')}`;
+      const weekEndStr = `${sunday.getFullYear()}-${String(sunday.getMonth()+1).padStart(2,'0')}-${String(sunday.getDate()).padStart(2,'0')}`;
+      // Month
+      const monthStartStr = `${yyyy}-${mm}-01`;
+      const lastDayOfMonth = new Date(yyyy, today.getMonth()+1, 0).getDate();
+      const monthEndStr = `${yyyy}-${mm}-${String(lastDayOfMonth).padStart(2,'0')}`;
+      // Fetch all orders for these ranges
+      const [ordersToday, ordersWeek, ordersMonth] = await Promise.all([
+        fetch(`/api/orders?date=${todayStr}`).then(r=>r.json()),
+        fetch(`/api/orders?start=${weekStartStr}&end=${weekEndStr}`).then(r=>r.json()),
+        fetch(`/api/orders?start=${monthStartStr}&end=${monthEndStr}`).then(r=>r.json())
+      ]);
+      // Helper to summarize takings
+      function summarizeTakings(orders) {
+        let total = 0, cash = 0, card = 0, posCard = 0, posCash = 0;
+        orders.forEach(o => {
+          const t = o.total || (Array.isArray(o.items) ? o.items.reduce((s,i)=>(s+(i.price||0)*(i.quantity||1)),0) : 0);
+          total += t;
+          const pay = (o.paymentType||'').toLowerCase();
+          const src = (o.source||'').toLowerCase();
+          if (pay === 'cash' && src === 'pos') posCash += t;
+          else if (pay === 'card' && src === 'pos') posCard += t;
+          else if (pay === 'cash') cash += t;
+          else card += t;
+        });
+        return { total, cash, card, posCard, posCash };
+      }
+      // Helper to summarize item sales
+      function summarizeItems(orders) {
+        const itemMap = {};
+        orders.forEach(o => {
+          if (Array.isArray(o.items)) {
+            o.items.forEach(i => {
+              const key = i.name + (i.size ? ` (${i.size})` : '');
+              if (!itemMap[key]) itemMap[key] = 0;
+              itemMap[key] += i.quantity || 1;
+            });
+          }
+        });
+        return itemMap;
+      }
+      // Takings summary
+      const tDay = summarizeTakings(ordersToday);
+      const tWeek = summarizeTakings(ordersWeek);
+      const tMonth = summarizeTakings(ordersMonth);
+      document.getElementById('takings-summary').innerHTML = `
+        <table class='summary-table'>
+          <thead><tr><th></th><th>Total</th><th>Cash</th><th>Card</th><th>POS Card</th><th>POS Cash</th></tr></thead>
+          <tbody>
+            <tr><th>Today</th><td>£${tDay.total.toFixed(2)}</td><td>£${tDay.cash.toFixed(2)}</td><td>£${tDay.card.toFixed(2)}</td><td>£${tDay.posCard.toFixed(2)}</td><td>£${tDay.posCash.toFixed(2)}</td></tr>
+            <tr><th>This Week</th><td>£${tWeek.total.toFixed(2)}</td><td>£${tWeek.cash.toFixed(2)}</td><td>£${tWeek.card.toFixed(2)}</td><td>£${tWeek.posCard.toFixed(2)}</td><td>£${tWeek.posCash.toFixed(2)}</td></tr>
+            <tr><th>This Month</th><td>£${tMonth.total.toFixed(2)}</td><td>£${tMonth.cash.toFixed(2)}</td><td>£${tMonth.card.toFixed(2)}</td><td>£${tMonth.posCard.toFixed(2)}</td><td>£${tMonth.posCash.toFixed(2)}</td></tr>
+          </tbody>
+        </table>
+      `;
+      // Item sales summary
+      const itemsDay = summarizeItems(ordersToday);
+      const itemsWeek = summarizeItems(ordersWeek);
+      const itemsMonth = summarizeItems(ordersMonth);
+      // Build item sales table
+      let itemRows = '';
+      const allKeys = Array.from(new Set([...Object.keys(itemsDay), ...Object.keys(itemsWeek), ...Object.keys(itemsMonth)]));
+      allKeys.sort();
+      allKeys.forEach(key => {
+        itemRows += `<tr><td>${key}</td><td>${itemsDay[key]||0}</td><td>${itemsWeek[key]||0}</td><td>${itemsMonth[key]||0}</td></tr>`;
+      });
+      document.getElementById('item-sales-summary').innerHTML = `
+        <table class='item-sales-table'>
+          <thead><tr><th>Item</th><th>Today</th><th>This Week</th><th>This Month</th></tr></thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+      `;
+    }
+    fetchSummary();
+  </script>
+</body>
+</html>

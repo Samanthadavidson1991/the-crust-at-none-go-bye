@@ -1,0 +1,554 @@
+
+/* Dough/Gluten Free Counters Styling for Orders Page */
+.dough-counters {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.dough-input {
+    width: 60px;
+}
+/* Solid background for admin pages */
+.admin-page {
+    background: #f3f7ef;
+    min-height: 100vh;
+}
+/* Highlight selected payment button */
+.payment-buttons button.selected {
+    background: #222;
+    color: #fff;
+    border: 2px solid #b9472e;
+}
+/* Utility classes for stock-management dynamic styles */
+.mt-0 { margin-top: 0 !important; }
+.ml-8 { margin-left: 8px !important; }
+.input-disabled {
+    background: #eee !important;
+    color: #888 !important;
+}
+.btn-disabled {
+    background: #ccc !important;
+    color: #888 !important;
+    cursor: not-allowed !important;
+}
+/* Disabled nav link and display utility */
+.nav-disabled {
+    color: #aaa !important;
+    pointer-events: none;
+}
+/* Cart badge and display utility */
+.cart-badge {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    background: #b9472e;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    cursor: pointer;
+}
+.d-none { display: none; }
+/* Utility classes for layout and buttons */
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.btn-clear {
+    background: #b9472e;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.text-error {
+    color: #b9472e;
+    font-weight: bold;
+}
+/* Utility classes for margin and muted text */
+.mb-24 { margin-bottom: 24px; }
+.ml-12 { margin-left: 12px; }
+.text-muted { color: #888; }
+/* Allergens page custom styles (migrated from allergens.css) */
+.allergens-title {
+    font-family: 'Pacifico', cursive;
+    color: #7c232a;
+    font-size: 2rem;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.allergens-details {
+    background: #fbeeee;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin: 18px auto;
+    max-width: 600px;
+    padding: 1.2rem 1.2rem 1rem 1.2rem;
+    font-family: 'Quicksand', Arial, sans-serif;
+    color: #111;
+}
+
+.allergens-details summary {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #b9472e;
+    cursor: pointer;
+    outline: none;
+    margin-bottom: 8px;
+}
+
+.allergens-details[open] {
+    box-shadow: 0 4px 16px rgba(185,71,46,0.10);
+    border: 1.5px solid #b9472e;
+}
+
+.allergens-table-wrap {
+    overflow-x: auto;
+    margin: 12px 0;
+}
+
+.allergens-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 1rem;
+    margin: 0 auto;
+}
+
+.allergens-table th, .allergens-table td {
+    border: 1px solid #f3f7ef;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.allergens-table th {
+    background: #f3f7ef;
+    color: #7c232a;
+    font-weight: 700;
+}
+
+.allergens-table tr:nth-child(even) {
+    background: #fcf8e6;
+}
+
+.allergens-table tr:nth-child(odd) {
+    background: #fff;
+}
+
+.allergens-details ul {
+    margin: 10px 0 0 20px;
+    padding: 0;
+    font-size: 1rem;
+}
+
+.allergens-details li {
+    margin-bottom: 18px;
+}
+/* --- Menu Item Card Styling --- */
+#dynamic-menu {
+    background: transparent !important;
+    position: relative;
+    z-index: 2;
+    border-radius: 0;
+    padding: 2rem 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.menu-item-card .item-name {
+    font-weight: bold;
+    display: block;
+    font-size: 1.25rem;
+    margin-bottom: 0.25em;
+}
+
+/* Restore menu item card box styling */
+.menu-item-card {
+    /* background removed to allow section-based pastel backgrounds to show */
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 400px;
+    margin: 32px auto 32px auto;
+    padding: 1.5rem 1rem;
+    text-align: center;
+}
+
+.menu-item-card b {
+    font-weight: 900;
+    font-size: 1.35rem;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 0.25em;
+}
+
+.menu-card-list {
+    display: block;
+    padding: 0;
+    margin: 0 0 32px 0;
+    list-style: none;
+}
+.menu-items {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+}
+header {
+    text-align: center;
+    padding: 30px 0 10px 0;
+    color:#111;
+}
+body {
+    color: #111;
+    text-align: center;
+    font-weight: 900;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: url('assets/pizza-shop-logo.png') center center/cover no-repeat, #fff;
+    background-attachment: fixed;
+    /* Make background image lighter for better contrast */
+    font-family: 'Quicksand', Arial, sans-serif;
+    /* color and alignment reverted to original */
+}
+
+.container {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 40px 30px;
+    /* text-align: center; removed, now handled by body */
+}
+
+h1 {
+    margin: 0 auto 18px auto;
+    color: #111;
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+    display: block;
+    font-family: 'Pacifico', cursive;
+}
+h2 {
+    font-family: 'Pacifico', cursive;
+    color: #111;
+    text-align: center;
+    font-weight: 900;
+    font-size: 2rem;
+    margin: 40px auto 20px auto;
+    display: inline-block;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 16px;
+    padding: 1rem 0.5rem;
+    margin-bottom: 28px;
+    white-space: nowrap;
+}
+
+section {
+    text-align: center;
+}
+section h2 {
+    display: inline-block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    white-space: nowrap !important;
+}
+
+/* Section header colors */
+
+/* Section header strong colors */
+#dynamic-menu h2:nth-of-type(1) { background: #fbeeee; color: #111; } /* Pizza - light pastel burgundy */
+#dynamic-menu h2:nth-of-type(2) { background: #f3f7ef; color: #111; } /* Sides - light pastel olive */
+#dynamic-menu h2:nth-of-type(3) { background: #fcf8e6; color: #111; } /* Desserts - light pastel gold */
+
+/* Menu card pastel backgrounds, alternating for each item */
+
+
+/* Menu card pastel backgrounds */
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 18px 0;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #000 !important;
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    transition: color 0.2s, background 0.2s, box-shadow 0.2s, font-weight 0.2s;
+    margin: 0 8px;
+}
+nav a:visited {
+    color: #000 !important;
+}
+nav a:active {
+    color: #000 !important;
+}
+nav a:focus {
+        color: #000 !important;
+}
+
+/* Accessibility: Strong visible focus for all interactive elements */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 3px solid #b9472e !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px #ffe9b3 !important;
+    background: #fffbe6 !important;
+    z-index: 2;
+}
+
+/* Accessibility: Improve color contrast for links and error text */
+a, a:visited, a:active {
+    color: #7c232a;
+    text-decoration: underline;
+}
+.text-error {
+    color: #b9472e !important;
+    background: #fffbe6 !important;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+nav a:hover {
+    color: #000 !important;
+    font-weight: 600;
+    background: rgba(255,255,255,0.35);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+p {
+    color: #111;
+    text-align: center;
+    /* text-align reverted to default */
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+/* Order summary box styling for checkout */
+.order-summary {
+    background: #fbeeee;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    padding: 1.5rem 1rem;
+    margin: 0 auto 32px auto;
+    max-width: 400px;
+    color: #111;
+    font-size: 1.1rem;
+    font-family: 'Quicksand', Arial, sans-serif;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Checkout button styling */
+.checkout-form button[type="submit"] {
+    background: #b9472e;
+    color: #fff;
+    font-family: 'Quicksand', Arial, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 24px;
+    padding: 14px 40px;
+    margin-top: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    transition: background 0.2s, box-shadow 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.checkout-form button[type="submit"]:hover {
+    background: #7c232a;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+}
+
+/* Payment buttons styled to match Place Order button */
+.pay-cash, .pay-card {
+    background: #b9472e;
+    color: #fff;
+    font-family: 'Quicksand', Arial, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 24px;
+    padding: 14px 40px;
+    margin-top: 0;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    transition: background 0.2s, box-shadow 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.pay-cash:hover, .pay-card:hover {
+    background: #7c232a;
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+}
+
+/* Stylish form fields for checkout */
+.checkout-form input[type="text"],
+.checkout-form input[type="email"],
+.checkout-form input[type="tel"],
+.checkout-form input[type="date"],
+.checkout-form textarea,
+.checkout-form select {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 16px auto;
+    display: block;
+    background: #fbeeee;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    font-family: 'Quicksand', Arial, sans-serif;
+    color: #111;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+}
+.checkout-form input[type="text"]:focus,
+.checkout-form input[type="email"]:focus,
+.checkout-form input[type="tel"]:focus,
+.checkout-form input[type="date"]:focus,
+.checkout-form textarea:focus,
+.checkout-form select:focus {
+    outline: none;
+    box-shadow: 0 4px 16px rgba(185,71,46,0.10);
+}
+
+/* Ensure section-based menu card backgrounds always apply */
+#dynamic-menu ul:nth-of-type(1) .menu-item-card {
+    background: #fbeeee !important; /* pastel burgundy */
+    color: #111;
+}
+#dynamic-menu ul:nth-of-type(2) .menu-item-card {
+    background: #f3f7ef !important; /* pastel olive */
+    color: #111;
+}
+#dynamic-menu ul:nth-of-type(3) .menu-item-card {
+    background: #fcf8e6 !important; /* pastel gold */
+    color: #111;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 700px) {
+    body, html {
+        font-size: 15px;
+        padding: 0;
+        margin: 0;
+        overflow-x: hidden;
+    }
+    nav ul {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        margin-bottom: 12px;
+    }
+    nav a {
+        font-size: 1.1rem;
+        padding: 10px 0;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        border-bottom: 1px solid #eee;
+    }
+    .container, .main-content, .admin-content, .order-summary, .menu-section, .card, .checkout-form, .stock-table, .orders-table, .takings-table, .summary-table {
+        max-width: 100vw !important;
+        width: 100vw !important;
+        padding: 0.5rem 0.2rem !important;
+        margin: 0 !important;
+        box-sizing: border-box;
+    }
+    .menu-item-card, .card, .order-summary {
+        min-width: 0 !important;
+        max-width: 100vw !important;
+        margin: 0.5rem 0 !important;
+        padding: 0.7rem 0.4rem !important;
+        font-size: 1rem !important;
+    }
+    table, .orders-table, .takings-table, .summary-table, .stock-table {
+        font-size: 0.95rem !important;
+        width: 100vw !important;
+        overflow-x: auto;
+        display: block;
+    }
+    th, td {
+        padding: 0.3rem 0.2rem !important;
+        font-size: 0.95rem !important;
+        word-break: break-word;
+    }
+    .checkout-form input, .checkout-form select, .checkout-form textarea {
+        font-size: 1rem !important;
+        padding: 0.6rem 0.4rem !important;
+        max-width: 98vw !important;
+    }
+    .checkout-form button, .pay-cash, .pay-card {
+        width: 100% !important;
+        font-size: 1.1rem !important;
+        padding: 0.7rem 0 !important;
+        margin: 0.5rem 0 !important;
+        border-radius: 8px !important;
+    }
+    .modal {
+        width: 98vw !important;
+        left: 1vw !important;
+        right: 1vw !important;
+        padding: 0.5rem 0.2rem !important;
+        top: 2vh !important;
+        max-width: 98vw !important;
+    }
+    .modal-content {
+        padding: 0.5rem 0.2rem !important;
+        font-size: 1rem !important;
+    }
+    h1, h2, h3, h4 {
+        font-size: 1.2rem !important;
+        margin: 0.5rem 0 !important;
+    }
+    .admin-header, .admin-nav, .admin-content {
+        padding: 0.5rem 0.2rem !important;
+        margin: 0 !important;
+    }
+    .admin-nav {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .admin-nav a {
+        font-size: 1.1rem !important;
+        padding: 10px 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid #eee !important;
+    }
+    .order-status, .order-type, .order-source, .order-payment {
+        font-size: 1rem !important;
+        padding: 0.2rem 0.1rem !important;
+    }
+    .edit-order-modal {
+        width: 98vw !important;
+        left: 1vw !important;
+        right: 1vw !important;
+        padding: 0.5rem 0.2rem !important;
+        top: 2vh !important;
+        max-width: 98vw !important;
+    }
+}

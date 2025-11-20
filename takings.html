@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    // Redirect to login if not authenticated
+    fetch('/api/admin/check', { credentials: 'include' })
+      .then(r => {
+        if (!r.ok) window.location.href = 'login.html';
+      });
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Daily Takings | None Go Bye</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Only summary styles needed */
+  </style>
+</head>
+  <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
+  <header>
+    <h1 class="main-heading underline">Admin  Daily Takings</h1>
+    <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
+      <a href="admin-menu.html">Menu Editor</a>
+      <a href="stock-management.html">Stock Management</a>
+      <a href="timeslots.html">Time Slots</a>
+      <a href="orders.html">Orders</a>
+      <a href="running-orders.html">Running Orders</a>
+      <a href="takings.html" class="active">Takings</a>
+      <a href="pos.html">POS Manual Order</a>
+      <a href="offers.html">Special Offers</a>
+      <a href="#" class="nav-disabled">Dashboard (coming soon)</a>
+    </nav>
+  </header>
+  <main>
+    <main id="main-content">
+    <section class="admin-section summary-section" style="background: #fbeeee; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.07); max-width: 600px; margin: 32px auto 32px auto; padding: 1.5rem 1rem;">
+      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+        <button id="prev-day-btn">&#8592; Previous</button>
+        <input type="date" id="takings-date-picker" style="font-size: 1.1em; padding: 4px 8px;">
+        <button id="next-day-btn">Next &#8594;</button>
+      </div>
+      <div id="running-totals" style="margin-bottom: 18px; font-size: 1.08em;"></div>
+      <h2>Summary for <span id="summary-date"></span></h2>
+      <div id="takings-summary" style="margin-top: 18px; font-size: 1.15em;"></div>
+    </section>
+  </main>
+  <script>
+    function formatDateInput(date) {
+      return date.toISOString().slice(0, 10);
+    }
+    function formatMoney(val) {
+      return Number(val).toFixed(2);
+    }
+    function getMonday(d) {
+      d = new Date(d);
+      var day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(d.setHours(0,0,0,0), d.setDate(diff));
+    }
+    function getLastSundayOfMonth(date) {
+      let d = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      while (d.getDay() !== 0) d.setDate(d.getDate() - 1);
+      d.setHours(23,59,59,999);
+      return d;
+    }
+    async function fetchTakings(selectedDate) {
+      document.getElementById('summary-date').textContent = selectedDate;
+      // Get all orders for the month up to the last Sunday
+      const selected = new Date(selectedDate);
+      const monday = getMonday(selected);
+      const lastSunday = getLastSundayOfMonth(selected);
+      const yyyyMMdd = d => d.toISOString().slice(0, 10);
+      let url = `http://localhost:8081/api/orders?from=${yyyyMMdd(new Date(selected.getFullYear(), selected.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
+      try {
+        const res = await fetch(url);
+        const orders = await res.json();
+        if (!Array.isArray(orders) || !orders.length) {
+          document.getElementById('takings-summary').innerHTML = '<b>No orders for this day.</b>';
+          document.getElementById('running-totals').innerHTML = '';
+          return;
+        }
+        let total = 0, card = 0, cash = 0, refund = 0;
+        let sources = { Delivery: 0, Collection: 0 };
+        let webCard = 0, webCash = 0, posCard = 0, posCash = 0;
+        let daily = 0, weekly = 0, monthly = 0;
+        for (const order of orders) {
+          let orderTotal = 0;
+          if (Array.isArray(order.items)) {
+            for (const item of order.items) {
+              orderTotal += (Number(item.price) || 0) * (Number(item.quantity) || 1);
+            }
+          }
+          if (order.refundAmount && order.refundAmount > 0) {
+            refund += Number(order.refundAmount);
+            orderTotal -= Number(order.refundAmount);
+          }
+          // Date logic
+          let orderDate = new Date(order.createdAt || order.date || order.time || order.placedAt || order.updatedAt || selected);
+          // Daily: selected date only
+          if (orderDate.toDateString() === selected.toDateString()) daily += orderTotal;
+          // Weekly: from this Monday to selected date
+          if (orderDate >= monday && orderDate <= selected) weekly += orderTotal;
+          // Monthly: from 1st to last Sunday
+          if (orderDate >= new Date(selected.getFullYear(), selected.getMonth(), 1) && orderDate <= lastSunday) monthly += orderTotal;
+          // Existing breakdowns
+          total += orderTotal;
+          const payType = (order.paymentType || '').toLowerCase();
+          const source = (order.source || '').toLowerCase();
+          if (payType === 'cash') cash += orderTotal;
+          else card += orderTotal;
+          if (order.type && sources[order.type] !== undefined) sources[order.type] += orderTotal;
+          if (source === 'pos') {
+            if (payType === 'cash') posCash += orderTotal;
+            else posCard += orderTotal;
+          } else {
+            if (payType === 'cash') webCash += orderTotal;
+            else webCard += orderTotal;
+          }
+        }
+        document.getElementById('running-totals').innerHTML = `
+          <b>Daily Total (resets midnight):</b> £${formatMoney(daily)}<br>
+          <b>Weekly Running Total (resets Monday):</b> £${formatMoney(weekly)}<br>
+          <b>Monthly Running Total (resets last Sunday):</b> £${formatMoney(monthly)}<br>
+          <span style='font-size:0.98em;color:#888'>Daily resets at midnight. Weekly resets every Monday. Monthly resets on the last Sunday of each month.</span>
+        `;
+        document.getElementById('takings-summary').innerHTML = `
+          <b>Total Taken:</b> £${formatMoney(total)}<br>
+          <b>Card:</b> £${formatMoney(card)}<br>
+          <b>Cash:</b> £${formatMoney(cash)}<br>
+          <b>Refunded:</b> £${formatMoney(refund)}<br>
+          <hr style='margin:10px 0;'>
+          <b>Website Card:</b> £${formatMoney(webCard)}<br>
+          <b>Website Cash:</b> £${formatMoney(webCash)}<br>
+          <b>POS Card:</b> £${formatMoney(posCard)}<br>
+          <b>POS Cash:</b> £${formatMoney(posCash)}<br>
+          <hr style='margin:10px 0;'>
+          <b>Delivery:</b> £${formatMoney(sources.Delivery)}<br>
+          <b>Collection:</b> £${formatMoney(sources.Collection)}
+        `;
+      } catch (err) {
+        document.getElementById('takings-summary').innerHTML = '<b>Error loading summary.</b>';
+        document.getElementById('running-totals').innerHTML = '';
+      }
+    }
+    // Date picker and navigation logic
+    const dateInput = document.getElementById('takings-date-picker');
+    const prevBtn = document.getElementById('prev-day-btn');
+    const nextBtn = document.getElementById('next-day-btn');
+    function setDateAndFetch(dateObj) {
+      const dateStr = formatDateInput(dateObj);
+      dateInput.value = dateStr;
+      fetchTakings(dateStr);
+    }
+    // Set default to today
+    const today = new Date();
+    setDateAndFetch(today);
+    dateInput.addEventListener('change', () => {
+      fetchTakings(dateInput.value);
+    });
+    prevBtn.addEventListener('click', () => {
+      const d = new Date(dateInput.value);
+      d.setDate(d.getDate() - 1);
+      setDateAndFetch(d);
+    });
+    nextBtn.addEventListener('click', () => {
+      const d = new Date(dateInput.value);
+      d.setDate(d.getDate() + 1);
+      setDateAndFetch(d);
+    });
+  </script>
+</body>
+</html>
