@@ -19,6 +19,14 @@ app.use(cors());
 // Parse JSON request bodies
 app.use(express.json());
 
+// Serve static files from the server directory
+app.use(express.static(__dirname));
+
+// Serve index.html at root
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
 
 // --- SESSION CONFIGURATION ---
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
