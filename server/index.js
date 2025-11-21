@@ -12,19 +12,20 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 10000;
 
 
 app.use(cors());
 // Parse JSON request bodies
 app.use(express.json());
 
-// Serve static files from the server directory
-app.use(express.static(__dirname));
+// Serve static files from the public directory
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve index.html at root
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 
@@ -606,6 +607,8 @@ app.listen(PORT, '0.0.0.0', err => {
   if (err) {
     // Server failed to start
     process.exit(1);
+  } else {
+    console.log(`Server running on port ${PORT}`);
   }
 });
 // End of index.js
