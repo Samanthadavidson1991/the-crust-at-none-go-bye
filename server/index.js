@@ -12,7 +12,10 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
-const PORT = process.env.PORT || 10000;
+if (!process.env.PORT) {
+  throw new Error('PORT environment variable is required. This app must be run with process.env.PORT set (e.g., by Render).');
+}
+const PORT = process.env.PORT;
 
 
 app.use(cors());
