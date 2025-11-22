@@ -11,6 +11,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const app = express();
 if (!process.env.PORT) {
   throw new Error('PORT environment variable is required. This app must be run with process.env.PORT set (e.g., by Render).');
@@ -32,17 +33,35 @@ app.get('/', (req, res) => {
 });
 
 
-// --- SESSION CONFIGURATION ---
+
+// --- MONGODB CONNECTION (Atlas, automated password) ---
+const dbUser = process.env.MONGO_ATLAS_USERNAME;
+const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
+const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
+
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme123';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'supersecretkey';
 
-app.use(session({
-  secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'lax', secure: false }
-}));
+mongoose.connect(atlasUri)
+  .then(() => {
+    // MongoDB connected, now initialize session store
+    app.use(session({
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      store: MongoStore.create({
+        mongoUrl: atlasUri,
+        collectionName: 'sessions',
+        ttl: 60 * 60 * 24, // 1 day
+      }),
+      cookie: { httpOnly: true, sameSite: 'lax', secure: false }
+    }));
+  })
+  .catch(err => {
+    // MongoDB connection error
+    process.exit(1);
+  });
 
 function requireAdminAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
@@ -180,20 +199,7 @@ const orderSchema = new mongoose.Schema({
   refundReason: { type: String }
 });
 const Order = mongoose.model('Order', orderSchema);
-
-// --- MONGODB CONNECTION (Atlas, automated password) ---
-
-
-const dbUser = process.env.MONGO_ATLAS_USERNAME;
-const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
-// console.log('MongoDB user:', dbUser, 'password:', dbPassword); // Removed for production
-const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
 mongoose.connect(atlasUri)
-  .then(() => { /* MongoDB connected */ })
-  .catch(err => {
-    /* MongoDB connection error */
-    process.exit(1);
-  });
 
 
 // Removed uncaughtException and unhandledRejection logging for production
@@ -606,14 +612,6 @@ app.use((err, req, res, next) => {
 });
 
 // Server start
-app.listen(PORT, '0.0.0.0', err => {
-  if (err) {
-    // Server failed to start
-    process.exit(1);
-  } else {
-    console.log(`Server running on port ${PORT}`);
-  }
-});
 // End of index.js
 
 
