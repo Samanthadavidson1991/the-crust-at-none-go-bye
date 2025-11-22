@@ -42,9 +42,11 @@ const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme123';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'supersecretkey';
+console.log('Connecting to MongoDB...');
 
 mongoose.connect(atlasUri)
   .then(() => {
+    console.log('MongoDB connected!');
     // MongoDB connected, now initialize session store
     app.use(session({
       secret: SESSION_SECRET,
@@ -57,9 +59,18 @@ mongoose.connect(atlasUri)
       }),
       cookie: { httpOnly: true, sameSite: 'lax', secure: false }
     }));
+    // Start server only after session store is ready
+    app.listen(PORT, '0.0.0.0', err => {
+      if (err) {
+        // Server failed to start
+        process.exit(1);
+      } else {
+        console.log(`Server running on port ${PORT}`);
+      }
+    });
   })
   .catch(err => {
-    // MongoDB connection error
+    console.error('MongoDB connection error:', err);
     process.exit(1);
   });
 
