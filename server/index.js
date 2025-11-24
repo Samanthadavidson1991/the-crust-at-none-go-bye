@@ -1,3 +1,7 @@
+// Admin authentication check endpoint
+app.get('/api/admin/check', requireAdminAuth, (req, res) => {
+  res.json({ authenticated: true });
+});
 require('dotenv').config();
 
 // --- REFUND ENDPOINT ---
@@ -28,8 +32,9 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve index.html at root
+// Serve admin dashboard as root for admin deployment
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
 });
 
 
