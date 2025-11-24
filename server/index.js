@@ -1,4 +1,8 @@
 // Admin authentication check endpoint
+// ...existing code...
+
+// Place this after app is initialized
+// Admin authentication check endpoint
 app.get('/api/admin/check', requireAdminAuth, (req, res) => {
   res.json({ authenticated: true });
 });
