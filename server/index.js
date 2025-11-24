@@ -36,9 +36,13 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve index.html at root
-// Serve admin dashboard as root for admin deployment
+// Serve different root page based on ADMIN_DASHBOARD env variable
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+  if (process.env.ADMIN_DASHBOARD === 'true') {
+    res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
 });
 
 
