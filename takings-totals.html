@@ -3,27 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin – Takings Totals | None Go Bye</title>
+  <title>Admin – Stock Management | None Go Bye</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
-    .summary-section { margin-bottom: 32px; }
-    .totals-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-    .totals-table th, .totals-table td { padding: 12px; border-bottom: 1px solid #ccc; text-align: left; }
-    .totals-table th { background: #e9ece5; }
-    .totals-table tr:last-child td { border-bottom: none; }
+    .admin-nav { margin: 24px 0; }
+    .admin-nav a { font-size: 1.1rem; margin: 0 18px; color: #7c232a; text-decoration: underline; }
+    .admin-section { max-width: 700px; margin: 40px auto; background: #f3f7ef; border-radius: 16px; padding: 32px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .admin-section h2 { margin-top: 0; }
+    .stock-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    .stock-table th, .stock-table td { padding: 12px; border-bottom: 1px solid #ccc; text-align: left; }
+    .stock-table th { background: #e9ece5; }
+    .stock-table tr:last-child td { border-bottom: none; }
+    .stock-action-btn { background: #b9472e; color: #fff; border: none; border-radius: 8px; padding: 6px 16px; font-weight: bold; cursor: pointer; }
+    .stock-input { width: 60px; padding: 6px; border-radius: 6px; border: 1px solid #ccc; }
   </style>
 </head>
 <body class="admin-page">
-  <script>
-    // Redirect to login if not authenticated
-    fetch('/api/admin/check', { credentials: 'include' })
-      .then(r => {
-        if (!r.ok) window.location.href = 'login.html';
-      });
-  </script>
+    <script>
+      // Redirect to login if not authenticated
+      fetch('/api/admin/check', { credentials: 'include' })
+        .then(r => {
+          if (!r.ok) window.location.href = 'login.html';
+        });
+    </script>
+    <script src="admin-order-toast.js"></script>
   <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
   <header>
-    <h1 class="main-heading underline">Admin  Takings Totals</h1>
+    <h1 class="main-heading underline">Admin  Stock Management</h1>
     <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
       <a href="admin-menu.html">Menu Editor</a>
       <a href="stock-management.html">Stock Management</a>
@@ -31,7 +40,6 @@
       <a href="orders.html">Orders</a>
       <a href="running-orders.html">Running Orders</a>
       <a href="takings.html">Takings</a>
-      <a href="takings-totals.html" class="active">Totals</a>
       <a href="pos.html">POS Manual Order</a>
       <a href="offers.html">Special Offers</a>
       <a href="#" class="nav-disabled">Dashboard (coming soon)</a>
@@ -39,73 +47,221 @@
   </header>
   <main>
     <main id="main-content">
-    <section class="admin-section summary-section">
-      <h2>Daily, Weekly, and Monthly Takings</h2>
-      <div id="totals-summary" style="margin-top: 18px; font-size: 1.15em;"></div>
+    <section class="admin-section">
+      <h2>Manage Stock</h2>
+      <div id="toppings-list"></div>
+      <div class="my-18">
+        <label for="dough-stock-input"><b>Normal Dough Stock:</b></label>
+        <input type="number" id="dough-stock-input" class="stock-input" min="0" value="0">
+        <button id="dough-stock-btn" class="stock-action-btn">Update</button>
+        <span id="dough-stock-status" class="ml-12 text-muted"></span>
+      </div>
+      <div class="my-18">
+        <label for="gf-dough-stock-input"><b>Gluten Free Dough Stock:</b></label>
+        <input type="number" id="gf-dough-stock-input" class="stock-input" min="0" value="0">
+        <button id="gf-dough-stock-btn" class="stock-action-btn">Update</button>
+        <span id="gf-dough-stock-status" class="ml-12 text-muted"></span>
+      </div>
+      <div id="stock-loading">Loading menu...</div>
+      <table id="stock-table" class="stock-table d-none">
+        <thead>
+          <tr><th>Menu Item</th><th>Category</th><th>Stock</th><th>Action</th></tr>
+        </thead>
+        <tbody id="stock-table-body"></tbody>
+      </table>
     </section>
-  </main>
-  <script>
-    function formatMoney(val) {
-      return Number(val).toFixed(2);
-    }
-    function getMonday(d) {
-      d = new Date(d);
-      var day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      return new Date(d.setDate(diff));
-    }
-    function getLastSundayOfMonth(date) {
-      let d = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      while (d.getDay() !== 0) d.setDate(d.getDate() - 1);
-      return d;
-    }
-    async function fetchTotals() {
-      const today = new Date();
-      const monday = getMonday(today);
-      const lastSunday = getLastSundayOfMonth(today);
-      // Format dates for API
-      const yyyyMMdd = d => d.toISOString().slice(0, 10);
-      // Fetch all orders for this month
-      let url = `http://localhost:8081/api/orders?from=${yyyyMMdd(new Date(today.getFullYear(), today.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
-      try {
-        const res = await fetch(url);
-        const orders = await res.json();
-        if (!Array.isArray(orders) || !orders.length) {
-          document.getElementById('totals-summary').innerHTML = '<b>No orders for this period.</b>';
-          return;
+    <script>
+
+      window.onerror = function(message, source, lineno, colno, error) {
+        console.error('DEBUG: window.onerror', {message, source, lineno, colno, error});
+      };
+      document.addEventListener('DOMContentLoaded', function() {
+        renderToppingsList();
+        fetchStock();
+        fetchDoughStock();
+        fetchGFDoughStock();
+        document.getElementById('dough-stock-btn').onclick = updateDoughStock;
+        document.getElementById('gf-dough-stock-btn').onclick = updateGFDoughStock;
+      });
+
+      async function fetchDoughStock() {
+        try {
+          const res = await fetch('http://localhost:8081/api/dough-stock');
+          const data = await res.json();
+          document.getElementById('dough-stock-input').value = data.stock || 0;
+          document.getElementById('dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
+        } catch (err) {
+          document.getElementById('dough-stock-status').textContent = 'Error loading dough stock';
         }
-        // Calculate totals
-        let daily = 0, weekly = 0, monthly = 0;
-        let now = new Date();
-        for (const order of orders) {
-          let orderTotal = 0;
-          if (Array.isArray(order.items)) {
-            for (const item of order.items) {
-              orderTotal += (Number(item.price) || 0) * (Number(item.quantity) || 1);
-            }
-          }
-          if (order.refundAmount && order.refundAmount > 0) {
-            orderTotal -= Number(order.refundAmount);
-          }
-          let orderDate = new Date(order.createdAt || order.date || order.time || order.placedAt || order.updatedAt || now);
-          // Daily: today only
-          if (orderDate.toDateString() === now.toDateString()) daily += orderTotal;
-          // Weekly: from this Monday
-          if (orderDate >= monday && orderDate <= now) weekly += orderTotal;
-          // Monthly: from 1st to last Sunday
-          if (orderDate >= new Date(now.getFullYear(), now.getMonth(), 1) && orderDate <= lastSunday) monthly += orderTotal;
-        }
-        document.getElementById('totals-summary').innerHTML = `
-          <b>Daily Total (resets midnight):</b> £${formatMoney(daily)}<br>
-          <b>Weekly Running Total (resets Monday):</b> £${formatMoney(weekly)}<br>
-          <b>Monthly Running Total (resets last Sunday):</b> £${formatMoney(monthly)}<br>
-          <hr style='margin:10px 0;'>
-          <span style='font-size:0.98em;color:#888'>Daily resets at midnight. Weekly resets every Monday. Monthly resets on the last Sunday of each month.</span>
-        `;
-      } catch (err) {
-        document.getElementById('totals-summary').innerHTML = '<b>Error loading totals.</b>';
       }
-    }
-    fetchTotals();
-  </script>
+
+      async function updateDoughStock() {
+        const val = parseInt(document.getElementById('dough-stock-input').value, 10);
+        if (isNaN(val) || val < 0) return;
+        await fetch('http://localhost:8081/api/dough-stock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stock: val })
+        });
+        fetchDoughStock();
+      }
+
+      async function fetchGFDoughStock() {
+        try {
+          const res = await fetch('http://localhost:8081/api/gf-dough-stock');
+          const data = await res.json();
+          document.getElementById('gf-dough-stock-input').value = data.stock || 0;
+          document.getElementById('gf-dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
+        } catch (err) {
+          document.getElementById('gf-dough-stock-status').textContent = 'Error loading GF dough stock';
+        }
+      }
+
+      async function updateGFDoughStock() {
+        const val = parseInt(document.getElementById('gf-dough-stock-input').value, 10);
+        if (isNaN(val) || val < 0) return;
+        await fetch('http://localhost:8081/api/gf-dough-stock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stock: val })
+        });
+        fetchGFDoughStock();
+      }
+
+      async function renderToppingsList() {
+        const toppingsDiv = document.getElementById('toppings-list');
+        toppingsDiv.textContent = 'Loading toppings...';
+        try {
+          const res = await fetch('http://localhost:8081/api/menu');
+          const menu = await res.json();
+          let toppingsSet = new Set();
+          menu.forEach(item => {
+            if (Array.isArray(item.toppings)) {
+              item.toppings.forEach(t => toppingsSet.add(t));
+            } else if (typeof item.toppings === 'string' && item.toppings.trim()) {
+              item.toppings.split(',').map(t => t.trim()).forEach(t => {
+                if (t) toppingsSet.add(t);
+              });
+            }
+          });
+          const toppings = Array.from(toppingsSet);
+          if (toppings.length === 0) {
+            toppingsDiv.textContent = 'No toppings found.';
+            return;
+          }
+          const stockRes = await fetch('http://localhost:8081/api/topping-stock');
+          const toppingStock = await stockRes.json();
+          const outOfStockSet = new Set(toppingStock.filter(t => t.outOfStock).map(t => t.topping));
+          toppingsDiv.innerHTML = `<table class="stock-table mt-0">
+            <thead>
+              <tr><th>Topping</th><th>Out of Stock</th></tr>
+            </thead>
+            <tbody>
+              ${toppings.map(t => `
+                <tr>
+                  <td>${t}</td>
+                  <td><input type="checkbox" class="topping-stock" data-topping="${t}"${outOfStockSet.has(t) ? ' checked' : ''}></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>`;
+          document.querySelectorAll('.topping-stock').forEach(cb => {
+            cb.addEventListener('change', saveToppingStockStatus);
+          });
+        } catch (err) {
+          toppingsDiv.textContent = 'Error loading toppings.';
+          console.error('DEBUG: error in renderToppingsList', err);
+        }
+
+        async function saveToppingStockStatus() {
+          const checkboxes = document.querySelectorAll('.topping-stock');
+          const toppingStatus = Array.from(checkboxes).map(cb => ({
+            topping: cb.getAttribute('data-topping'),
+            outOfStock: cb.checked
+          }));
+          await fetch('http://localhost:8081/api/topping-stock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ toppingStatus })
+          });
+        }
+      }
+
+      function fetchStock() {
+        const loading = document.getElementById('stock-loading');
+        const table = document.getElementById('stock-table');
+        const tbody = document.getElementById('stock-table-body');
+        fetch('http://localhost:8081/api/menu')
+          .then(res => res.json())
+          .then(menu => {
+            tbody.innerHTML = '';
+            if (!menu || !Array.isArray(menu) || menu.length === 0) {
+              loading.textContent = 'No menu items yet.';
+              table.style.display = 'none';
+              return;
+            }
+            loading.style.display = 'none';
+            table.style.display = 'table';
+            menu.forEach(item => {
+              const stockValue = Math.max(0, parseInt(item.stock, 10) || 0);
+              // Use item.doughTracked and item.gfDoughTracked for checkboxes
+              const isDough = !!item.doughTracked;
+              const isGFDough = !!item.gfDoughTracked;
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td><b>${item.name}</b></td>
+                <td>${item.category || ''}</td>
+                <td>
+                  <label><input type="checkbox" class="dough-track" data-name="${item.name}" ${isDough ? 'checked' : ''}> Dough</label>
+                  <label class="ml-8"><input type="checkbox" class="gf-dough-track" data-name="${item.name}" ${isGFDough ? 'checked' : ''}> Gluten Free</label><br>
+                  <input type="number" class="stock-input${isDough || isGFDough ? ' input-disabled' : ''}" value="${stockValue}" min="0" id="stock-${item.name}" ${isDough || isGFDough ? 'disabled' : ''}>
+                  ${(isDough || isGFDough) ? '<small class="text-muted">Stock managed by dough tracker</small>' : ''}
+                </td>
+                <td><button class="stock-action-btn${isDough || isGFDough ? ' btn-disabled' : ''}" onclick="updateStock('${item.name}')" ${isDough || isGFDough ? 'disabled' : ''}>Update</button></td>
+              `;
+              tbody.appendChild(tr);
+            });
+            // Add event listeners for dough checkboxes
+            document.querySelectorAll('.dough-track').forEach(cb => {
+              cb.addEventListener('change', function() {
+                updateDoughTracked(cb.getAttribute('data-name'), cb.checked, false);
+              });
+            });
+            document.querySelectorAll('.gf-dough-track').forEach(cb => {
+              cb.addEventListener('change', function() {
+                updateDoughTracked(cb.getAttribute('data-name'), cb.checked, true);
+              });
+            });
+          })
+          .catch(err => {
+            loading.textContent = 'Error loading stock.';
+            table.style.display = 'none';
+            console.error('Failed to fetch stock:', err);
+          });
+      }
+
+      async function updateStock(itemName) {
+        const input = document.getElementById(`stock-${itemName}`);
+        const newStock = input.value;
+        await fetch('http://localhost:8081/api/stock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: itemName, stock: newStock })
+        });
+        fetchStock();
+      }
+
+      async function updateDoughTracked(itemName, isTracked, isGF) {
+        // Only send the changed property using PATCH
+        const body = isGF ? { gfDoughTracked: isTracked } : { doughTracked: isTracked };
+        await fetch(`http://localhost:8081/api/menu/${encodeURIComponent(itemName)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        fetchStock();
+      }
+    </script>
+  </main>
 </body>
 </html>
