@@ -1,11 +1,8 @@
-// Admin authentication check endpoint
 // ...existing code...
 
 // Place this after app is initialized
 // Admin authentication check endpoint
-app.get('/api/admin/check', requireAdminAuth, (req, res) => {
-  res.json({ authenticated: true });
-});
+// (Moved below app initialization)
 require('dotenv').config();
 
 // --- REFUND ENDPOINT ---
@@ -33,10 +30,16 @@ app.use(express.json());
 
 // Serve static files from the public directory
 const path = require('path');
+
+// Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve index.html at root
-// Serve different root page based on ADMIN_DASHBOARD env variable
+// Admin authentication check endpoint (now correctly placed)
+app.get('/api/admin/check', requireAdminAuth, (req, res) => {
+  res.json({ authenticated: true });
+});
+
+// Serve index.html or admin-menu.html at root
 app.get('/', (req, res) => {
   if (process.env.ADMIN_DASHBOARD === 'true') {
     res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
