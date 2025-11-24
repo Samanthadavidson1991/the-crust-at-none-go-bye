@@ -21,7 +21,9 @@ const app = express();
 if (!process.env.PORT) {
   throw new Error('PORT environment variable is required. This app must be run with process.env.PORT set (e.g., by Render).');
 }
+
 const PORT = process.env.PORT;
+console.log('ADMIN_DASHBOARD:', process.env.ADMIN_DASHBOARD);
 
 
 app.use(cors());
