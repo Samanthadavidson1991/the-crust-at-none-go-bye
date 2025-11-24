@@ -44,8 +44,10 @@ app.get('/api/admin/check', requireAdminAuth, (req, res) => {
 // Serve index.html or admin-menu.html at root
 app.get('/', (req, res) => {
   if (process.env.ADMIN_DASHBOARD === 'true') {
+    console.log('Serving admin-menu.html');
     res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
   } else {
+    console.log('Serving index.html');
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   }
 });
