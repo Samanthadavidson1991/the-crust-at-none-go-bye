@@ -12,7 +12,7 @@
 }
 /* Solid background for admin pages */
 .admin-page {
-    background: #f3f7ef;
+    /* background removed to allow logo background image to show */
     min-height: 100vh;
 }
 /* Highlight selected payment button */
