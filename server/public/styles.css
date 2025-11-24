@@ -209,6 +209,11 @@ header {
     padding: 30px 0 10px 0;
     color:#111;
 }
+html {
+    height: 100%;
+    background: url('/assets/pizza-shop-logo%20-%20Copy.png') center center/cover no-repeat, #fff;
+    background-attachment: fixed;
+}
 body {
     color: #111;
     text-align: center;
@@ -216,11 +221,8 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background: url('/assets/pizza-shop-logo%20-%20Copy.png') center center/cover no-repeat, #fff;
+    background: transparent;
     position: relative;
-}
-    background-attachment: fixed;
-    /* Make background image lighter for better contrast */
     font-family: 'Quicksand', Arial, sans-serif;
     /* color and alignment reverted to original */
 }
