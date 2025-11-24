@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | None Go Bye</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .login-container { max-width: 400px; margin: 80px auto; background: #f3f7ef; border-radius: 16px; padding: 32px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .login-container h2 { margin-top: 0; }
+    .login-form label { display: block; margin-bottom: 8px; font-weight: bold; }
+    .login-form input { width: 100%; padding: 10px; margin-bottom: 18px; border-radius: 8px; border: 1px solid #ccc; }
+    .login-form button { background: #b9472e; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-weight: bold; cursor: pointer; width: 100%; }
+    .login-error { color: #b9472e; font-weight: bold; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Admin Login</h2>
+    <form class="login-form" id="login-form">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required autocomplete="username">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required autocomplete="current-password">
+      <div class="login-error" id="login-error" style="display:none;"></div>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('login-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        window.location.href = 'admin-menu.html';
+      } else {
+        const data = await res.json();
+        document.getElementById('login-error').textContent = data.error || 'Login failed.';
+        document.getElementById('login-error').style.display = 'block';
+      }
+    };
+  </script>
+</body>
+</html>
