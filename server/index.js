@@ -41,16 +41,7 @@ app.get('/api/admin/check', requireAdminAuth, (req, res) => {
   res.json({ authenticated: true });
 });
 
-// Serve index.html or admin-menu.html at root
-app.get('/', (req, res) => {
-  if ((process.env.ADMIN_DASHBOARD || '').trim().toLowerCase() === 'true') {
-    console.log('Redirecting / to /admin-menu.html');
-    return res.redirect('/admin-menu.html');
-  } else {
-    console.log('Serving index.html');
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  }
-});
+// ...existing code...
 
 
 
