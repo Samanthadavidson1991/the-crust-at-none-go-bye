@@ -33,8 +33,9 @@ app.use(express.json());
 // Serve static files from the public directory
 const path = require('path');
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve only assets and styles.css as static files
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
 
 // Admin authentication check endpoint (now correctly placed)
 app.get('/api/admin/check', requireAdminAuth, (req, res) => {
