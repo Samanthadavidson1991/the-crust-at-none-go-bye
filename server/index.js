@@ -33,9 +33,14 @@ app.use(express.json());
 // Serve static files from the public directory
 const path = require('path');
 
-// Serve only assets and styles.css as static files
-app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
-app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
+if (process.env.ADMIN_DASHBOARD === 'true') {
+  // Admin: only serve assets and styles
+  app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+  app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
+} else {
+  // Main site: serve all static files (including index.html at root)
+  app.use(express.static(path.join(__dirname, 'public')));
+}
 
 // Admin authentication check endpoint (now correctly placed)
 app.get('/api/admin/check', requireAdminAuth, (req, res) => {
