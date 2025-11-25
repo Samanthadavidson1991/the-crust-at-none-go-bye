@@ -37,6 +37,10 @@ if (process.env.ADMIN_DASHBOARD === 'true') {
   // Admin: only serve assets and styles
   app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
   app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
+  // Serve admin dashboard at root
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+  });
 } else {
   // Main site: serve all static files (including index.html at root)
   app.use(express.static(path.join(__dirname, 'public')));
