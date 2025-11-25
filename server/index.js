@@ -41,6 +41,11 @@ if (process.env.ADMIN_DASHBOARD === 'true') {
   app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
   });
+  // Serve login.html explicitly
+  app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  });
+  // Add more explicit admin HTML routes as needed
 } else {
   // Main site: serve all static files (including index.html at root)
   app.use(express.static(path.join(__dirname, 'public')));
