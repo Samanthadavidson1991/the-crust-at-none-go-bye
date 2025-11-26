@@ -54,7 +54,7 @@ mongoose.connect(atlasUri)
         collectionName: 'sessions',
         ttl: 60 * 60 * 24, // 1 day
       }),
-      cookie: { httpOnly: true, sameSite: 'lax', secure: false }
+      cookie: { httpOnly: true, sameSite: 'lax', secure: true }
     }));
     // Then CORS and JSON body parser
     app.use(cors());
