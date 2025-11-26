@@ -39,7 +39,8 @@
         await fetch(`http://localhost:8081/api/orders/${order._id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'Accepted' })
+          body: JSON.stringify({ status: 'Accepted' }),
+          credentials: 'include'
         });
       } catch {}
       toast.remove();
@@ -49,7 +50,8 @@
         await fetch(`http://localhost:8081/api/orders/${order._id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'Declined' })
+          body: JSON.stringify({ status: 'Declined' }),
+          credentials: 'include'
         });
       } catch {}
       toast.remove();
@@ -60,7 +62,7 @@
     if (polling) return;
     polling = true;
     try {
-      const res = await fetch('http://localhost:8081/api/orders');
+      const res = await fetch('http://localhost:8081/api/orders', { credentials: 'include' });
       if (!res.ok) return;
       const orders = await res.json();
       const ids = Array.isArray(orders) ? orders.map(o => o._id) : [];
