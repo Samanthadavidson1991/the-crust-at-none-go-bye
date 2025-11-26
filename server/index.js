@@ -62,7 +62,7 @@ mongoose.connect(atlasUri)
       }
     }));
     // CORS with credentials for cross-origin cookies
-    app.use(cors({ origin: 'https://admin.thecrustatngb.co.uk', credentials: true }));
+    app.use(cors({ origin: 'https://the-crust-at-none-go-bye-admin.onrender.com', credentials: true }));
     app.use(express.json());
 
     // --- ROUTES ---

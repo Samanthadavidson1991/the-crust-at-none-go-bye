@@ -283,7 +283,7 @@
       loading.style.display = '';
       content.classList.add('d-none');
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/menu', { credentials: 'include' });
+        const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
         const menu = await res.json();
         renderAdminMenu(menu);
         loading.style.display = 'none';
@@ -328,7 +328,7 @@
     }
     // --- Pizza Master Toppings Section ---
     async function fetchPizzaMasterToppings() {
-      const res = await fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock', { credentials: 'include' });
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
       const toppings = await res.json();
       renderPizzaMasterToppings(toppings);
     }
@@ -414,7 +414,7 @@
             saveBtn.textContent = 'Save';
             saveBtn.style.marginLeft = '8px';
             saveBtn.onclick = async () => {
-              const res = await fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock');
+              const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock');
               let allToppings = await res.json();
               const idx = allToppings.findIndex(x => x.topping === t.topping);
               if (idx > -1) {
@@ -424,7 +424,7 @@
                   type: typeSelect.value,
                   price: parseFloat(priceInput.value)
                 };
-                await fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock', {
+                await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ toppingStatus: allToppings })
@@ -458,10 +458,10 @@
     }
 
     async function deletePizzaMasterTopping(name) {
-      const res = await fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock', { credentials: 'include' });
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       toppings = toppings.filter(t => t.topping !== name);
-      await fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock', {
+      await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ toppingStatus: toppings }),
@@ -494,11 +494,11 @@
       const type = pizzaMasterToppingType.value;
       const price = parseFloat(pizzaMasterToppingPrice.value);
       if (!name || !type || isNaN(price)) return;
-      const res = await fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock', { credentials: 'include' });
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       let toppingObj = { topping: name, outOfStock: false, type, price };
       toppings.push(toppingObj);
-      await fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock', {
+      await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ toppingStatus: toppings }),
@@ -512,7 +512,7 @@
 
     // --- Salad Master Toppings Section ---
     async function fetchSaladMasterToppings() {
-      const res = await fetch('https://admin.thecrustatngb.co.uk/api/salad-topping-stock', { credentials: 'include' });
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock', { credentials: 'include' });
       const toppings = await res.json();
       renderSaladMasterToppings(toppings);
     }
@@ -598,7 +598,7 @@
             saveBtn.textContent = 'Save';
             saveBtn.style.marginLeft = '8px';
             saveBtn.onclick = async () => {
-              const res = await fetch('https://admin.thecrustatngb.co.uk/api/salad-topping-stock');
+              const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock');
               let allToppings = await res.json();
               const idx = allToppings.findIndex(x => x.topping === t.topping);
               if (idx > -1) {
@@ -608,7 +608,7 @@
                   type: typeSelect.value,
                   price: parseFloat(priceInput.value)
                 };
-                await fetch('https://admin.thecrustatngb.co.uk/api/salad-topping-stock', {
+                await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ toppingStatus: allToppings })
@@ -642,10 +642,10 @@
     }
 
     async function deleteSaladMasterTopping(name) {
-      const res = await fetch('https://admin.thecrustatngb.co.uk/api/salad-topping-stock', { credentials: 'include' });
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       toppings = toppings.filter(t => t.topping !== name);
-      await fetch('https://admin.thecrustatngb.co.uk/api/salad-topping-stock', {
+      await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ toppingStatus: toppings }),
@@ -678,11 +678,11 @@
       const type = saladMasterToppingType.value;
       const price = parseFloat(saladMasterToppingPrice.value);
       if (!name || !type || isNaN(price)) return;
-      const res = await fetch('https://admin.thecrustatngb.co.uk/api/salad-topping-stock', { credentials: 'include' });
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       let toppingObj = { topping: name, outOfStock: false, type, price };
       toppings.push(toppingObj);
-      await fetch('https://admin.thecrustatngb.co.uk/api/salad-topping-stock', {
+      await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ toppingStatus: toppings }),
@@ -763,7 +763,7 @@
           data[key] = value;
         }
       }
-      await fetch('https://admin.thecrustatngb.co.uk/api/menu', {
+      await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
