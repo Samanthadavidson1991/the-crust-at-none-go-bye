@@ -54,7 +54,12 @@ mongoose.connect(atlasUri)
         collectionName: 'sessions',
         ttl: 60 * 60 * 24, // 1 day
       }),
-      cookie: { httpOnly: true, sameSite: 'none', secure: true }
+      cookie: {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+        domain: '.thecrustatngb.co.uk' // Ensures cookie is sent to all subdomains
+      }
     }));
     // CORS with credentials for cross-origin cookies
     app.use(cors({ origin: 'https://admin.thecrustatngb.co.uk', credentials: true }));
