@@ -74,6 +74,8 @@ mongoose.connect(atlasUri)
   .then(() => {
     console.log('MongoDB connected!');
     // MongoDB connected, now initialize session store
+
+    // Session middleware must come first
     app.use(session({
       secret: SESSION_SECRET,
       resave: false,
@@ -85,6 +87,9 @@ mongoose.connect(atlasUri)
       }),
       cookie: { httpOnly: true, sameSite: 'lax', secure: false }
     }));
+    // Then CORS and JSON body parser
+    app.use(cors());
+    app.use(express.json());
 
     // --- ROUTES ---
     // Static file serving and HTML routes
