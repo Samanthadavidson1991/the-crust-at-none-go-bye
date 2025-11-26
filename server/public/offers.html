@@ -69,7 +69,7 @@
     let vouchers = [];
 
     async function fetchOffers() {
-      const res = await fetch('/api/offers');
+      const res = await fetch('/api/offers', { credentials: 'include' });
       offers = await res.json();
       renderOffers();
       renderVoucherOfferSelect();
@@ -99,7 +99,7 @@
     }
 
     async function removeOffer(id) {
-      await fetch('/api/offers/' + id, { method: 'DELETE' });
+      await fetch('/api/offers/' + id, { method: 'DELETE', credentials: 'include' });
       fetchOffers();
     }
 
@@ -116,6 +116,7 @@
       await fetch('/api/offers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ title, desc, sections, price, startDate, endDate })
       });
       fetchOffers();
@@ -125,7 +126,7 @@
 
     // --- Voucher Code Management ---
     async function fetchVouchers() {
-      const res = await fetch('/api/vouchers');
+      const res = await fetch('/api/vouchers', { credentials: 'include' });
       vouchers = await res.json();
       renderVouchers();
     }
@@ -143,6 +144,7 @@
       await fetch('/api/vouchers/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ offerId, expiresInDays: days, price })
       });
       fetchVouchers();

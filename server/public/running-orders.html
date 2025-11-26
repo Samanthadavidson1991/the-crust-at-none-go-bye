@@ -75,7 +75,7 @@
       tbody.innerHTML = '<tr><td colspan="4">Loading orders...</td></tr>';
   const now = new Date();
   try {
-        const res = await fetch('http://localhost:8081/api/orders');
+        const res = await fetch('http://localhost:8081/api/orders', { credentials: 'include' });
         const orders = await res.json();
         const todaysOrders = orders.filter(o => o.createdAt && isToday(o.createdAt));
         // Sort by timeSlot (earliest first), then by creation time (oldest first)
@@ -115,6 +115,7 @@
               const res = await fetch('https://api.postcodes.io/postcodes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                // No credentials needed for external API
                 body: JSON.stringify({ postcodes: ['LS18 5HZ', order.address.postcode] })
               });
               const data = await res.json();

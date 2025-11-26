@@ -86,7 +86,7 @@
     // --- DELIVERY DISTANCE ---
     async function loadDeliveryDistance() {
       try {
-        const res = await fetch('/api/delivery-distance');
+        const res = await fetch('/api/delivery-distance', { credentials: 'include' });
         if (!res.ok) throw new Error('Failed to load');
         const data = await res.json();
         document.getElementById('delivery-distance').value = data.miles || 5;
@@ -101,6 +101,7 @@
         const res = await fetch('/api/delivery-distance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ miles })
         });
         if (!res.ok) throw new Error('Failed to save');
@@ -117,7 +118,7 @@
       // Get opening/closing times for the selected day
       let times;
       try {
-        const res = await fetch('/api/opening-times');
+        const res = await fetch('/api/opening-times', { credentials: 'include' });
         times = await res.json();
       } catch (err) {
         document.getElementById('generate-slots-status').textContent = 'Error loading opening times.';
@@ -144,6 +145,7 @@
       await fetch('/api/timeslots/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ slots })
       });
       document.getElementById('generate-slots-status').textContent = 'Slots generated!';
@@ -163,7 +165,7 @@
 
     async function fetchOpeningTimes() {
       try {
-        const res = await fetch('http://localhost:8081/api/opening-times');
+        const res = await fetch('http://localhost:8081/api/opening-times', { credentials: 'include' });
         const times = await res.json();
         // Helper to ensure valid time string
         function safeTime(val) {
@@ -202,6 +204,7 @@
       await fetch('http://localhost:8081/api/opening-times', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ friday, saturday, sunday })
       });
       document.getElementById('opening-times-status').textContent = 'Saved!';
@@ -233,6 +236,7 @@
         await fetch('http://localhost:8081/api/timeslots/batch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ slots })
         });
       }
@@ -243,7 +247,7 @@
       const listDiv = document.getElementById('timeslot-list');
       listDiv.textContent = 'Loading...';
       try {
-        const res = await fetch('http://localhost:8081/api/timeslots');
+        const res = await fetch('http://localhost:8081/api/timeslots', { credentials: 'include' });
         const slots = await res.json();
         if (!Array.isArray(slots) || slots.length === 0) {
           listDiv.textContent = 'No time slots yet.';
@@ -287,6 +291,7 @@
       await fetch('http://localhost:8081/api/timeslots', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ time, doughLimit })
       });
       input.value = '';
@@ -295,7 +300,8 @@
 
     async function deleteTimeSlot(id) {
       await fetch(`http://localhost:8081/api/timeslots/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       });
       fetchTimeSlots();
     }
@@ -602,6 +608,7 @@
             await fetch(`http://localhost:8081/api/timeslots/${id}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({ deliveryAmount: newVal })
             });
           });

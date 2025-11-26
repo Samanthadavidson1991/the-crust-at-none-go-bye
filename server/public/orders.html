@@ -124,13 +124,13 @@
       // selectedDate: string YYYY-MM-DD
       // Fetch order counts by name
       try {
-        const countsRes = await fetch('http://localhost:8081/api/order-counts');
+        const countsRes = await fetch('http://localhost:8081/api/order-counts', { credentials: 'include' });
         orderCountsByName = await countsRes.json();
       } catch { orderCountsByName = {}; }
       // Fetch delivery distance limit
       let deliveryLimit = 5;
       try {
-        const distRes = await fetch('http://localhost:8081/api/delivery-distance');
+        const distRes = await fetch('http://localhost:8081/api/delivery-distance', { credentials: 'include' });
         const distData = await distRes.json();
         if (distData && typeof distData.miles === 'number') deliveryLimit = distData.miles;
       } catch {}
@@ -141,14 +141,14 @@
       // Fetch menu to get gluten free items
       let glutenFreeNames = [];
       try {
-        const menuRes = await fetch('http://localhost:8081/api/menu');
+        const menuRes = await fetch('http://localhost:8081/api/menu', { credentials: 'include' });
         const menu = await menuRes.json();
         glutenFreeNames = menu.filter(item => item.glutenFree).map(item => item.name.toLowerCase());
       } catch {}
       try {
         let url = 'http://localhost:8081/api/orders';
         if (selectedDate) url += `?date=${selectedDate}`;
-        const res = await fetch(url);
+        const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
         if (!Array.isArray(orders) || !orders.length) {
           tbody.innerHTML = '<tr><td colspan="12">No orders found.</td></tr>';
@@ -398,7 +398,7 @@
                   // Fetch order details (from already loaded orders)
                   let order = null;
                   try {
-                    const orders = await (await fetch('http://localhost:8081/api/orders')).json();
+                    const orders = await (await fetch('http://localhost:8081/api/orders', { credentials: 'include' })).json();
                     order = orders.find(o => o._id === orderId);
                   } catch {}
                   if (!order) return;
@@ -491,6 +491,7 @@
                       const res = await fetch(`http://localhost:8081/api/orders/${orderId}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
                         body: JSON.stringify({
                           name,
                           type,
@@ -562,6 +563,7 @@
                     const res = await fetch(`http://localhost:8081/api/orders/${orderId}/refund`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
                       body: JSON.stringify({ refundAmount: refund, refundReason: reason })
                     });
                     if (!res.ok) {
@@ -586,6 +588,7 @@
             const res = await fetch(`http://localhost:8081/api/orders/${orderId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({ status: newStatus })
             });
             if (!res.ok) throw new Error('Failed to update order');
@@ -609,7 +612,7 @@
           let order = orderObj;
           if (!order) {
             try {
-              const orders = await (await fetch('http://localhost:8081/api/orders')).json();
+              const orders = await (await fetch('http://localhost:8081/api/orders', { credentials: 'include' })).json();
               order = orders.find(o => o._id === orderId);
             } catch { return; }
           }

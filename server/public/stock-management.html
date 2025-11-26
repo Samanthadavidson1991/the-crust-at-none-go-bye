@@ -75,7 +75,7 @@
 
       async function fetchDoughStock() {
         try {
-          const res = await fetch('http://localhost:8081/api/dough-stock');
+          const res = await fetch('http://localhost:8081/api/dough-stock', { credentials: 'include' });
           const data = await res.json();
           document.getElementById('dough-stock-input').value = data.stock || 0;
           document.getElementById('dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
@@ -90,6 +90,7 @@
         await fetch('http://localhost:8081/api/dough-stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ stock: val })
         });
         fetchDoughStock();
@@ -97,7 +98,7 @@
 
       async function fetchGFDoughStock() {
         try {
-          const res = await fetch('http://localhost:8081/api/gf-dough-stock');
+          const res = await fetch('http://localhost:8081/api/gf-dough-stock', { credentials: 'include' });
           const data = await res.json();
           document.getElementById('gf-dough-stock-input').value = data.stock || 0;
           document.getElementById('gf-dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
@@ -112,6 +113,7 @@
         await fetch('http://localhost:8081/api/gf-dough-stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ stock: val })
         });
         fetchGFDoughStock();
@@ -121,7 +123,7 @@
         const toppingsDiv = document.getElementById('toppings-list');
         toppingsDiv.textContent = 'Loading toppings...';
         try {
-          const res = await fetch('http://localhost:8081/api/menu');
+          const res = await fetch('http://localhost:8081/api/menu', { credentials: 'include' });
           const menu = await res.json();
           let toppingsSet = new Set();
           menu.forEach(item => {
@@ -138,7 +140,7 @@
             toppingsDiv.textContent = 'No toppings found.';
             return;
           }
-          const stockRes = await fetch('http://localhost:8081/api/topping-stock');
+          const stockRes = await fetch('http://localhost:8081/api/topping-stock', { credentials: 'include' });
           const toppingStock = await stockRes.json();
           const outOfStockSet = new Set(toppingStock.filter(t => t.outOfStock).map(t => t.topping));
           toppingsDiv.innerHTML = `<table class="stock-table mt-0">
@@ -171,6 +173,7 @@
           await fetch('http://localhost:8081/api/topping-stock', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ toppingStatus })
           });
         }
@@ -180,7 +183,7 @@
         const loading = document.getElementById('stock-loading');
         const table = document.getElementById('stock-table');
         const tbody = document.getElementById('stock-table-body');
-        fetch('http://localhost:8081/api/menu')
+        fetch('http://localhost:8081/api/menu', { credentials: 'include' })
           .then(res => res.json())
           .then(menu => {
             tbody.innerHTML = '';
@@ -235,6 +238,7 @@
         await fetch('http://localhost:8081/api/stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ name: itemName, stock: newStock })
         });
         fetchStock();
@@ -246,6 +250,7 @@
         await fetch(`http://localhost:8081/api/menu/${encodeURIComponent(itemName)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(body)
         });
         fetchStock();
