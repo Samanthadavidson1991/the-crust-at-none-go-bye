@@ -61,6 +61,12 @@ mongoose.connect(atlasUri)
     app.use(express.json());
 
     // --- ROUTES ---
+    // Helper: Admin authentication middleware
+    function requireAdminAuth(req, res, next) {
+      if (req.session && req.session.isAdmin) return next();
+      res.status(401).json({ error: 'Not authenticated' });
+    }
+
     // Static file serving and HTML routes
     if (process.env.ADMIN_DASHBOARD === 'true') {
       app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
@@ -108,8 +114,6 @@ mongoose.connect(atlasUri)
 
     // All other API routes (move all app.get/app.post/app.patch/app.delete here)
     // ...existing API route definitions from your file...
-
-
 
     // All route definitions are now inside mongoose.connect .then()
   }) // <-- Add this closing brace to end .then()
