@@ -124,13 +124,13 @@
       // selectedDate: string YYYY-MM-DD
       // Fetch order counts by name
       try {
-        const countsRes = await fetch('http://localhost:8081/api/order-counts', { credentials: 'include' });
+        const countsRes = await fetch('https://admin.thecrustatngb.co.uk/api/order-counts', { credentials: 'include' });
         orderCountsByName = await countsRes.json();
       } catch { orderCountsByName = {}; }
       // Fetch delivery distance limit
       let deliveryLimit = 5;
       try {
-        const distRes = await fetch('http://localhost:8081/api/delivery-distance', { credentials: 'include' });
+        const distRes = await fetch('https://admin.thecrustatngb.co.uk/api/delivery-distance', { credentials: 'include' });
         const distData = await distRes.json();
         if (distData && typeof distData.miles === 'number') deliveryLimit = distData.miles;
       } catch {}
@@ -141,12 +141,12 @@
       // Fetch menu to get gluten free items
       let glutenFreeNames = [];
       try {
-        const menuRes = await fetch('http://localhost:8081/api/menu', { credentials: 'include' });
+        const menuRes = await fetch('https://admin.thecrustatngb.co.uk/api/menu', { credentials: 'include' });
         const menu = await menuRes.json();
         glutenFreeNames = menu.filter(item => item.glutenFree).map(item => item.name.toLowerCase());
       } catch {}
       try {
-        let url = 'http://localhost:8081/api/orders';
+        let url = 'https://admin.thecrustatngb.co.uk/api/orders';
         if (selectedDate) url += `?date=${selectedDate}`;
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
@@ -398,7 +398,7 @@
                   // Fetch order details (from already loaded orders)
                   let order = null;
                   try {
-                    const orders = await (await fetch('http://localhost:8081/api/orders', { credentials: 'include' })).json();
+                    const orders = await (await fetch('https://admin.thecrustatngb.co.uk/api/orders', { credentials: 'include' })).json();
                     order = orders.find(o => o._id === orderId);
                   } catch {}
                   if (!order) return;
@@ -488,7 +488,7 @@
                     }
                     // PATCH request
                     try {
-                      const res = await fetch(`http://localhost:8081/api/orders/${orderId}`, {
+                      const res = await fetch(`https://admin.thecrustatngb.co.uk/api/orders/${orderId}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
@@ -560,7 +560,7 @@
                     return;
                   }
                   try {
-                    const res = await fetch(`http://localhost:8081/api/orders/${orderId}/refund`, {
+                    const res = await fetch(`https://admin.thecrustatngb.co.uk/api/orders/${orderId}/refund`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       credentials: 'include',
@@ -585,7 +585,7 @@
         // Accept/Decline order status
         window.updateOrderStatus = async function(orderId, newStatus) {
           try {
-            const res = await fetch(`http://localhost:8081/api/orders/${orderId}`, {
+            const res = await fetch(`https://admin.thecrustatngb.co.uk/api/orders/${orderId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
@@ -595,7 +595,7 @@
             // If accepted, auto-print two copies
             if (newStatus === 'Accepted') {
               // Find the order in the current orders list
-              const order = (await (await fetch('http://localhost:8081/api/orders')).json()).find(o => o._id === orderId);
+              const order = (await (await fetch('https://admin.thecrustatngb.co.uk/api/orders')).json()).find(o => o._id === orderId);
               if (order) {
                 printOrder(orderId, order, 2);
               }
@@ -612,7 +612,7 @@
           let order = orderObj;
           if (!order) {
             try {
-              const orders = await (await fetch('http://localhost:8081/api/orders', { credentials: 'include' })).json();
+              const orders = await (await fetch('https://admin.thecrustatngb.co.uk/api/orders', { credentials: 'include' })).json();
               order = orders.find(o => o._id === orderId);
             } catch { return; }
           }

@@ -38,8 +38,8 @@
       async function fetchDoughStocks() {
         try {
           const [doughRes, gfRes] = await Promise.all([
-            fetch('http://localhost:8081/api/dough-stock'),
-            fetch('http://localhost:8081/api/gf-dough-stock')
+            fetch('https://admin.thecrustatngb.co.uk/api/dough-stock'),
+            fetch('https://admin.thecrustatngb.co.uk/api/gf-dough-stock')
           ]);
           doughStock = (await doughRes.json()).stock;
           gfDoughStock = (await gfRes.json()).stock;
@@ -103,8 +103,8 @@
         fetchSpecialOffers();
         try {
           const [menuRes, toppingsRes] = await Promise.all([
-            fetch('http://localhost:8081/api/menu'),
-            fetch('http://localhost:8081/api/pizza-topping-stock')
+            fetch('https://admin.thecrustatngb.co.uk/api/menu'),
+            fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock')
           ]);
           if (!menuRes.ok) throw new Error('Menu fetch failed');
           if (!toppingsRes.ok) throw new Error('Toppings fetch failed');

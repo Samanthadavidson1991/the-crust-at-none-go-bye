@@ -69,7 +69,7 @@
       const monday = getMonday(selected);
       const lastSunday = getLastSundayOfMonth(selected);
       const yyyyMMdd = d => d.toISOString().slice(0, 10);
-      let url = `http://localhost:8081/api/orders?from=${yyyyMMdd(new Date(selected.getFullYear(), selected.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
+      let url = `https://admin.thecrustatngb.co.uk/api/orders?from=${yyyyMMdd(new Date(selected.getFullYear(), selected.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
       try {
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();

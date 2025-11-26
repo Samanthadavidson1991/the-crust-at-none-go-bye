@@ -75,7 +75,7 @@
 
       async function fetchDoughStock() {
         try {
-          const res = await fetch('http://localhost:8081/api/dough-stock');
+          const res = await fetch('https://admin.thecrustatngb.co.uk/api/dough-stock');
           const data = await res.json();
           document.getElementById('dough-stock-input').value = data.stock || 0;
           document.getElementById('dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
@@ -87,7 +87,7 @@
       async function updateDoughStock() {
         const val = parseInt(document.getElementById('dough-stock-input').value, 10);
         if (isNaN(val) || val < 0) return;
-        await fetch('http://localhost:8081/api/dough-stock', {
+        await fetch('https://admin.thecrustatngb.co.uk/api/dough-stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stock: val })
@@ -97,7 +97,7 @@
 
       async function fetchGFDoughStock() {
         try {
-          const res = await fetch('http://localhost:8081/api/gf-dough-stock');
+          const res = await fetch('https://admin.thecrustatngb.co.uk/api/gf-dough-stock');
           const data = await res.json();
           document.getElementById('gf-dough-stock-input').value = data.stock || 0;
           document.getElementById('gf-dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
@@ -109,7 +109,7 @@
       async function updateGFDoughStock() {
         const val = parseInt(document.getElementById('gf-dough-stock-input').value, 10);
         if (isNaN(val) || val < 0) return;
-        await fetch('http://localhost:8081/api/gf-dough-stock', {
+        await fetch('https://admin.thecrustatngb.co.uk/api/gf-dough-stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stock: val })
@@ -121,7 +121,7 @@
         const toppingsDiv = document.getElementById('toppings-list');
         toppingsDiv.textContent = 'Loading toppings...';
         try {
-          const res = await fetch('http://localhost:8081/api/menu');
+          const res = await fetch('https://admin.thecrustatngb.co.uk/api/menu');
           const menu = await res.json();
           let toppingsSet = new Set();
           menu.forEach(item => {
@@ -138,7 +138,7 @@
             toppingsDiv.textContent = 'No toppings found.';
             return;
           }
-          const stockRes = await fetch('http://localhost:8081/api/topping-stock');
+          const stockRes = await fetch('https://admin.thecrustatngb.co.uk/api/topping-stock');
           const toppingStock = await stockRes.json();
           const outOfStockSet = new Set(toppingStock.filter(t => t.outOfStock).map(t => t.topping));
           toppingsDiv.innerHTML = `<table class="stock-table mt-0">
@@ -168,7 +168,7 @@
             topping: cb.getAttribute('data-topping'),
             outOfStock: cb.checked
           }));
-          await fetch('http://localhost:8081/api/topping-stock', {
+          await fetch('https://admin.thecrustatngb.co.uk/api/topping-stock', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ toppingStatus })
@@ -180,7 +180,7 @@
         const loading = document.getElementById('stock-loading');
         const table = document.getElementById('stock-table');
         const tbody = document.getElementById('stock-table-body');
-        fetch('http://localhost:8081/api/menu')
+        fetch('https://admin.thecrustatngb.co.uk/api/menu')
           .then(res => res.json())
           .then(menu => {
             tbody.innerHTML = '';
@@ -232,7 +232,7 @@
       async function updateStock(itemName) {
         const input = document.getElementById(`stock-${itemName}`);
         const newStock = input.value;
-        await fetch('http://localhost:8081/api/stock', {
+        await fetch('https://admin.thecrustatngb.co.uk/api/stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: itemName, stock: newStock })
@@ -243,7 +243,7 @@
       async function updateDoughTracked(itemName, isTracked, isGF) {
         // Only send the changed property using PATCH
         const body = isGF ? { gfDoughTracked: isTracked } : { doughTracked: isTracked };
-        await fetch(`http://localhost:8081/api/menu/${encodeURIComponent(itemName)}`, {
+        await fetch(`https://admin.thecrustatngb.co.uk/api/menu/${encodeURIComponent(itemName)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)

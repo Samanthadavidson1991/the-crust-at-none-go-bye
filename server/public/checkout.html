@@ -77,7 +77,7 @@
       // --- POSTCODE DISTANCE CHECK ---
       async function getDeliveryDistanceLimit() {
         try {
-          const res = await fetch('http://localhost:8081/api/delivery-distance');
+          const res = await fetch('https://admin.thecrustatngb.co.uk/api/delivery-distance');
           if (!res.ok) throw new Error('Failed');
           const data = await res.json();
           return data.miles || 5;
@@ -295,7 +295,7 @@
           };
           // DEBUG: window.selectedPayment = ... (removed for production)
           try {
-            const res = await fetch('http://localhost:8081/api/orders', {
+            const res = await fetch('https://admin.thecrustatngb.co.uk/api/orders', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(orderData)

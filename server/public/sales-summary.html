@@ -75,7 +75,7 @@
       tbody.innerHTML = '<tr><td colspan="4">Loading orders...</td></tr>';
   const now = new Date();
   try {
-        const res = await fetch('http://localhost:8081/api/orders');
+        const res = await fetch('https://admin.thecrustatngb.co.uk/api/orders');
         const orders = await res.json();
         const todaysOrders = orders.filter(o => o.createdAt && isToday(o.createdAt));
         // Sort by timeSlot (earliest first), then by creation time (oldest first)
