@@ -109,46 +109,8 @@ mongoose.connect(atlasUri)
     // All other API routes (move all app.get/app.post/app.patch/app.delete here)
     // ...existing API route definitions from your file...
 
-    // --- DELIVERY DISTANCE ENDPOINTS ---
-    app.get('/api/delivery-distance', async (req, res) => {
-      let doc = await DeliveryDistance.findOne();
-      if (!doc) doc = await DeliveryDistance.create({ miles: 5 });
-      res.json({ miles: doc.miles });
-    });
-    app.post('/api/delivery-distance', async (req, res) => {
-      let doc = await DeliveryDistance.findOne();
-      const miles = typeof req.body.miles === 'number' ? req.body.miles : 5;
-      if (!doc) doc = await DeliveryDistance.create({ miles });
-      else { doc.miles = miles; await doc.save(); }
-      res.json({ message: 'Saved', miles: doc.miles });
-    });
-    // ...repeat for all other API routes...
 
-    // --- SPECIAL OFFERS API ---
-    const offersRouter = require('./offers');
-    app.use('/api/offers', offersRouter);
-    // --- VOUCHERS API ---
-    const vouchersRouter = require('./vouchers');
-    app.use('/api/vouchers', vouchersRouter);
-
-    // Global Express error handler (must be after all routes)
-    app.use((err, req, res, next) => {
-      res.status(500).json({ error: 'Internal server error', details: err.message });
-    });
-
-    // Start server only after session store and routes are ready
-    app.listen(PORT, '0.0.0.0', err => {
-      if (err) {
-        process.exit(1);
-      } else {
-        console.log(`Server running on port ${PORT}`);
-      }
-    });
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  });
+    // All route definitions are now inside mongoose.connect .then()
 
 function requireAdminAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
