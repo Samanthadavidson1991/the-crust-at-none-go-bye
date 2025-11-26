@@ -58,7 +58,7 @@ mongoose.connect(atlasUri)
         httpOnly: true,
         sameSite: 'none',
         secure: true,
-        domain: '.thecrustatngb.co.uk' // Ensures cookie is sent to all subdomains
+        // domain property removed for Render compatibility
       }
     }));
     // CORS with credentials for cross-origin cookies
