@@ -28,39 +28,7 @@ console.log('ADMIN_DASHBOARD:', process.env.ADMIN_DASHBOARD);
 
 app.use(cors());
 // Parse JSON request bodies
-app.use(express.json());
-
-// Serve static files from the public directory
-const path = require('path');
-
-if (process.env.ADMIN_DASHBOARD === 'true') {
-  // Admin: only serve assets and styles
-  app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
-  app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
-  // Serve admin dashboard at root
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
-  });
-  // Serve login.html explicitly
-  app.get('/login.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-  });
-  // Add more explicit admin HTML routes as needed
-} else {
-  // Main site: serve all static files (including index.html at root)
-  app.use(express.static(path.join(__dirname, 'public')));
-}
-
-// Admin authentication check endpoint (now correctly placed)
-app.get('/api/admin/check', requireAdminAuth, (req, res) => {
-  res.json({ authenticated: true });
-});
-
 // ...existing code...
-
-
-
-// --- MONGODB CONNECTION (Atlas, automated password) ---
 const dbUser = process.env.MONGO_ATLAS_USERNAME;
 const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
 const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
@@ -183,29 +151,7 @@ function requireAdminAuth(req, res, next) {
 }
 
 // Admin login endpoint
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  console.log('Login attempt:', { username, password });
-  try {
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      req.session.isAdmin = true;
-      console.log('Login success:', username);
-      return res.json({ success: true });
-    }
-    console.log('Login failed:', { username, password });
-    res.status(401).json({ error: 'Invalid credentials' });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Internal server error', details: err.message });
-  }
-});
-
-// Admin logout endpoint
-app.post('/api/admin/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.json({ success: true });
-  });
-});
+// (Removed duplicate admin login/logout routes)
 
 // --- DELIVERY DISTANCE CONFIG SCHEMA ---
 const deliveryDistanceSchema = new mongoose.Schema({
