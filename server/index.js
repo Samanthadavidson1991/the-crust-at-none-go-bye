@@ -3,6 +3,7 @@
 // Place this after app is initialized
 // Admin authentication check endpoint
 // (Moved below app initialization)
+const path = require('path');
 require('dotenv').config();
 
 // --- REFUND ENDPOINT ---
