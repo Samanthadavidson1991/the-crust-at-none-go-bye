@@ -68,6 +68,9 @@ mongoose.connect(atlasUri)
       app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       });
+      app.get('/admin-menu.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+      });
       app.get('/login.html', (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'login.html'));
       });
