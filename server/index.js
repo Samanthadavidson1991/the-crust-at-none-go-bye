@@ -57,7 +57,7 @@ mongoose.connect(atlasUri)
       cookie: { httpOnly: true, sameSite: 'none', secure: true }
     }));
     // CORS with credentials for cross-origin cookies
-    app.use(cors({ origin: true, credentials: true }));
+    app.use(cors({ origin: 'https://admin.thecrustatngb.co.uk', credentials: true }));
     app.use(express.json());
 
     // --- ROUTES ---
