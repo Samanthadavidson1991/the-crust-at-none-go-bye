@@ -108,11 +108,19 @@ function requireAdminAuth(req, res, next) {
 // Admin login endpoint
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    req.session.isAdmin = true;
-    return res.json({ success: true });
+  console.log('Login attempt:', { username, password });
+  try {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      req.session.isAdmin = true;
+      console.log('Login success:', username);
+      return res.json({ success: true });
+    }
+    console.log('Login failed:', { username, password });
+    res.status(401).json({ error: 'Invalid credentials' });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
-  res.status(401).json({ error: 'Invalid credentials' });
 });
 
 // Admin logout endpoint
