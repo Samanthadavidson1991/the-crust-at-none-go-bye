@@ -8,18 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .admin-nav { margin: 24px 0; }
-    .admin-nav a { font-size: 1.1rem; margin: 0 18px; color: #7c232a; text-decoration: underline; }
-    .admin-section { max-width: 700px; margin: 40px auto; background: #f3f7ef; border-radius: 16px; padding: 32px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .admin-section h2 { margin-top: 0; }
-    .menu-form input, .menu-form select { margin-bottom: 12px; width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc; }
-    .menu-form button { background: #b9472e; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-weight: bold; cursor: pointer; }
-    .menu-list { margin-top: 32px; }
-    .menu-item-admin { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; }
-    .menu-item-admin span { font-weight: bold; }
-    .menu-item-admin button { margin-left: 12px; }
-  </style>
+  <!-- Moved styles to styles.css -->
 </head>
 <body class="admin-page">
     <script>
@@ -49,49 +38,49 @@
     <main id="main-content">
     <section class="admin-section">
       <h2>Edit Menu</h2>
-      <div id="pizza-topping-master-section" style="margin-bottom:32px">
+      <div id="pizza-topping-master-section" class="mb-32">
         <h3>Pizza Master Toppings</h3>
-        <form id="addPizzaMasterToppingForm" style="margin-bottom:12px;display:flex;gap:8px;align-items:center">
-          <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required>
-          <select id="pizzaMasterToppingType" required>
+        <form id="addPizzaMasterToppingForm" class="mb-12 flex gap-8 align-center">
+          <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required title="Pizza topping name">
+          <select id="pizzaMasterToppingType" required title="Topping type">
             <option value="">Type</option>
             <option value="meat">Meat</option>
             <option value="vegetable">Vegetable</option>
             <option value="other">Other</option>
           </select>
-          <input type="number" id="pizzaMasterToppingPrice" placeholder="Price (£)" step="0.01" min="0" style="width:90px;" required>
+          <input type="number" id="pizzaMasterToppingPrice" placeholder="Price (£)" step="0.01" min="0" required title="Topping price">
           <button type="submit">Add Topping</button>
         </form>
-        <div style="display:flex;gap:40px">
-          <div style="flex:1">
+        <div class="flex gap-40">
+          <div class="flex-1">
             <h4>Meat</h4>
             <ul id="pizzaMeatToppingsList"></ul>
           </div>
-          <div style="flex:1">
+          <div class="flex-1">
             <h4>Vegetable</h4>
             <ul id="pizzaVegToppingsList"></ul>
           </div>
         </div>
       </div>
-      <div id="salad-topping-master-section" style="margin-bottom:32px">
+      <div id="salad-topping-master-section" class="mb-32">
         <h3>Salad Master Toppings</h3>
-        <form id="addSaladMasterToppingForm" style="margin-bottom:12px;display:flex;gap:8px;align-items:center">
-          <input type="text" id="saladMasterToppingInput" placeholder="Topping name" required>
-          <select id="saladMasterToppingType" required>
+        <form id="addSaladMasterToppingForm" class="mb-12 flex gap-8 align-center">
+          <input type="text" id="saladMasterToppingInput" placeholder="Topping name" required title="Salad topping name">
+          <select id="saladMasterToppingType" required title="Topping type">
             <option value="">Type</option>
             <option value="meat">Meat</option>
             <option value="vegetable">Vegetable</option>
             <option value="other">Other</option>
           </select>
-          <input type="number" id="saladMasterToppingPrice" placeholder="Price (£)" step="0.01" min="0" style="width:90px;" required>
+          <input type="number" id="saladMasterToppingPrice" placeholder="Price (£)" step="0.01" min="0" required title="Topping price">
           <button type="submit">Add Topping</button>
         </form>
-        <div style="display:flex;gap:40px">
-          <div style="flex:1">
+        <div class="flex gap-40">
+          <div class="flex-1">
             <h4>Meat</h4>
             <ul id="saladMeatToppingsList"></ul>
           </div>
-          <div style="flex:1">
+          <div class="flex-1">
             <h4>Vegetable</h4>
             <ul id="saladVegToppingsList"></ul>
           </div>
@@ -124,7 +113,7 @@
           <br><br>
           <label><b>Sizes & Prices:</b></label><br>
           <div id="sizesList"></div>
-          <select id="sizeNameInput" style="margin-bottom: 12px;">
+          <select id="sizeNameInput" class="mb-12" title="Size name">
             <option value="">Select size</option>
             <option value="12in">12in</option>
             <option value="8in">8in</option>

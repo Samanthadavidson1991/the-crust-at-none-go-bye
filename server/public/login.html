@@ -5,14 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login | None Go Bye</title>
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .login-container { max-width: 400px; margin: 80px auto; background: #f3f7ef; border-radius: 16px; padding: 32px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .login-container h2 { margin-top: 0; }
-    .login-form label { display: block; margin-bottom: 8px; font-weight: bold; }
-    .login-form input { width: 100%; padding: 10px; margin-bottom: 18px; border-radius: 8px; border: 1px solid #ccc; }
-    .login-form button { background: #b9472e; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-weight: bold; cursor: pointer; width: 100%; }
-    .login-error { color: #b9472e; font-weight: bold; margin-bottom: 12px; }
-  </style>
+  <!-- Moved styles to styles.css -->
 </head>
 <body>
   <div class="login-container">
@@ -22,7 +15,7 @@
       <input type="text" id="username" name="username" required autocomplete="username">
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required autocomplete="current-password">
-      <div class="login-error" id="login-error" style="display:none;"></div>
+      <div class="login-error" id="login-error" hidden></div>
       <button type="submit">Login</button>
     </form>
   </div>

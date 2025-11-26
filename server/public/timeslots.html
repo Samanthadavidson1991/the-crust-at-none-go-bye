@@ -6,16 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Time Slot Management | None Go Bye</title>
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .admin-section { max-width: 700px; margin: 40px auto; background: #f3f7ef; border-radius: 16px; padding: 32px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .admin-section h2 { margin-top: 0; }
-    .timeslot-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-    .timeslot-table th, .timeslot-table td { padding: 12px; border-bottom: 1px solid #ccc; text-align: left; }
-    .timeslot-table th { background: #e9ece5; }
-    .timeslot-table tr:last-child td { border-bottom: none; }
-    .action-btn { background: #b9472e; color: #fff; border: none; border-radius: 8px; padding: 6px 16px; font-weight: bold; cursor: pointer; }
-    .input { padding: 6px; border-radius: 6px; border: 1px solid #ccc; }
-  </style>
+  <!-- Moved styles to styles.css -->
 </head>
 <body class="admin-page">
     <script>
@@ -46,7 +37,7 @@
       <h3>Delivery Distance Limit</h3>
   <form id="delivery-distance-form" class="mb-24">
         <label for="delivery-distance">Max Delivery Distance (miles) from LS18 5HZ:</label>
-        <input type="number" id="delivery-distance" class="input" min="1" max="20" value="5" step="0.1" required>
+        <input type="number" id="delivery-distance" class="input" min="1" max="20" value="5" step="0.1" required title="Max delivery distance in miles" placeholder="e.g. 5">
         <button type="submit" class="action-btn">Save Distance</button>
   <span id="delivery-distance-status" class="ml-12 text-muted"></span>
       </form>
@@ -59,9 +50,9 @@
           <option value="sunday">Sunday</option>
         </select>
   <label for="slot-duration" class="ml-12">Duration (minutes):</label>
-        <input type="number" id="slot-duration" class="input" min="5" max="120" value="30" required>
+        <input type="number" id="slot-duration" class="input" min="5" max="120" value="30" required title="Slot duration in minutes" placeholder="e.g. 30">
   <label for="slot-dough-limit" class="ml-12">Dough per slot:</label>
-  <input type="number" id="slot-dough-limit" class="input" min="0" max="99" value="0" required>
+  <input type="number" id="slot-dough-limit" class="input" min="0" max="99" value="0" required title="Dough per slot" placeholder="e.g. 10">
         <button type="submit" class="action-btn">Generate Slots</button>
   <span id="generate-slots-status" class="ml-12 text-muted"></span>
       </form>
@@ -69,23 +60,23 @@
   <form id="opening-times-form" class="mb-24">
         <div>
           <label>Friday:</label>
-          <input type="time" id="friday-open" class="input" required title="Friday opening time" placeholder="Open"> -
+          <input type="time" id="friday-open" class="input" required title="Friday opening time" placeholder="Open">
           <input type="time" id="friday-close" class="input" required title="Friday closing time" placeholder="Close">
         </div>
         <div>
           <label>Saturday:</label>
-          <input type="time" id="saturday-open" class="input" required title="Saturday opening time" placeholder="Open"> -
+          <input type="time" id="saturday-open" class="input" required title="Saturday opening time" placeholder="Open">
           <input type="time" id="saturday-close" class="input" required title="Saturday closing time" placeholder="Close">
         </div>
         <div>
           <label>Sunday:</label>
-          <input type="time" id="sunday-open" class="input" required title="Sunday opening time" placeholder="Open"> -
+          <input type="time" id="sunday-open" class="input" required title="Sunday opening time" placeholder="Open">
           <input type="time" id="sunday-close" class="input" required title="Sunday closing time" placeholder="Close">
         </div>
         <button type="submit" class="action-btn">Save Opening Times</button>
   <span id="opening-times-status" class="ml-12 text-muted"></span>
       </form>
-        <input type="text" id="timeslot-input" class="input" placeholder="e.g. 17:00-17:30" required>
+        <input type="text" id="timeslot-input" class="input" placeholder="e.g. 17:00-17:30" required title="Time slot">
         <button type="submit" class="action-btn">Add Time Slot</button>
       </form>
       <div id="timeslot-list">Loading...</div>
@@ -95,7 +86,7 @@
     // --- DELIVERY DISTANCE ---
     async function loadDeliveryDistance() {
       try {
-        const res = await fetch('http://localhost:8081/api/delivery-distance');
+        const res = await fetch('/api/delivery-distance');
         if (!res.ok) throw new Error('Failed to load');
         const data = await res.json();
         document.getElementById('delivery-distance').value = data.miles || 5;
@@ -107,7 +98,7 @@
       e.preventDefault();
       const miles = parseFloat(document.getElementById('delivery-distance').value);
       try {
-        const res = await fetch('http://localhost:8081/api/delivery-distance', {
+        const res = await fetch('/api/delivery-distance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ miles })
@@ -126,7 +117,7 @@
       // Get opening/closing times for the selected day
       let times;
       try {
-        const res = await fetch('http://localhost:8081/api/opening-times');
+        const res = await fetch('/api/opening-times');
         times = await res.json();
       } catch (err) {
         document.getElementById('generate-slots-status').textContent = 'Error loading opening times.';
@@ -150,7 +141,7 @@
         start += duration;
       }
       // Send to backend
-      await fetch('http://localhost:8081/api/timeslots/batch', {
+      await fetch('/api/timeslots/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slots })

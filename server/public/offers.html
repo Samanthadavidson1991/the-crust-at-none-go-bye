@@ -5,16 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin – Special Offers | None Go Bye</title>
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .admin-section { max-width: 700px; margin: 40px auto; background: #f3f7ef; border-radius: 16px; padding: 32px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .admin-section h2 { margin-top: 0; }
-    .offer-list { margin-top: 32px; }
-    .offer-item { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; }
-    .offer-item span { font-weight: bold; }
-    .offer-item button { margin-left: 12px; }
-    .admin-nav { margin: 24px 0; }
-    .admin-nav a { font-size: 1.1rem; margin: 0 18px; color: #7c232a; text-decoration: underline; }
-  </style>
+  <!-- Moved styles to styles.css -->
 </head>
 <body class="admin-page">
   <script>
@@ -43,30 +34,30 @@
     <main id="main-content">
     <section class="admin-section">
       <h2>Manage Special Offers</h2>
-      <form id="add-offer-form" style="margin-bottom:24px;display:flex;flex-direction:column;gap:12px;align-items:flex-start">
-        <input type="text" id="offerTitle" placeholder="Offer title (e.g. Family Pizza Night)" required style="width:100%">
-        <textarea id="offerDesc" placeholder="Main offer wording (e.g. Any 2 pizzas, 2 sides, and a drink for £25)" required style="width:100%"></textarea>
-        <div style="display:flex;gap:8px;width:100%">
+      <form id="add-offer-form" class="mb-24 flex flex-col gap-12 align-start">
+        <input type="text" id="offerTitle" placeholder="Offer title (e.g. Family Pizza Night)" required title="Offer title" class="w-100">
+        <textarea id="offerDesc" placeholder="Main offer wording (e.g. Any 2 pizzas, 2 sides, and a drink for £25)" required title="Offer description" class="w-100"></textarea>
+        <div class="flex gap-8 w-100">
           <input type="text" class="offer-section" placeholder="Section (e.g. Pizzas)">
           <input type="text" class="offer-section" placeholder="Section (e.g. Sides)">
           <input type="text" class="offer-section" placeholder="Section (optional)">
           <input type="text" class="offer-section" placeholder="Section (optional)">
         </div>
-        <input type="number" id="offerPrice" placeholder="Offer Price (£)" step="0.01" min="0" style="width:180px;">
-        <div style="display:flex;gap:12px;width:100%">
+        <input type="number" id="offerPrice" placeholder="Offer Price (£)" step="0.01" min="0" title="Offer price" class="w-180">
+        <div class="flex gap-12 w-100">
           <label>Start: <input type="date" id="offerStart"></label>
           <label>End: <input type="date" id="offerEnd"></label>
         </div>
         <button type="submit">Add Offer</button>
       </form>
       <div class="offer-list" id="offer-list"></div>
-      <hr style="margin:32px 0;">
+      <hr class="my-32">
       <section>
         <h3>Voucher Codes</h3>
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
-          <select id="voucher-offer-select"></select>
-          <input type="number" id="voucher-days" min="1" max="365" placeholder="Days valid" style="width:110px;">
-          <input type="number" id="voucher-price" min="0" step="0.01" placeholder="Voucher Price/Discount (£)" style="width:140px;">
+        <div class="flex gap-12 align-center mb-12">
+          <select id="voucher-offer-select" title="Voucher offer"></select>
+          <input type="number" id="voucher-days" min="1" max="365" placeholder="Days valid" title="Voucher days" class="w-110">
+          <input type="number" id="voucher-price" min="0" step="0.01" placeholder="Voucher Price/Discount (£)" title="Voucher price/discount" class="w-140">
           <button id="generate-voucher-btn" type="button">Generate Voucher Code</button>
         </div>
         <div id="voucher-list"></div>
