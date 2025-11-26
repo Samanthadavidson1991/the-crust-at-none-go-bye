@@ -87,13 +87,25 @@ mongoose.connect(atlasUri)
     }));
 
     // --- ROUTES ---
-    // Place all route definitions here, after session middleware
-    // Admin authentication check endpoint
+    // Static file serving and HTML routes
+    if (process.env.ADMIN_DASHBOARD === 'true') {
+      app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+      app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
+      app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+      });
+      app.get('/login.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+      });
+      // Add more explicit admin HTML routes as needed
+    } else {
+      app.use(express.static(path.join(__dirname, 'public')));
+    }
+
+    // API routes
     app.get('/api/admin/check', requireAdminAuth, (req, res) => {
       res.json({ authenticated: true });
     });
-
-    // Admin login endpoint
     app.post('/api/admin/login', (req, res) => {
       const { username, password } = req.body;
       console.log('Login attempt:', { username, password });
@@ -110,20 +122,45 @@ mongoose.connect(atlasUri)
         res.status(500).json({ error: 'Internal server error', details: err.message });
       }
     });
-
-    // Admin logout endpoint
     app.post('/api/admin/logout', (req, res) => {
       req.session.destroy(() => {
         res.json({ success: true });
       });
     });
 
-    // ...existing route definitions...
+    // All other API routes (move all app.get/app.post/app.patch/app.delete here)
+    // ...existing API route definitions from your file...
 
-    // Start server only after session store is ready
+    // --- DELIVERY DISTANCE ENDPOINTS ---
+    app.get('/api/delivery-distance', async (req, res) => {
+      let doc = await DeliveryDistance.findOne();
+      if (!doc) doc = await DeliveryDistance.create({ miles: 5 });
+      res.json({ miles: doc.miles });
+    });
+    app.post('/api/delivery-distance', async (req, res) => {
+      let doc = await DeliveryDistance.findOne();
+      const miles = typeof req.body.miles === 'number' ? req.body.miles : 5;
+      if (!doc) doc = await DeliveryDistance.create({ miles });
+      else { doc.miles = miles; await doc.save(); }
+      res.json({ message: 'Saved', miles: doc.miles });
+    });
+    // ...repeat for all other API routes...
+
+    // --- SPECIAL OFFERS API ---
+    const offersRouter = require('./offers');
+    app.use('/api/offers', offersRouter);
+    // --- VOUCHERS API ---
+    const vouchersRouter = require('./vouchers');
+    app.use('/api/vouchers', vouchersRouter);
+
+    // Global Express error handler (must be after all routes)
+    app.use((err, req, res, next) => {
+      res.status(500).json({ error: 'Internal server error', details: err.message });
+    });
+
+    // Start server only after session store and routes are ready
     app.listen(PORT, '0.0.0.0', err => {
       if (err) {
-        // Server failed to start
         process.exit(1);
       } else {
         console.log(`Server running on port ${PORT}`);
