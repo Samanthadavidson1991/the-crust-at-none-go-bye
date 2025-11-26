@@ -283,7 +283,7 @@
       loading.style.display = '';
       content.classList.add('d-none');
       try {
-        const res = await fetch('http://localhost:8081/api/menu');
+        const res = await fetch('http://localhost:8081/api/menu', { credentials: 'include' });
         const menu = await res.json();
         renderAdminMenu(menu);
         loading.style.display = 'none';
@@ -328,7 +328,7 @@
     }
     // --- Pizza Master Toppings Section ---
     async function fetchPizzaMasterToppings() {
-      const res = await fetch('http://localhost:8081/api/pizza-topping-stock');
+      const res = await fetch('http://localhost:8081/api/pizza-topping-stock', { credentials: 'include' });
       const toppings = await res.json();
       renderPizzaMasterToppings(toppings);
     }
@@ -458,13 +458,14 @@
     }
 
     async function deletePizzaMasterTopping(name) {
-      const res = await fetch('http://localhost:8081/api/pizza-topping-stock');
+      const res = await fetch('http://localhost:8081/api/pizza-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       toppings = toppings.filter(t => t.topping !== name);
       await fetch('http://localhost:8081/api/pizza-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toppingStatus: toppings })
+        body: JSON.stringify({ toppingStatus: toppings }),
+        credentials: 'include'
       });
       fetchPizzaMasterToppings();
     }
@@ -493,14 +494,15 @@
       const type = pizzaMasterToppingType.value;
       const price = parseFloat(pizzaMasterToppingPrice.value);
       if (!name || !type || isNaN(price)) return;
-      const res = await fetch('http://localhost:8081/api/pizza-topping-stock');
+      const res = await fetch('http://localhost:8081/api/pizza-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       let toppingObj = { topping: name, outOfStock: false, type, price };
       toppings.push(toppingObj);
       await fetch('http://localhost:8081/api/pizza-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toppingStatus: toppings })
+        body: JSON.stringify({ toppingStatus: toppings }),
+        credentials: 'include'
       });
       document.getElementById('pizzaMasterToppingInput').value = '';
       pizzaMasterToppingType.value = '';
@@ -510,7 +512,7 @@
 
     // --- Salad Master Toppings Section ---
     async function fetchSaladMasterToppings() {
-      const res = await fetch('http://localhost:8081/api/salad-topping-stock');
+      const res = await fetch('http://localhost:8081/api/salad-topping-stock', { credentials: 'include' });
       const toppings = await res.json();
       renderSaladMasterToppings(toppings);
     }
@@ -640,13 +642,14 @@
     }
 
     async function deleteSaladMasterTopping(name) {
-      const res = await fetch('http://localhost:8081/api/salad-topping-stock');
+      const res = await fetch('http://localhost:8081/api/salad-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       toppings = toppings.filter(t => t.topping !== name);
       await fetch('http://localhost:8081/api/salad-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toppingStatus: toppings })
+        body: JSON.stringify({ toppingStatus: toppings }),
+        credentials: 'include'
       });
       fetchSaladMasterToppings();
     }
@@ -675,14 +678,15 @@
       const type = saladMasterToppingType.value;
       const price = parseFloat(saladMasterToppingPrice.value);
       if (!name || !type || isNaN(price)) return;
-      const res = await fetch('http://localhost:8081/api/salad-topping-stock');
+      const res = await fetch('http://localhost:8081/api/salad-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
       let toppingObj = { topping: name, outOfStock: false, type, price };
       toppings.push(toppingObj);
       await fetch('http://localhost:8081/api/salad-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toppingStatus: toppings })
+        body: JSON.stringify({ toppingStatus: toppings }),
+        credentials: 'include'
       });
       document.getElementById('saladMasterToppingInput').value = '';
       saladMasterToppingType.value = '';
