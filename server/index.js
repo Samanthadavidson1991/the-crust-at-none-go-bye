@@ -117,8 +117,43 @@ mongoose.connect(atlasUri)
       });
     });
 
-    // All other API routes (move all app.get/app.post/app.patch/app.delete here)
-    // ...existing API route definitions from your file...
+    // Mock API endpoints for admin dashboard
+    app.get('/api/menu', requireAdminAuth, (req, res) => {
+      res.json({
+        items: [
+          { name: 'Margherita', price: 8.5 },
+          { name: 'Pepperoni', price: 9.5 },
+          { name: 'Veggie', price: 9.0 }
+        ]
+      });
+    });
+
+    app.get('/api/orders', requireAdminAuth, (req, res) => {
+      res.json([
+        { _id: 'order1', name: 'Sam', items: [{ name: 'Margherita', quantity: 1 }], timeSlot: '18:00', status: 'Pending' },
+        { _id: 'order2', name: 'Alex', items: [{ name: 'Pepperoni', quantity: 2 }], timeSlot: '19:00', status: 'Accepted' }
+      ]);
+    });
+
+    app.get('/api/pizza-topping-stock', requireAdminAuth, (req, res) => {
+      res.json({
+        toppings: [
+          { name: 'Pepperoni', stock: 20 },
+          { name: 'Mushrooms', stock: 15 },
+          { name: 'Olives', stock: 10 }
+        ]
+      });
+    });
+
+    app.get('/api/salad-topping-stock', requireAdminAuth, (req, res) => {
+      res.json({
+        toppings: [
+          { name: 'Lettuce', stock: 30 },
+          { name: 'Tomato', stock: 25 },
+          { name: 'Cucumber', stock: 20 }
+        ]
+      });
+    });
 
     // All route definitions are now inside mongoose.connect .then()
 
