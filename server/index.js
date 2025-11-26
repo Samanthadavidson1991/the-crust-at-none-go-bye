@@ -85,6 +85,41 @@ mongoose.connect(atlasUri)
       }),
       cookie: { httpOnly: true, sameSite: 'lax', secure: false }
     }));
+
+    // --- ROUTES ---
+    // Place all route definitions here, after session middleware
+    // Admin authentication check endpoint
+    app.get('/api/admin/check', requireAdminAuth, (req, res) => {
+      res.json({ authenticated: true });
+    });
+
+    // Admin login endpoint
+    app.post('/api/admin/login', (req, res) => {
+      const { username, password } = req.body;
+      console.log('Login attempt:', { username, password });
+      try {
+        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+          req.session.isAdmin = true;
+          console.log('Login success:', username);
+          return res.json({ success: true });
+        }
+        console.log('Login failed:', { username, password });
+        res.status(401).json({ error: 'Invalid credentials' });
+      } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ error: 'Internal server error', details: err.message });
+      }
+    });
+
+    // Admin logout endpoint
+    app.post('/api/admin/logout', (req, res) => {
+      req.session.destroy(() => {
+        res.json({ success: true });
+      });
+    });
+
+    // ...existing route definitions...
+
     // Start server only after session store is ready
     app.listen(PORT, '0.0.0.0', err => {
       if (err) {
