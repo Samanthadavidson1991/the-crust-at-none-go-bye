@@ -65,6 +65,7 @@ mongoose.connect(atlasUri)
     if (process.env.ADMIN_DASHBOARD === 'true') {
       app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
       app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
+      app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
       app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       });
