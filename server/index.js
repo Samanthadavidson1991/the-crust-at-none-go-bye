@@ -216,6 +216,7 @@ mongoose.connect(atlasUri)
 
     // Serve menu for both admin and main site
     app.get('/api/menu', async (req, res) => {
+        res.set('Cache-Control', 'no-store');
       try {
         const items = await MenuItem.find({});
         console.log('[GET /api/menu] Returned items:', items);
@@ -247,6 +248,7 @@ mongoose.connect(atlasUri)
     });
 
     app.get('/api/pizza-topping-stock', (req, res) => {
+        res.set('Cache-Control', 'no-store');
       res.json({
         toppings: [
           { name: 'Pepperoni', stock: 20 },
