@@ -24,6 +24,31 @@
     .success-message { color: #2e7d32; font-weight: bold; margin-top: 16px; display: none; }
     .error-message { color: #b9472e; font-weight: bold; margin-top: 16px; display: none; }
     .pos3col-center { overflow-y: auto; }
+    @media (max-width: 900px) {
+      .pos3col-container { padding: 8px; }
+      .pos3col-grid { grid-template-columns: 1fr; gap: 18px; }
+      .pos3col-title { grid-column: 1 / span 1; font-size: 1.2rem; }
+      .pos3col-left, .pos3col-center, .pos3col-right { min-height: unset; padding: 10px; margin-bottom: 12px; }
+      .pos3col-left input, .pos3col-left select, .pos3col-left textarea,
+      .pos3col-right input, .pos3col-right select, .pos3col-right textarea {
+        font-size: 1rem; padding: 6px; margin-bottom: 10px;
+      }
+      .pos3col-right button { font-size: 1rem; padding: 10px 12px; margin-top: 12px; }
+      h1.main-heading { font-size: 1.3rem; }
+      h1.pos3col-title { font-size: 1.1rem; }
+    }
+    @media (max-width: 600px) {
+      .pos3col-container { padding: 2px; }
+      .pos3col-left, .pos3col-center, .pos3col-right { padding: 6px; }
+      .pos3col-title { font-size: 1rem; }
+      .pos3col-left input, .pos3col-left select, .pos3col-left textarea,
+      .pos3col-right input, .pos3col-right select, .pos3col-right textarea {
+        font-size: 0.95rem; padding: 4px; margin-bottom: 8px;
+      }
+      .pos3col-right button { font-size: 0.95rem; padding: 8px 8px; }
+      h1.main-heading { font-size: 1.1rem; }
+      h1.pos3col-title { font-size: 0.95rem; }
+    }
   </style>
 </head>
 <body>
