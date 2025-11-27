@@ -62,7 +62,21 @@ mongoose.connect(atlasUri)
       }
     }));
     // CORS with credentials for cross-origin cookies
-    app.use(cors({ origin: 'https://the-crust-at-none-go-bye-admin.onrender.com', credentials: true }));
+    const allowedOrigins = [
+      'https://the-crust-at-none-go-bye-admin.onrender.com',
+      'https://admin.thecrustatngb.co.uk',
+      'https://thecrustatngb.co.uk'
+    ];
+    app.use(cors({
+      origin: function(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true
+    }));
     app.use(express.json());
 
     // --- ROUTES ---
