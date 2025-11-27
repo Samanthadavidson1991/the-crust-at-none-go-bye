@@ -161,9 +161,11 @@ mongoose.connect(atlasUri)
       app.get('/running-orders.html', requireAdminAuth, (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
       });
-    app.get('/admin-menu.html', (req, res) => {
+    // Only one route for /admin-menu.html, protected by login
+    app.get('/admin-menu.html', requireAdminAuth, (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
     });
+    // Always allow access to /login.html
     app.get('/login.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'login.html'));
     });
@@ -195,14 +197,26 @@ mongoose.connect(atlasUri)
     });
 
     // Mock API endpoints for admin dashboard
-    app.get('/api/menu', (req, res) => {
-      res.json({
-        items: [
-          { name: 'Margherita', price: 8.5 },
-          { name: 'Pepperoni', price: 9.5 },
-          { name: 'Veggie', price: 9.0 }
-        ]
-      });
+    // Use MenuItem model for menu endpoints
+    const MenuItem = require('./menu-item.model');
+
+    app.get('/api/menu', async (req, res) => {
+      try {
+        const items = await MenuItem.find({});
+        res.json({ items });
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch menu items', details: err.message });
+      }
+    });
+
+    app.post('/api/menu', async (req, res) => {
+      try {
+        const item = new MenuItem(req.body);
+        await item.save();
+        res.json({ success: true, item });
+      } catch (err) {
+        res.status(400).json({ error: 'Failed to add menu item', details: err.message });
+      }
     });
 
     app.get('/api/orders', (req, res) => {
