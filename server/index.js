@@ -92,7 +92,7 @@ mongoose.connect(atlasUri)
     }
 
     // API routes
-    app.get('/api/admin/check', requireAdminAuth, (req, res) => {
+    app.get('/api/admin/check', (req, res) => {
       res.json({ authenticated: true });
     });
     app.post('/api/admin/login', (req, res) => {
@@ -118,7 +118,7 @@ mongoose.connect(atlasUri)
     });
 
     // Mock API endpoints for admin dashboard
-    app.get('/api/menu', requireAdminAuth, (req, res) => {
+    app.get('/api/menu', (req, res) => {
       res.json({
         items: [
           { name: 'Margherita', price: 8.5 },
@@ -128,14 +128,14 @@ mongoose.connect(atlasUri)
       });
     });
 
-    app.get('/api/orders', requireAdminAuth, (req, res) => {
+    app.get('/api/orders', (req, res) => {
       res.json([
         { _id: 'order1', name: 'Sam', items: [{ name: 'Margherita', quantity: 1 }], timeSlot: '18:00', status: 'Pending' },
         { _id: 'order2', name: 'Alex', items: [{ name: 'Pepperoni', quantity: 2 }], timeSlot: '19:00', status: 'Accepted' }
       ]);
     });
 
-    app.get('/api/pizza-topping-stock', requireAdminAuth, (req, res) => {
+    app.get('/api/pizza-topping-stock', (req, res) => {
       res.json({
         toppings: [
           { name: 'Pepperoni', stock: 20 },
@@ -145,7 +145,7 @@ mongoose.connect(atlasUri)
       });
     });
 
-    app.get('/api/salad-topping-stock', requireAdminAuth, (req, res) => {
+    app.get('/api/salad-topping-stock', (req, res) => {
       res.json({
         toppings: [
           { name: 'Lettuce', stock: 30 },
