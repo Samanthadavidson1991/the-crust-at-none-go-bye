@@ -79,11 +79,11 @@ mongoose.connect(atlasUri)
     app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
     app.use(express.static(path.join(__dirname, 'public')));
     app.get('/', (req, res) => {
-      const host = req.hostname || req.headers.host;
-      console.log("[GET /] Hostname:", req.hostname, "Host header:", req.headers.host);
-      if (host && host.toLowerCase().startsWith('admin.')) {
-        // Block index.html for admin subdomain
-        res.redirect('/admin-menu.html');
+      const host = req.headers.host || req.hostname;
+      console.log("[GET /] Host header:", host);
+      // Use full match for admin.thecrustatngb.co.uk
+      if (host && host.toLowerCase().includes('admin.thecrustatngb.co.uk')) {
+        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       } else {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
       }
