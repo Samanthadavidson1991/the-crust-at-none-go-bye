@@ -73,92 +73,59 @@ mongoose.connect(atlasUri)
     }
 
     // Static file serving and HTML routes
-    if (process.env.ADMIN_DASHBOARD === 'true') {
-      app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
-      app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
-      app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
-      app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
-      });
-      app.get('/admin-menu.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
-      });
-      app.get('/login.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'login.html'));
-      });
-      app.get('/stock-management.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
-      });
-      app.get('/timeslots.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
-      });
-      app.get('/orders.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'orders.html'));
-      });
-      app.get('/running-orders.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
-      });
-      app.get('/takings.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'takings.html'));
-      });
-      app.get('/pos.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'pos.html'));
-      });
-      app.get('/offers.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'offers.html'));
-      });
-      app.get('/checkout.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
-      });
-      // Add more explicit admin HTML routes as needed
-    } else {
-      app.use(express.static(path.join(__dirname, 'public')));
-      app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-      });
-      app.get('/index.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-      });
-      app.get('/menu.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'menu.html'));
-      });
-      app.get('/checkout.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
-      });
-      app.get('/allergens.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'allergens.html'));
-      });
-      app.get('/offers.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'offers.html'));
-      });
-      app.get('/orders.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'orders.html'));
-      });
-      app.get('/sales-summary.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
-      });
-      app.get('/stock-management.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
-      });
-      app.get('/takings.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'takings.html'));
-      });
-      app.get('/takings-totals.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
-      });
-      app.get('/timeslots.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
-      });
-      app.get('/pos.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'pos.html'));
-      });
-      app.get('/running-orders.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
-      });
-      app.get('/admin-menu.html', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
-      });
-    }
+    // Serve all static and HTML routes for both main and admin pages
+    app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+    app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
+    app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.get('/', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    });
+    app.get('/index.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    });
+    app.get('/menu.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'menu.html'));
+    });
+    app.get('/checkout.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
+    });
+    app.get('/allergens.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'allergens.html'));
+    });
+    app.get('/offers.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'offers.html'));
+    });
+    app.get('/orders.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'orders.html'));
+    });
+    app.get('/sales-summary.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
+    });
+    app.get('/stock-management.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
+    });
+    app.get('/takings.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'takings.html'));
+    });
+    app.get('/takings-totals.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
+    });
+    app.get('/timeslots.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
+    });
+    app.get('/pos.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'pos.html'));
+    });
+    app.get('/running-orders.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
+    });
+    app.get('/admin-menu.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+    });
+    app.get('/login.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    });
 
     // API routes
     app.get('/api/admin/check', (req, res) => {
