@@ -31,6 +31,15 @@
   <main>
     <main id="main-content">
     <section class="admin-section">
+      <!-- Announcement Section (Dashboard) -->
+      <div id="admin-announcement" style="display:none; background:#fffbe6; border:1px solid #ffe58f; padding:12px; margin-bottom:24px; border-radius:6px;">
+        <strong>Announcement:</strong>
+        <span id="admin-announcement-text"></span>
+        <form id="admin-announcement-form">
+          <input type="text" id="admin-announcement-input" placeholder="Edit announcement...">
+          <button type="submit">Update</button>
+        </form>
+      </div>
       <h2>Edit Menu</h2>
       <div id="pizza-topping-master-section" class="mb-32">
         <h3>Pizza Master Toppings</h3>
@@ -127,6 +136,38 @@
       </div>
     </section>
   <script>
+                // --- Editable Announcement Section Logic ---
+                // Store announcement in localStorage for now (can be upgraded to backend later)
+                function getAdminAnnouncement() {
+                  return localStorage.getItem('adminAnnouncementText') || '';
+                }
+                function setAdminAnnouncement(text) {
+                  localStorage.setItem('adminAnnouncementText', text);
+                }
+                document.addEventListener('DOMContentLoaded', function() {
+                  var annDiv = document.getElementById('admin-announcement');
+                  var annText = document.getElementById('admin-announcement-text');
+                  var annForm = document.getElementById('admin-announcement-form');
+                  var annInput = document.getElementById('admin-announcement-input');
+                  function updateAnnouncementUI() {
+                    var text = getAdminAnnouncement();
+                    if (text && text.trim().length > 0) {
+                      annText.textContent = text;
+                      annDiv.style.display = '';
+                    } else {
+                      annText.textContent = '';
+                      annDiv.style.display = '';
+                    }
+                    annInput.value = text;
+                  }
+                  annForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    var newText = annInput.value.trim();
+                    setAdminAnnouncement(newText);
+                    updateAnnouncementUI();
+                  };
+                  updateAnnouncementUI();
+                });
                 // --- Master Toppings Section ---
                 // (Removed duplicate/legacy DOMContentLoaded for master toppings and menu preview)
             // --- Toppings, Sizes, and Side Options logic for menu item ---
