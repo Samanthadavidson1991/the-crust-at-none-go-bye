@@ -76,7 +76,11 @@ mongoose.connect(atlasUri)
     app.get('/', (req, res) => {
       const host = req.headers.host || req.hostname;
       console.log("[GET /] Host header:", host);
-      if (host && host.toLowerCase().includes('the-crust-at-none-go-bye-admin.onrender.com')) {
+      const adminHosts = [
+        'the-crust-at-none-go-bye-admin.onrender.com',
+        'admin.thecrust.co.uk'
+      ];
+      if (host && adminHosts.some(h => host.toLowerCase().includes(h))) {
         res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       } else {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
