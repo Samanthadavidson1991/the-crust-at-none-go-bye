@@ -67,7 +67,7 @@ mongoose.connect(atlasUri)
 
     // --- ROUTES ---
     // Serve admin-menu.html at / for any admin domain BEFORE static middleware
-    app.get('/', (req, res) => {
+    app.get('/', (req, res, next) => {
       const host = (req.headers.host || req.hostname || '').toLowerCase();
       console.log("[GET /] Host header:", host);
       // Match any host containing both 'admin' and ('thecrust' or 'none-go-bye')
@@ -75,7 +75,10 @@ mongoose.connect(atlasUri)
         host.includes('admin') &&
         (host.includes('thecrust') || host.includes('none-go-bye'))
       ) {
-        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+        // Protect admin homepage with login
+        requireAdminAuth(req, res, () => {
+          res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+        });
       } else {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
       }
