@@ -147,8 +147,8 @@
               masterToppings.forEach(mt => {
                 let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
                 // Show all master toppings, but disable if already on pizza
-                const alreadyOnPizza = item.toppings && item.toppings.includes(mt.topping);
-                html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.topping}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.topping}`;
+                const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
+                html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
                 html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
                 html += `</label>`;
               });
