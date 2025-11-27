@@ -225,7 +225,6 @@ mongoose.connect(atlasUri)
         res.status(500).json({ error: 'Failed to fetch menu items', details: err.message });
       }
     });
-    });
 
     app.post('/api/menu', async (req, res) => {
       try {
