@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
 </head>
 <body class="menu-page app-body" id="menu-page">
   <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
@@ -38,8 +39,8 @@
       async function fetchDoughStocks() {
         try {
           const [doughRes, gfRes] = await Promise.all([
-            fetch('https://admin.thecrustatngb.co.uk/api/dough-stock'),
-            fetch('https://admin.thecrustatngb.co.uk/api/gf-dough-stock')
+            fetch('/api/dough-stock'),
+            fetch('/api/gf-dough-stock')
           ]);
           doughStock = (await doughRes.json()).stock;
           gfDoughStock = (await gfRes.json()).stock;
@@ -74,28 +75,10 @@
 
 
       async function fetchSpecialOffers() {
-        try {
-          const res = await fetch('/api/offers');
-          if (!res.ok) throw new Error('Offers fetch failed');
-          const offers = await res.json();
-          const banner = document.getElementById('special-offers-banner');
-          if (offers.length) {
-            banner.style.display = 'block';
-            banner.innerHTML = offers.map(offer =>
-              `<div class='special-offer' style='background:#ffe9b3;border-radius:8px;padding:12px 18px;margin-bottom:8px;font-size:1.15em;box-shadow:0 2px 8px #0001;'>
-                <b>Special Offer:</b> ${offer.title} - ${offer.desc}${offer.code ? ' <b>['+offer.code+']</b>' : ''}${offer.discount ? ' <span style=\'color:#b9472e\'>(' + offer.discount + ' off)</span>' : ''}
-              </div>`
-            ).join('');
-          } else {
-            banner.style.display = 'none';
-            banner.innerHTML = '';
-          }
-        } catch {
-          // Hide banner on error
-          const banner = document.getElementById('special-offers-banner');
-          banner.style.display = 'none';
-          banner.innerHTML = '';
-        }
+        // Special offers endpoint not implemented; banner will remain hidden
+        const banner = document.getElementById('special-offers-banner');
+        banner.style.display = 'none';
+        banner.innerHTML = '';
       }
 
       async function fetchMenu() {
