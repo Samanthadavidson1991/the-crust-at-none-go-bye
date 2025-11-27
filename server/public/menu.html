@@ -103,8 +103,8 @@
         fetchSpecialOffers();
         try {
           const [menuRes, toppingsRes] = await Promise.all([
-            fetch('https://admin.thecrustatngb.co.uk/api/menu'),
-            fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock')
+            fetch('/api/menu'),
+            fetch('/api/pizza-topping-stock')
           ]);
           if (!menuRes.ok) throw new Error('Menu fetch failed');
           if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
