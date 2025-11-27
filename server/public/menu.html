@@ -108,10 +108,10 @@
           ]);
           if (!menuRes.ok) throw new Error('Menu fetch failed');
           if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
-          const menu = await menuRes.json();
+          const menuData = await menuRes.json();
           const masterToppings = await toppingsRes.json();
           await fetchDoughStocks();
-          renderMenu(menu, masterToppings);
+          renderMenu(menuData.items, masterToppings);
         } catch (err) {
           const content = document.getElementById('menu-content');
           content.style.display = 'block';
