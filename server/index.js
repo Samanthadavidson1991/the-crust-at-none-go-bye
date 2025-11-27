@@ -81,8 +81,8 @@ mongoose.connect(atlasUri)
     app.get('/', (req, res) => {
       const host = req.headers.host || req.hostname;
       console.log("[GET /] Host header:", host);
-      // Use full match for admin.thecrustatngb.co.uk
-      if (host && host.toLowerCase().includes('admin.thecrustatngb.co.uk')) {
+      // Use full match for the-crust-at-none-go-bye-admin.onrender.com
+      if (host && host.toLowerCase().includes('the-crust-at-none-go-bye-admin.onrender.com')) {
         res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       } else {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
