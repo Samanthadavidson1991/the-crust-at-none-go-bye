@@ -72,22 +72,21 @@ mongoose.connect(atlasUri)
       res.status(401).json({ error: 'Not authenticated' });
     }
 
-    // Static file serving and HTML routes
-    // Serve all static and HTML routes for both main and admin pages
-    app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
-    app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
-    app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
-    app.use(express.static(path.join(__dirname, 'public')));
+    // Serve admin-menu.html at / for admin domain BEFORE static middleware
     app.get('/', (req, res) => {
       const host = req.headers.host || req.hostname;
       console.log("[GET /] Host header:", host);
-      // Use full match for the-crust-at-none-go-bye-admin.onrender.com
       if (host && host.toLowerCase().includes('the-crust-at-none-go-bye-admin.onrender.com')) {
         res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       } else {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
       }
     });
+    // Static file serving and HTML routes
+    app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+    app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
+    app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
+    app.use(express.static(path.join(__dirname, 'public')));
     app.get('/index.html', (req, res) => {
       const host = req.hostname || req.headers.host;
       console.log("[GET /index.html] Hostname:", req.hostname, "Host header:", req.headers.host);
