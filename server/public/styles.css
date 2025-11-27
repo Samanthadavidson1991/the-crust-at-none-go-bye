@@ -1,3 +1,64 @@
+/* Mobile Responsive Styles for Admin Pages */
+@media (max-width: 900px) {
+    .admin-section {
+        max-width: 100vw !important;
+        margin: 8px 0 !important;
+        padding: 8px 2vw !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+    }
+    .admin-section h2, .admin-section h3 {
+        font-size: 1.1rem !important;
+        margin: 0.5rem 0 !important;
+        padding: 0.2rem 0 !important;
+    }
+    .admin-nav {
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+        margin-bottom: 12px !important;
+    }
+    .admin-nav a {
+        font-size: 1rem !important;
+        padding: 10px 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid #eee !important;
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+    table, .order-table, .running-orders-table, .stock-table, .timeslot-table {
+        font-size: 0.95rem !important;
+        width: 100vw !important;
+        overflow-x: auto !important;
+        display: block !important;
+        margin: 0 !important;
+    }
+    th, td {
+        padding: 0.3rem 0.2rem !important;
+        font-size: 0.95rem !important;
+        word-break: break-word;
+    }
+    input, select, textarea, button {
+        font-size: 1rem !important;
+        padding: 0.6rem 0.4rem !important;
+        max-width: 98vw !important;
+        box-sizing: border-box !important;
+    }
+    .order-summary, .summary-section {
+        max-width: 100vw !important;
+        padding: 0.7rem 0.4rem !important;
+        margin: 0.5rem 0 !important;
+        font-size: 1rem !important;
+        border-radius: 8px !important;
+    }
+    .offer-list, .voucher-list, .menu-list {
+        font-size: 1rem !important;
+        padding: 0.5rem 0.2rem !important;
+    }
+}
 /* Homepage Announcement Styles */
 .announcement {
     display: none;
