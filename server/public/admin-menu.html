@@ -12,10 +12,18 @@
 </head>
 <body class="admin-page">
     <!-- Login redirect removed for dashboard access -->
-    <script src="/admin-order-toast.js"></script>
+      <script>
+        // Login/session check
+        fetch('/api/admin/check', { credentials: 'include' })
+          .then(r => {
+            if (!r.ok) window.location.href = 'login.html';
+          });
+      </script>
+      <script src="/admin-order-toast.js"></script>
   <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
   <header>
     <h1 class="main-heading underline">Admin  Menu Editor</h1>
+      <h1 class="main-heading underline">Admin Menu Editor <button id="lock-page-btn" style="float:right;margin-top:8px;" onclick="lockAdminPage()">Lock this page</button></h1>
     <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
       <a href="admin-menu.html">Menu Editor</a>
       <a href="stock-management.html">Stock Management</a>
@@ -29,6 +37,19 @@
     </nav>
   </header>
   <main>
+        <script>
+        // --- Lock Page Logic ---
+        function lockAdminPage() {
+          fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })
+            .then(r => {
+              if (r.ok) {
+                alert('Page locked. You will not be logged out automatically.');
+              } else {
+                alert('Failed to lock page.');
+              }
+            });
+        }
+        </script>
     <main id="main-content">
     <section class="admin-section">
       <!-- Announcement Section (Dashboard) -->
@@ -320,7 +341,7 @@
       try {
         const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
         const menu = await res.json();
-        renderAdminMenu(menu);
+        renderAdminMenu(menu.items || []);
         loading.style.display = 'none';
         content.classList.remove('d-none');
       } catch (err) {
@@ -385,6 +406,7 @@
       meatList.innerHTML = '';
       vegList.innerHTML = '';
       otherList.innerHTML = '';
+      toppings = Array.isArray(toppings) ? toppings : [];
       toppings.forEach(t => {
         const li = document.createElement('li');
         li.style.marginBottom = '4px';
@@ -569,6 +591,7 @@
       meatList.innerHTML = '';
       vegList.innerHTML = '';
       otherList.innerHTML = '';
+      toppings = Array.isArray(toppings) ? toppings : [];
       toppings.forEach(t => {
         const li = document.createElement('li');
         li.style.marginBottom = '4px';
