@@ -80,6 +80,7 @@ mongoose.connect(atlasUri)
     app.use(express.static(path.join(__dirname, 'public')));
     app.get('/', (req, res) => {
       const host = req.hostname || req.headers.host;
+      console.log("[GET /] Hostname:", req.hostname, "Host header:", req.headers.host);
       if (host && host.toLowerCase().startsWith('admin.')) {
         // Block index.html for admin subdomain
         res.redirect('/admin-menu.html');
@@ -89,6 +90,7 @@ mongoose.connect(atlasUri)
     });
     app.get('/index.html', (req, res) => {
       const host = req.hostname || req.headers.host;
+      console.log("[GET /index.html] Hostname:", req.hostname, "Host header:", req.headers.host);
       if (host && host.toLowerCase().startsWith('admin.')) {
         // Block index.html for admin subdomain
         res.redirect('/admin-menu.html');
