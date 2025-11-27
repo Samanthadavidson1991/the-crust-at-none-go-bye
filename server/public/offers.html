@@ -8,13 +8,7 @@
   <!-- Moved styles to styles.css -->
 </head>
 <body class="admin-page">
-  <script>
-    // Redirect to login if not authenticated
-    fetch('/api/admin/check', { credentials: 'include' })
-      .then(r => {
-        if (!r.ok) window.location.href = 'login.html';
-      });
-  </script>
+  <!-- Login redirect removed for dashboard access -->
   <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
   <header>
     <h1 class="main-heading underline">Admin  Special Offers</h1>

@@ -2,13 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script>
-    // Redirect to login if not authenticated
-    fetch('/api/admin/check', { credentials: 'include' })
-      .then(r => {
-        if (!r.ok) window.location.href = 'login.html';
-      });
-  </script>
+    <!-- Login redirect removed for dashboard access -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin – Daily Takings | None Go Bye</title>
   <link rel="stylesheet" href="styles.css">
