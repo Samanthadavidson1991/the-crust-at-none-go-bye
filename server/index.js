@@ -214,6 +214,7 @@ mongoose.connect(atlasUri)
     // Use MenuItem model for menu endpoints
     const MenuItem = require('./menu-item.model');
 
+    // Serve menu for both admin and main site
     app.get('/api/menu', async (req, res) => {
       try {
         const items = await MenuItem.find({});
@@ -223,6 +224,7 @@ mongoose.connect(atlasUri)
         console.error('[GET /api/menu] Error:', err);
         res.status(500).json({ error: 'Failed to fetch menu items', details: err.message });
       }
+    });
     });
 
     app.post('/api/menu', async (req, res) => {
