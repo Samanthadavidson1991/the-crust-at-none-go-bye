@@ -79,10 +79,22 @@ mongoose.connect(atlasUri)
     app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
     app.use(express.static(path.join(__dirname, 'public')));
     app.get('/', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      const host = req.hostname || req.headers.host;
+      if (host && host.toLowerCase().startsWith('admin.')) {
+        // Block index.html for admin subdomain
+        res.redirect('/admin-menu.html');
+      } else {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      }
     });
     app.get('/index.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      const host = req.hostname || req.headers.host;
+      if (host && host.toLowerCase().startsWith('admin.')) {
+        // Block index.html for admin subdomain
+        res.redirect('/admin-menu.html');
+      } else {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      }
     });
     app.get('/menu.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'menu.html'));
