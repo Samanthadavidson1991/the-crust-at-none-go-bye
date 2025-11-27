@@ -86,6 +86,27 @@ mongoose.connect(atlasUri)
       app.get('/login.html', (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'login.html'));
       });
+        app.get('/stock-management.html', (req, res) => {
+          res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
+        });
+        app.get('/timeslots.html', (req, res) => {
+          res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
+        });
+        app.get('/orders.html', (req, res) => {
+          res.sendFile(path.join(__dirname, 'public', 'orders.html'));
+        });
+        app.get('/running-orders.html', (req, res) => {
+          res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
+        });
+        app.get('/takings.html', (req, res) => {
+          res.sendFile(path.join(__dirname, 'public', 'takings.html'));
+        });
+        app.get('/pos.html', (req, res) => {
+          res.sendFile(path.join(__dirname, 'public', 'pos.html'));
+        });
+        app.get('/offers.html', (req, res) => {
+          res.sendFile(path.join(__dirname, 'public', 'offers.html'));
+        });
       // Add more explicit admin HTML routes as needed
     } else {
       app.use(express.static(path.join(__dirname, 'public')));
