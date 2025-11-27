@@ -70,8 +70,11 @@ mongoose.connect(atlasUri)
     app.get('/', (req, res) => {
       const host = (req.headers.host || req.hostname || '').toLowerCase();
       console.log("[GET /] Host header:", host);
-      // Match any host containing both 'admin' and 'thecrust'
-      if (host.includes('admin') && host.includes('thecrust')) {
+      // Match any host containing both 'admin' and ('thecrust' or 'none-go-bye')
+      if (
+        host.includes('admin') &&
+        (host.includes('thecrust') || host.includes('none-go-bye'))
+      ) {
         res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       } else {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
