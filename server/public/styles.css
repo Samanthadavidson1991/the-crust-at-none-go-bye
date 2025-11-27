@@ -1,3 +1,54 @@
+/* Homepage Announcement Styles */
+.announcement {
+    display: none;
+    margin: 18px 0;
+    padding: 12px 18px;
+    background: #fffbe0;
+    border-left: 6px solid #b9472e;
+    border-radius: 8px;
+    font-size: 1.15em;
+    color: #b9472e;
+    word-break: break-word;
+}
+
+@media (max-width: 700px) {
+    .main-nav {
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+        margin-bottom: 12px !important;
+    }
+    .main-nav a {
+        font-size: 1.1rem !important;
+        padding: 10px 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid #eee !important;
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+    #blurb {
+        padding: 0.5rem 0.2rem !important;
+        font-size: 1rem !important;
+    }
+    h1, h2 {
+        font-size: 1.3rem !important;
+        margin: 0.5rem 0 !important;
+    }
+    .announcement {
+        font-size: 1rem !important;
+        padding: 10px 8px !important;
+    }
+    footer address p {
+        font-size: 1rem !important;
+        margin: 0.3em 0 !important;
+    }
+    footer {
+        padding: 0.5rem 0.2rem !important;
+    }
+}
 /* Admin Announcement Section Styles */
 #admin-announcement {
     display: none;
