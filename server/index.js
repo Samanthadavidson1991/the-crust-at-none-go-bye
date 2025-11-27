@@ -79,14 +79,7 @@ mongoose.connect(atlasUri)
     app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
     app.use(express.static(path.join(__dirname, 'public')));
     app.get('/', (req, res) => {
-      // Robust subdomain detection for admin
-      const host = req.hostname || req.headers.host;
-      // Accept both admin.thecrustatngb.co.uk and possible local/test variants
-      if (host && host.toLowerCase().startsWith('admin.')) {
-        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
-      } else {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-      }
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
     app.get('/index.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'index.html'));
