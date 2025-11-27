@@ -110,6 +110,51 @@ mongoose.connect(atlasUri)
       // Add more explicit admin HTML routes as needed
     } else {
       app.use(express.static(path.join(__dirname, 'public')));
+      app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      });
+      app.get('/index.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      });
+      app.get('/menu.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'menu.html'));
+      });
+      app.get('/checkout.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
+      });
+      app.get('/allergens.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'allergens.html'));
+      });
+      app.get('/offers.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'offers.html'));
+      });
+      app.get('/orders.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'orders.html'));
+      });
+      app.get('/sales-summary.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
+      });
+      app.get('/stock-management.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
+      });
+      app.get('/takings.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'takings.html'));
+      });
+      app.get('/takings-totals.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
+      });
+      app.get('/timeslots.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
+      });
+      app.get('/pos.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'pos.html'));
+      });
+      app.get('/running-orders.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
+      });
+      app.get('/admin-menu.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+      });
     }
 
     // API routes
