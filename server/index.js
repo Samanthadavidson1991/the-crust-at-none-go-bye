@@ -66,26 +66,22 @@ mongoose.connect(atlasUri)
     app.use(express.json());
 
     // --- ROUTES ---
-    // Helper: Admin authentication middleware
-    function requireAdminAuth(req, res, next) {
-      if (req.session && req.session.isAdmin) return next();
-      res.status(401).json({ error: 'Not authenticated' });
-    }
-
-    // Serve admin-menu.html at / for admin domain BEFORE static middleware
+    // Serve admin-menu.html at / for any admin domain BEFORE static middleware
     app.get('/', (req, res) => {
-      const host = req.headers.host || req.hostname;
+      const host = (req.headers.host || req.hostname || '').toLowerCase();
       console.log("[GET /] Host header:", host);
-      const adminHosts = [
-        'the-crust-at-none-go-bye-admin.onrender.com',
-        'admin.thecrust.co.uk'
-      ];
-      if (host && adminHosts.some(h => host.toLowerCase().includes(h))) {
+      // Match any host containing both 'admin' and 'thecrust'
+      if (host.includes('admin') && host.includes('thecrust')) {
         res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
       } else {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
       }
     });
+    // Helper: Admin authentication middleware
+    function requireAdminAuth(req, res, next) {
+      if (req.session && req.session.isAdmin) return next();
+      res.status(401).json({ error: 'Not authenticated' });
+    }
     // Static file serving and HTML routes
     app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
     app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
