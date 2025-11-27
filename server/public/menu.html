@@ -32,226 +32,226 @@
     <section id="dynamic-menu">
       <div id="menu-content" class="d-none"></div>
     </section>
-    <script>
-      // --- Dough Stock Logic ---
-      let doughStock = null;
-      let gfDoughStock = null;
-      async function fetchDoughStocks() {
-        try {
-          const [doughRes, gfRes] = await Promise.all([
-            fetch('/api/dough-stock'),
-            fetch('/api/gf-dough-stock')
-          ]);
-          doughStock = (await doughRes.json()).stock;
-          gfDoughStock = (await gfRes.json()).stock;
-        } catch {
-          doughStock = null;
-          gfDoughStock = null;
+</body>
+<script>
+  // --- Dough Stock Logic ---
+  let doughStock = null;
+  let gfDoughStock = null;
+  async function fetchDoughStocks() {
+    try {
+      const [doughRes, gfRes] = await Promise.all([
+        fetch('/api/dough-stock'),
+        fetch('/api/gf-dough-stock')
+      ]);
+      doughStock = (await doughRes.json()).stock;
+      gfDoughStock = (await gfRes.json()).stock;
+    } catch {
+      doughStock = null;
+      gfDoughStock = null;
+    }
+  }
+  function updateCartBadge() {
+    const order = JSON.parse(localStorage.getItem('order') || '[]');
+    const count = order.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const badge = document.getElementById('cart-badge');
+    document.getElementById('cart-count').textContent = count;
+    badge.style.display = count > 0 ? 'block' : 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    updateCartBadge();
+    const badgeBtn = document.getElementById('cart-badge-btn');
+    if (badgeBtn) {
+      badgeBtn.onclick = function() {
+        window.location.href = 'checkout.html';
+      };
+      badgeBtn.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          window.location.href = 'checkout.html';
         }
-      }
-      function updateCartBadge() {
-        const order = JSON.parse(localStorage.getItem('order') || '[]');
-        const count = order.reduce((sum, item) => sum + (item.quantity || 1), 0);
-        const badge = document.getElementById('cart-badge');
-        document.getElementById('cart-count').textContent = count;
-        badge.style.display = count > 0 ? 'block' : 'none';
-      }
+      };
+    }
+  });
 
-      document.addEventListener('DOMContentLoaded', function() {
-        updateCartBadge();
-        const badgeBtn = document.getElementById('cart-badge-btn');
-        if (badgeBtn) {
-          badgeBtn.onclick = function() {
-            window.location.href = 'checkout.html';
-          };
-          badgeBtn.onkeydown = function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              window.location.href = 'checkout.html';
-            }
-          };
-        }
-      });
+  async function fetchSpecialOffers() {
+    // Special offers endpoint not implemented; banner will remain hidden
+    const banner = document.getElementById('special-offers-banner');
+    banner.style.display = 'none';
+    banner.innerHTML = '';
+  }
 
+  async function fetchMenu() {
+    // Fetch menu, toppings, and dough stocks in parallel
+    fetchSpecialOffers();
+    try {
+      const [menuRes, toppingsRes] = await Promise.all([
+        fetch('/api/menu'),
+        fetch('/api/pizza-topping-stock')
+      ]);
+      if (!menuRes.ok) throw new Error('Menu fetch failed');
+      if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
+      const menuData = await menuRes.json();
+      const masterToppings = await toppingsRes.json();
+      await fetchDoughStocks();
+      renderMenu(menuData.items, masterToppings);
+    } catch (err) {
+      const content = document.getElementById('menu-content');
+      content.style.display = 'block';
+      content.innerHTML = '<em style="color:red">Failed to load menu or toppings. Please try again later.</em>';
+    }
+  }
 
-      async function fetchSpecialOffers() {
-        // Special offers endpoint not implemented; banner will remain hidden
-        const banner = document.getElementById('special-offers-banner');
-        banner.style.display = 'none';
-        banner.innerHTML = '';
-      }
-
-      async function fetchMenu() {
-        // Fetch menu, toppings, and dough stocks in parallel
-        fetchSpecialOffers();
-        try {
-          const [menuRes, toppingsRes] = await Promise.all([
-            fetch('/api/menu'),
-            fetch('/api/pizza-topping-stock')
-          ]);
-          if (!menuRes.ok) throw new Error('Menu fetch failed');
-          if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
-          const menuData = await menuRes.json();
-          const masterToppings = await toppingsRes.json();
-          await fetchDoughStocks();
-          renderMenu(menuData.items, masterToppings);
-        } catch (err) {
-          const content = document.getElementById('menu-content');
-          content.style.display = 'block';
-          content.innerHTML = '<em style="color:red">Failed to load menu or toppings. Please try again later.</em>';
-        }
-      }
-
-      function renderMenu(menu, masterToppings) {
-        const content = document.getElementById('menu-content');
-        if (!menu || !Array.isArray(menu) || menu.length === 0) {
-          content.innerHTML = '<em>No menu items found.</em>';
-          return;
-        }
-        content.style.display = 'block';
-        // Group by category
-        const categories = {};
-        menu.forEach(item => {
-          const cat = item.category || 'Other';
-          if (!categories[cat]) categories[cat] = [];
-          categories[cat].push(item);
-        });
-        let html = '';
-        Object.keys(categories).forEach(cat => {
-          html += `<h2>${cat}</h2><ul class='menu-card-list'>`;
-          categories[cat].forEach(item => {
-            // Determine if this item is dough-tracked or gf-dough-tracked
-            const isDoughTracked = !!item.doughTracked;
-            const isGFDoughTracked = !!item.gfDoughTracked;
-            let outOfStock = false;
-            if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
-            if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
-            html += `<li class='menu-item-card${outOfStock ? ' out-of-stock' : ''}' data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
-            // Pizza: show sizes/prices
-            if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-              html += '<ul style="list-style:none;padding:0;">';
-              item.sizes.forEach(size => {
-                html += `<li class='menu-size-option' style="cursor:pointer;${outOfStock ? 'opacity:0.5;pointer-events:none;' : ''}" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}'><span>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></span></li>`;
-              });
-              html += '</ul>';
-              // Toppings UI
-              html += `<form class='toppings-form' data-name='${item.name}'>`;
-              if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-                html += `<small><b>Remove Toppings:</b></small><br>`;
-                item.toppings.forEach(topping => {
-                  html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
-                });
-              }
-              // Add Extra Toppings: all master toppings (not already on pizza)
-              html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
-              masterToppings.forEach(mt => {
-                let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-                // Show all master toppings, but disable if already on pizza
-                const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
-                html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
-                html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
-                html += `</label>`;
-              });
-              html += `</form>`;
-            } else if(cat === 'Sides' && item.sideOptions && Array.isArray(item.sideOptions) && item.sideOptions.length) {
-              html += '<ul style="list-style:none;padding:0;">';
-              item.sideOptions.forEach(opt => {
-                html += `<li class='menu-side-option' style="cursor:pointer;${outOfStock ? 'opacity:0.5;pointer-events:none;' : ''}" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-side='${JSON.stringify(opt).replace(/'/g, "&apos;")}'><span>${opt.name}: <span class='price'>£${parseFloat(opt.price).toFixed(2)}</span></span></li>`;
-              });
-              html += '</ul>';
-            } else {
-              html += `<span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
-            }
-            if (outOfStock) {
-              html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
-            }
-            html += `</li>`;
+  function renderMenu(menu, masterToppings) {
+    const content = document.getElementById('menu-content');
+    if (!menu || !Array.isArray(menu) || menu.length === 0) {
+      content.innerHTML = '<em>No menu items found.</em>';
+      return;
+    }
+    content.style.display = 'block';
+    // Group by category
+    const categories = {};
+    menu.forEach(item => {
+      const cat = item.category || 'Other';
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(item);
+    });
+    let html = '';
+    Object.keys(categories).forEach(cat => {
+      html += `<h2>${cat}</h2><ul class='menu-card-list'>`;
+      categories[cat].forEach(item => {
+        // Determine if this item is dough-tracked or gf-dough-tracked
+        const isDoughTracked = !!item.doughTracked;
+        const isGFDoughTracked = !!item.gfDoughTracked;
+        let outOfStock = false;
+        if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
+        if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
+        html += `<li class='menu-item-card${outOfStock ? ' out-of-stock' : ''}' data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+        // Pizza: show sizes/prices
+        if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+          html += '<ul style="list-style:none;padding:0;">';
+          item.sizes.forEach(size => {
+            html += `<li class='menu-size-option' style="cursor:pointer;${outOfStock ? 'opacity:0.5;pointer-events:none;' : ''}" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}'><span>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></span></li>`;
           });
           html += '</ul>';
-        });
-        content.innerHTML = html;
-
-        updateCartBadge();
-
-        // Only allow add-to-order via size/side/gluten free options, but skip if out of stock
-        document.querySelectorAll('.menu-size-option').forEach(opt => {
-          if (opt.style.pointerEvents === 'none') return;
-          opt.addEventListener('click', function(e) {
-            const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
-            const size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
-            // Find the toppings form for this item
-            let removed = [];
-            let extraToppings = [];
-            let extraToppingPrices = [];
-            // Find the toppings form by traversing up to the .menu-item-card
-            let menuItemCard = opt.closest('.menu-item-card');
-            const form = menuItemCard ? menuItemCard.querySelector('.toppings-form') : null;
-            if (form) {
-              const addToppingCbs = Array.from(form.querySelectorAll('.add-topping'));
-              // Removed: unchecked remove-topping
-              removed = Array.from(form.querySelectorAll('.remove-topping')).filter(cb => !cb.checked).map(cb => cb.value);
-              // Added: checked add-topping (all master toppings)
-              addToppingCbs.forEach(cb => {
-                if (cb.checked && !cb.disabled) {
-                  extraToppings.push(cb.value);
-                  extraToppingPrices.push(parseFloat(cb.getAttribute('data-price')) || 0);
-                }
-              });
-            }
-            // Combine default toppings (minus removed) and extra toppings
-            let baseToppings = Array.isArray(item.toppings) ? item.toppings.filter(t => !removed.includes(t)) : [];
-            let allToppings = baseToppings.concat(extraToppings);
-            // If no default toppings, still allow extras
-            if (!Array.isArray(item.toppings) || item.toppings.length === 0) {
-              allToppings = extraToppings;
-            }
-            // Calculate total price (size + extra toppings)
-            let totalPrice = parseFloat(size.price) || 0;
-            extraToppingPrices.forEach(p => { totalPrice += p; });
-            const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: allToppings, removed };
-            addToOrder(orderObj);
-            // Reset the toppings form after adding to order
-            if (form) {
-              // Reset remove-topping checkboxes to checked
-              Array.from(form.querySelectorAll('.remove-topping')).forEach(cb => { cb.checked = true; });
-              // Reset add-topping checkboxes to unchecked
-              Array.from(form.querySelectorAll('.add-topping')).forEach(cb => { cb.checked = false; });
-            }
-            opt.style.background = '#e9ece5';
-            setTimeout(() => { opt.style.background = ''; }, 300);
-            e.stopPropagation();
+          // Toppings UI
+          html += `<form class='toppings-form' data-name='${item.name}'>`;
+          if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+            html += `<small><b>Remove Toppings:</b></small><br>`;
+            item.toppings.forEach(topping => {
+              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
+            });
+          }
+          // Add Extra Toppings: all master toppings (not already on pizza)
+          html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
+          masterToppings.forEach(mt => {
+            let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
+            // Show all master toppings, but disable if already on pizza
+            const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
+            html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
+            html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
+            html += `</label>`;
           });
-        });
-        document.querySelectorAll('.menu-side-option').forEach(opt => {
-          if (opt.style.pointerEvents === 'none') return;
-          opt.addEventListener('click', function(e) {
-            const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
-            const side = JSON.parse(opt.getAttribute('data-side').replace(/&apos;/g, "'"));
-            addToOrder({ ...item, selectedSide: side, price: side.price, quantity: 1 });
-            opt.style.background = '#e9ece5';
-            setTimeout(() => { opt.style.background = ''; }, 300);
-            e.stopPropagation();
+          html += `</form>`;
+        } else if(cat === 'Sides' && item.sideOptions && Array.isArray(item.sideOptions) && item.sideOptions.length) {
+          html += '<ul style="list-style:none;padding:0;">';
+          item.sideOptions.forEach(opt => {
+            html += `<li class='menu-side-option' style="cursor:pointer;${outOfStock ? 'opacity:0.5;pointer-events:none;' : ''}" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-side='${JSON.stringify(opt).replace(/'/g, "&apos;")}'><span>${opt.name}: <span class='price'>£${parseFloat(opt.price).toFixed(2)}</span></span></li>`;
           });
-        });
-      }
-
-      function addToOrder(item) {
-        let order = JSON.parse(localStorage.getItem('order') || '[]');
-        // Try to merge with existing (same name/size/side)
-        const matchIdx = order.findIndex(i => i.name === item.name && JSON.stringify(i.selectedSize) === JSON.stringify(item.selectedSize) && JSON.stringify(i.selectedSide) === JSON.stringify(item.selectedSide));
-        if (matchIdx > -1) {
-          order[matchIdx].quantity += 1;
+          html += '</ul>';
         } else {
-          order.push(item);
+          html += `<span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
         }
-        localStorage.setItem('order', JSON.stringify(order));
-  updateCartBadge();
-      }
-      fetchMenu();
-      // Add out-of-stock style
-      const style = document.createElement('style');
-      style.textContent = `.menu-item-card.out-of-stock { opacity: 0.5; pointer-events: none; position: relative; } .out-of-stock-label { color: #b9472e; font-weight: bold; font-size: 1.1em; }`;
-      document.head.appendChild(style);
-    </script>
+        if (outOfStock) {
+          html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
+        }
+        html += `</li>`;
+      });
+      html += '</ul>';
+    });
+    content.innerHTML = html;
+
+    updateCartBadge();
+
+    // Only allow add-to-order via size/side/gluten free options, but skip if out of stock
+    document.querySelectorAll('.menu-size-option').forEach(opt => {
+      if (opt.style.pointerEvents === 'none') return;
+      opt.addEventListener('click', function(e) {
+        const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
+        const size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
+        // Find the toppings form for this item
+        let removed = [];
+        let extraToppings = [];
+        let extraToppingPrices = [];
+        // Find the toppings form by traversing up to the .menu-item-card
+        let menuItemCard = opt.closest('.menu-item-card');
+        const form = menuItemCard ? menuItemCard.querySelector('.toppings-form') : null;
+        if (form) {
+          const addToppingCbs = Array.from(form.querySelectorAll('.add-topping'));
+          // Removed: unchecked remove-topping
+          removed = Array.from(form.querySelectorAll('.remove-topping')).filter(cb => !cb.checked).map(cb => cb.value);
+          // Added: checked add-topping (all master toppings)
+          addToppingCbs.forEach(cb => {
+            if (cb.checked && !cb.disabled) {
+              extraToppings.push(cb.value);
+              extraToppingPrices.push(parseFloat(cb.getAttribute('data-price')) || 0);
+            }
+          });
+        }
+        // Combine default toppings (minus removed) and extra toppings
+        let baseToppings = Array.isArray(item.toppings) ? item.toppings.filter(t => !removed.includes(t)) : [];
+        let allToppings = baseToppings.concat(extraToppings);
+        // If no default toppings, still allow extras
+        if (!Array.isArray(item.toppings) || item.toppings.length === 0) {
+          allToppings = extraToppings;
+        }
+        // Calculate total price (size + extra toppings)
+        let totalPrice = parseFloat(size.price) || 0;
+        extraToppingPrices.forEach(p => { totalPrice += p; });
+        const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: allToppings, removed };
+        addToOrder(orderObj);
+        // Reset the toppings form after adding to order
+        if (form) {
+          // Reset remove-topping checkboxes to checked
+          Array.from(form.querySelectorAll('.remove-topping')).forEach(cb => { cb.checked = true; });
+          // Reset add-topping checkboxes to unchecked
+          Array.from(form.querySelectorAll('.add-topping')).forEach(cb => { cb.checked = false; });
+        }
+        opt.style.background = '#e9ece5';
+        setTimeout(() => { opt.style.background = ''; }, 300);
+        e.stopPropagation();
+      });
+    });
+    document.querySelectorAll('.menu-side-option').forEach(opt => {
+      if (opt.style.pointerEvents === 'none') return;
+      opt.addEventListener('click', function(e) {
+        const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
+        const side = JSON.parse(opt.getAttribute('data-side').replace(/&apos;/g, "'"));
+        addToOrder({ ...item, selectedSide: side, price: side.price, quantity: 1 });
+        opt.style.background = '#e9ece5';
+        setTimeout(() => { opt.style.background = ''; }, 300);
+        e.stopPropagation();
+      });
+    });
+  }
+
+  function addToOrder(item) {
+    let order = JSON.parse(localStorage.getItem('order') || '[]');
+    // Try to merge with existing (same name/size/side)
+    const matchIdx = order.findIndex(i => i.name === item.name && JSON.stringify(i.selectedSize) === JSON.stringify(item.selectedSize) && JSON.stringify(i.selectedSide) === JSON.stringify(item.selectedSide));
+    if (matchIdx > -1) {
+      order[matchIdx].quantity += 1;
+    } else {
+      order.push(item);
+    }
+    localStorage.setItem('order', JSON.stringify(order));
+    updateCartBadge();
+  }
+  fetchMenu();
+  // Add out-of-stock style
+  const style = document.createElement('style');
+  style.textContent = `.menu-item-card.out-of-stock { opacity: 0.5; pointer-events: none; position: relative; } .out-of-stock-label { color: #b9472e; font-weight: bold; font-size: 1.1em; }`;
+  document.head.appendChild(style);
+</script>
 </body>
 </html>
