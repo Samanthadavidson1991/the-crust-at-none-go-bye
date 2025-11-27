@@ -83,7 +83,8 @@ mongoose.connect(atlasUri)
     // Helper: Admin authentication middleware
     function requireAdminAuth(req, res, next) {
       if (req.session && req.session.isAdmin) return next();
-      res.status(401).json({ error: 'Not authenticated' });
+        // Redirect to login.html if not authenticated
+        res.redirect('/login.html');
     }
     // Static file serving and HTML routes
     app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
@@ -118,24 +119,45 @@ mongoose.connect(atlasUri)
     app.get('/sales-summary.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
     });
+      app.get('/sales-summary.html', requireAdminAuth, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
+      });
     app.get('/stock-management.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
     });
+      app.get('/stock-management.html', requireAdminAuth, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
+      });
     app.get('/takings.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'takings.html'));
     });
+      app.get('/takings.html', requireAdminAuth, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'takings.html'));
+      });
     app.get('/takings-totals.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
     });
+      app.get('/takings-totals.html', requireAdminAuth, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
+      });
     app.get('/timeslots.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
     });
+      app.get('/timeslots.html', requireAdminAuth, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
+      });
     app.get('/pos.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'pos.html'));
     });
+      app.get('/pos.html', requireAdminAuth, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'pos.html'));
+      });
     app.get('/running-orders.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
     });
+      app.get('/running-orders.html', requireAdminAuth, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
+      });
     app.get('/admin-menu.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
     });
