@@ -257,6 +257,13 @@ mongoose.connect(atlasUri)
     });
 
     app.get('/api/salad-topping-stock', (req, res) => {
+          // Dough stock endpoints for menu.html
+          app.get('/api/dough-stock', (req, res) => {
+            res.json({ stock: 20 }); // Example stock value
+          });
+          app.get('/api/gf-dough-stock', (req, res) => {
+            res.json({ stock: 10 }); // Example gluten-free stock value
+          });
       res.json({
         toppings: [
           { name: 'Lettuce', stock: 30 },
