@@ -203,18 +203,23 @@ mongoose.connect(atlasUri)
     app.get('/api/menu', async (req, res) => {
       try {
         const items = await MenuItem.find({});
+        console.log('[GET /api/menu] Returned items:', items);
         res.json({ items });
       } catch (err) {
+        console.error('[GET /api/menu] Error:', err);
         res.status(500).json({ error: 'Failed to fetch menu items', details: err.message });
       }
     });
 
     app.post('/api/menu', async (req, res) => {
       try {
+        console.log('[POST /api/menu] Received body:', req.body);
         const item = new MenuItem(req.body);
         await item.save();
+        console.log('[POST /api/menu] Saved item:', item);
         res.json({ success: true, item });
       } catch (err) {
+        console.error('[POST /api/menu] Error:', err);
         res.status(400).json({ error: 'Failed to add menu item', details: err.message });
       }
     });
