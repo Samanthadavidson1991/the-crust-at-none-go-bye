@@ -27,7 +27,7 @@ const PORT = process.env.PORT;
 console.log('ADMIN_DASHBOARD:', process.env.ADMIN_DASHBOARD);
 
 
-app.use(cors());
+// Removed default CORS to avoid conflicts. Only use configured CORS after session setup.
 // Parse JSON request bodies
 // ...existing code...
 const dbUser = process.env.MONGO_ATLAS_USERNAME;
