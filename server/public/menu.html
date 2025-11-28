@@ -185,6 +185,7 @@
           });
           html += '</ul>';
         } else {
+          // For desserts, drinks, and other items: show price and make card clickable
           html += `<span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
         }
         if (outOfStock) {
@@ -255,6 +256,20 @@
         addToOrder({ ...item, selectedSide: side, price: side.price, quantity: 1 });
         opt.style.background = '#e9ece5';
         setTimeout(() => { opt.style.background = ''; }, 300);
+        e.stopPropagation();
+      });
+    });
+    // Make all other menu-item-cards clickable (desserts, drinks, etc.)
+    document.querySelectorAll('.menu-item-card').forEach(card => {
+      // Only add click if not already handled by size/side options
+      if (card.querySelector('.menu-size-option') || card.querySelector('.menu-side-option')) return;
+      if (card.classList.contains('out-of-stock')) return;
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', function(e) {
+        const item = JSON.parse(card.getAttribute('data-item').replace(/&apos;/g, "'"));
+        addToOrder({ ...item, price: parseFloat(item.price), quantity: 1 });
+        card.style.background = '#e9ece5';
+        setTimeout(() => { card.style.background = ''; }, 300);
         e.stopPropagation();
       });
     });
