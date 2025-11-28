@@ -112,9 +112,13 @@
       if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
       const menuData = await menuRes.json();
       const masterToppings = await toppingsRes.json();
+      console.log('DEBUG: menuData', menuData);
+      console.log('DEBUG: masterToppings', masterToppings);
       await fetchDoughStocks();
+      console.log('DEBUG: Calling renderMenu with:', menuData.items, masterToppings);
       renderMenu(menuData.items, masterToppings);
     } catch (err) {
+      console.error('DEBUG: fetchMenu error', err);
       const content = document.getElementById('menu-content');
       content.style.display = 'block';
       content.innerHTML = '<em style="color:red">Failed to load menu or toppings. Please try again later.</em>';
@@ -122,6 +126,8 @@
   }
 
   function renderMenu(menu, masterToppings) {
+      console.log('DEBUG: renderMenu received menu:', menu);
+      console.log('DEBUG: renderMenu received masterToppings:', masterToppings);
     const content = document.getElementById('menu-content');
     if (!menu || !Array.isArray(menu) || menu.length === 0) {
       content.innerHTML = '<em>No menu items found.</em>';
