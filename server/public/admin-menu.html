@@ -111,6 +111,15 @@
         </div>
       </div>
       <form class="menu-form" id="menuForm">
+          <div id="dessertDrinkFields" class="d-none">
+            <label><b>Price (£):</b></label>
+            <input type="number" id="dessertDrinkPriceInput" name="price" placeholder="Price (£)" step="0.01" min="0">
+          </div>
+          // Show price input for Desserts/Drinks
+          document.getElementById('categorySelect').addEventListener('change', function() {
+            const cat = this.value;
+            document.getElementById('dessertDrinkFields').style.display = (cat === 'Desserts' || cat === 'Drinks') ? '' : 'none';
+          });
   <select name="category" id="categorySelect" required title="Select menu category">
           <option value="">Select Category</option>
           <option value="Pizza">Pizza</option>
@@ -375,6 +384,8 @@
               html += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
             });
             html += '</ul>';
+          } else if ((cat === 'Desserts' || cat === 'Drinks') && item.price !== undefined) {
+            html += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
           }
           html += `</li>`;
         });
