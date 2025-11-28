@@ -34,14 +34,21 @@
     </section>
 </body>
 <script>
+    // TEST: Confirm JS is running
+    console.log('JS test: menu.html script is running');
+    document.body.insertAdjacentHTML('afterbegin', '<div id="js-test-message" style="color:green;font-weight:bold;">JS test: Script is running</div>');
+    setTimeout(() => {
+      const msg = document.getElementById('js-test-message');
+      if (msg) msg.remove();
+    }, 3000);
   // --- Dough Stock Logic ---
   let doughStock = null;
   let gfDoughStock = null;
   async function fetchDoughStocks() {
     try {
       const [doughRes, gfRes] = await Promise.all([
-        fetch('/api/dough-stock'),
-        fetch('/api/gf-dough-stock')
+        fetch('https://the-crust-at-none-go-bye.onrender.com/api/dough-stock'),
+        fetch('https://the-crust-at-none-go-bye.onrender.com/api/gf-dough-stock')
       ]);
       doughStock = (await doughRes.json()).stock;
       gfDoughStock = (await gfRes.json()).stock;
@@ -86,8 +93,8 @@
     fetchSpecialOffers();
     try {
       const [menuRes, toppingsRes] = await Promise.all([
-        fetch('/api/menu'),
-        fetch('/api/pizza-topping-stock')
+        fetch('https://the-crust-at-none-go-bye.onrender.com/api/menu'),
+        fetch('https://the-crust-at-none-go-bye.onrender.com/api/pizza-topping-stock')
       ]);
       if (!menuRes.ok) throw new Error('Menu fetch failed');
       if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
