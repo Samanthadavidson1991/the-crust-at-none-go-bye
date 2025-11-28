@@ -34,6 +34,18 @@
     </section>
 </body>
 <script>
+      // TEST: Force a fetch to backend and log result
+      fetch('https://the-crust-at-none-go-bye.onrender.com/api/menu')
+        .then(res => {
+          console.log('Test fetch to /api/menu status:', res.status);
+          return res.text();
+        })
+        .then(text => {
+          console.log('Test fetch to /api/menu response:', text);
+        })
+        .catch(err => {
+          console.error('Test fetch to /api/menu failed:', err);
+        });
     // TEST: Confirm JS is running
     console.log('JS test: menu.html script is running');
     document.body.insertAdjacentHTML('afterbegin', '<div id="js-test-message" style="color:green;font-weight:bold;">JS test: Script is running</div>');
