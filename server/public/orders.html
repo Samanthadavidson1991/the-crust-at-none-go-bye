@@ -76,6 +76,22 @@
     </section>
   </main>
   <script>
+    // Login/session check
+    fetch('/api/admin/check', { credentials: 'include' })
+      .then(r => {
+        if (!r.ok) window.location.href = 'login.html';
+      });
+    // --- Lock Page Logic ---
+    function lockAdminPage() {
+      fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })
+        .then(r => {
+          if (r.ok) {
+            alert('Page locked. You will not be logged out automatically.');
+          } else {
+            alert('Failed to lock page.');
+          }
+        });
+    }
     // Store order counts by name (lowercase)
     let orderCountsByName = {};
     // Helper: get distance and duration from postcodes.io
@@ -687,5 +703,6 @@
       setDateAndFetch(d);
     });
   </script>
+  <button id="lock-page-btn" style="float:right;margin-top:8px;" onclick="lockAdminPage()">Lock this page</button>
 </body>
 </html>

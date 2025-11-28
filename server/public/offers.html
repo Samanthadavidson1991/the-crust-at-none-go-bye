@@ -9,9 +9,17 @@
 </head>
 <body class="admin-page">
   <!-- Login redirect removed for dashboard access -->
+    <script>
+      // Login/session check
+      fetch('/api/admin/check', { credentials: 'include' })
+        .then(r => {
+          if (!r.ok) window.location.href = 'login.html';
+        });
+    </script>
   <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
   <header>
     <h1 class="main-heading underline">Admin  Special Offers</h1>
+      <h1 class="main-heading underline">Admin Special Offers <button id="lock-page-btn" style="float:right;margin-top:8px;" onclick="lockAdminPage()">Lock this page</button></h1>
     <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
       <a href="admin-menu.html">Menu Editor</a>
       <a href="stock-management.html">Stock Management</    git remote set-url origin https://github.com/Samanthadavidson1991/the-crust-at-none-go-bye.gitgit remote -va>
@@ -25,6 +33,19 @@
     </nav>
   </header>
   <main>
+      <script>
+      // --- Lock Page Logic ---
+      function lockAdminPage() {
+        fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })
+          .then(r => {
+            if (r.ok) {
+              alert('Page locked. You will not be logged out automatically.');
+            } else {
+              alert('Failed to lock page.');
+            }
+          });
+      }
+      </script>
     <main id="main-content">
     <section class="admin-section">
       <h2>Manage Special Offers</h2>
