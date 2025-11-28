@@ -116,9 +116,15 @@
             <input type="number" id="dessertDrinkPriceInput" name="price" placeholder="Price (£)" step="0.01" min="0">
           </div>
           // Show price input for Desserts/Drinks
-          document.getElementById('categorySelect').addEventListener('change', function() {
-            const cat = this.value;
-            document.getElementById('dessertDrinkFields').style.display = (cat === 'Desserts' || cat === 'Drinks') ? '' : 'none';
+          document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('categorySelect');
+            const dessertDrinkFields = document.getElementById('dessertDrinkFields');
+            function updateDessertDrinkFields() {
+              const cat = categorySelect.value;
+              dessertDrinkFields.style.display = (cat === 'Desserts' || cat === 'Drinks') ? '' : 'none';
+            }
+            categorySelect.addEventListener('change', updateDessertDrinkFields);
+            updateDessertDrinkFields();
           });
   <select name="category" id="categorySelect" required title="Select menu category">
           <option value="">Select Category</option>
