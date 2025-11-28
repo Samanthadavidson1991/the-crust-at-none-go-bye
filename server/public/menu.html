@@ -169,7 +169,7 @@
           }
           // Add Extra Toppings: all master toppings (not already on pizza)
           html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
-          masterToppings.forEach(mt => {
+            (masterToppings.toppings || []).forEach(mt => {
             let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
             // Show all master toppings, but disable if already on pizza
             const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
