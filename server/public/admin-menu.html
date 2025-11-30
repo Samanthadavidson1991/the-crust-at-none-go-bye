@@ -166,11 +166,12 @@
       });
       let html = '';
       Object.keys(categories).forEach(cat => {
-        html += `<h4>${cat}</h4><ul style='padding-left:0;'>`;
+        html += `<h4>${cat}</h4>`;
+        html += `<ul class='menu-preview-list'>`;
         categories[cat].forEach(item => {
-          html += `<li style='margin-bottom:8px;list-style:none;'><b>${item.name}</b> - ${item.description ? item.description : ''}`;
+          html += `<li class='menu-preview-item'><b>${item.name}</b> - ${item.description ? item.description : ''}`;
           if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-            html += '<ul style="list-style:none;padding:0;">';
+            html += '<ul class="menu-preview-size-list">';
             item.sizes.forEach(size => {
               html += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
             });

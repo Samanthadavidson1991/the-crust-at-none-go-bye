@@ -1,3 +1,16 @@
+/* Admin Menu Preview Styles */
+.menu-preview-list {
+    padding-left: 0;
+    list-style: none;
+}
+.menu-preview-item {
+    margin-bottom: 8px;
+    list-style: none;
+}
+.menu-preview-size-list {
+    list-style: none;
+    padding: 0;
+}
 /* Mobile Responsive Styles for Admin Pages */
 @media (max-width: 900px) {
     .admin-section {
