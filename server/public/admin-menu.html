@@ -1,4 +1,5 @@
 [Full content from root admin-menu.html, lines 1-546]
+[Full content from root admin-menu.html, lines 1-546]
             const toppingInput = document.getElementById('toppingInput');
             const toppingsList = document.getElementById('toppingsList');
             const addSizeBtn = document.getElementById('addSizeBtn');
@@ -169,17 +170,17 @@
         html += `<h4>${cat}</h4>`;
         html += `<ul class='menu-preview-list'>`;
         categories[cat].forEach(item => {
-          html += `<li class='menu-preview-item'><b>${item.name}</b> - ${item.description ? item.description : ''}`;
+          let itemHtml = `<b>${item.name}</b> - ${item.description ? item.description : ''}`;
           if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-            html += '<ul class="menu-preview-size-list">';
+            itemHtml += '<ul class="menu-preview-size-list">';
             item.sizes.forEach(size => {
-              html += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
+              itemHtml += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
             });
-            html += '</ul>';
+            itemHtml += '</ul>';
           } else if ((cat === 'Desserts' || cat === 'Drinks') && item.price !== undefined) {
-            html += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
+            itemHtml += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
           }
-          html += `</li>`;
+          html += `<li class='menu-preview-item'>${itemHtml}</li>`;
         });
         html += '</ul>';
       });
