@@ -60,8 +60,7 @@
           <input type="text" id="admin-announcement-input" placeholder="Edit announcement...">
           <button type="submit">Update</button>
         </form>
-      </div>
-      <h2>Edit Menu</h2>
+      <script>
       <div id="pizza-topping-master-section" class="mb-32">
         <h3>Pizza Master Toppings</h3>
         <form id="addPizzaMasterToppingForm" class="mb-12 flex gap-8 align-center">
@@ -216,340 +215,6 @@
 
             // DOM elements
             const addToppingBtn = document.getElementById('addToppingBtn');
-            const toppingInput = document.getElementById('toppingInput');
-            const toppingsList = document.getElementById('toppingsList');
-            const addSizeBtn = document.getElementById('addSizeBtn');
-            const sizeNameInput = document.getElementById('sizeNameInput');
-            const sizePriceInput = document.getElementById('sizePriceInput');
-            const sizesList = document.getElementById('sizesList');
-            const addSideOptionBtn = document.getElementById('addSideOptionBtn');
-            const sideOptionNameInput = document.getElementById('sideOptionNameInput');
-            const sideOptionPriceInput = document.getElementById('sideOptionPriceInput');
-            const sidesOptionsList = document.getElementById('sidesOptionsList');
-
-            // Render toppings
-            function renderToppings() {
-              toppingsList.innerHTML = '';
-              toppings.forEach((t, i) => {
-                const span = document.createElement('span');
-                span.textContent = t;
-                span.style.marginRight = '8px';
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = 'x';
-                removeBtn.type = 'button';
-                removeBtn.style.marginLeft = '4px';
-                removeBtn.onclick = () => { toppings.splice(i, 1); renderToppings(); };
-                span.appendChild(removeBtn);
-                toppingsList.appendChild(span);
-              });
-            }
-            addToppingBtn.onclick = function() {
-              const val = toppingInput.value.trim();
-              if(val) { toppings.push(val); toppingInput.value = ''; renderToppings(); }
-            };
-
-            // Render sizes
-            function renderSizes() {
-              sizesList.innerHTML = '';
-              sizes.forEach((s, i) => {
-                const div = document.createElement('div');
-                div.textContent = `${s.name} - £${parseFloat(s.price).toFixed(2)}`;
-                div.style.marginRight = '8px';
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = 'x';
-                removeBtn.type = 'button';
-                removeBtn.style.marginLeft = '4px';
-                removeBtn.onclick = () => { sizes.splice(i, 1); renderSizes(); };
-                div.appendChild(removeBtn);
-                sizesList.appendChild(div);
-              });
-            }
-            addSizeBtn.onclick = function() {
-              let name = sizeNameInput.value;
-              const price = sizePriceInput.value.trim();
-              // Only allow dropdown values for pizza
-              const cat = document.getElementById('categorySelect').value;
-              if (cat === 'Pizza') {
-                if ((name === '12in' || name === '8in' || name === 'Gluten Free') && price && !isNaN(price)) {
-                  sizes.push({name, price: parseFloat(price)});
-                  sizeNameInput.value = '';
-                  sizePriceInput.value = '';
-                  renderSizes();
-                }
-              } else {
-                // For non-pizza, allow free text (fallback, not shown in UI)
-                if (name && price && !isNaN(price)) {
-                  sizes.push({name, price: parseFloat(price)});
-                  sizeNameInput.value = '';
-                  sizePriceInput.value = '';
-                  renderSizes();
-                }
-              }
-            };
-
-            // Render side options
-            function renderSideOptions() {
-              sidesOptionsList.innerHTML = '';
-              sideOptions.forEach((s, i) => {
-                const div = document.createElement('div');
-                div.textContent = `${s.name} - £${parseFloat(s.price).toFixed(2)}`;
-                div.style.marginRight = '8px';
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = 'x';
-                removeBtn.type = 'button';
-                removeBtn.style.marginLeft = '4px';
-                removeBtn.onclick = () => { sideOptions.splice(i, 1); renderSideOptions(); };
-                div.appendChild(removeBtn);
-                sidesOptionsList.appendChild(div);
-              });
-            }
-            addSideOptionBtn.onclick = function() {
-              const name = sideOptionNameInput.value.trim();
-              const price = sideOptionPriceInput.value.trim();
-              if(name && price && !isNaN(price)) {
-                sideOptions.push({name, price: parseFloat(price)});
-                sideOptionNameInput.value = '';
-                sideOptionPriceInput.value = '';
-                renderSideOptions();
-              }
-            };
-
-            // Reset all arrays and UI on form reset
-            document.getElementById('menuForm').addEventListener('reset', () => {
-              toppings = [];
-              sizes = [];
-              sideOptions = [];
-              renderToppings();
-              renderSizes();
-              renderSideOptions();
-            });
-
-            // Initial render
-            renderToppings();
-            renderSizes();
-            renderSideOptions();
-        // Show/hide pizza and sides fields based on category
-        document.addEventListener('DOMContentLoaded', function() {
-          const categorySelect = document.getElementById('categorySelect');
-          const pizzaFields = document.getElementById('pizzaFields');
-          const sidesFields = document.getElementById('sidesFields');
-          function updateFields() {
-            const cat = categorySelect.value;
-            if (cat === 'Pizza') {
-              pizzaFields.classList.remove('d-none');
-              sidesFields.classList.add('d-none');
-            } else if (cat === 'Sides') {
-              pizzaFields.classList.add('d-none');
-              sidesFields.classList.remove('d-none');
-            } else {
-              pizzaFields.classList.add('d-none');
-              sidesFields.classList.add('d-none');
-            }
-          }
-          categorySelect.addEventListener('change', updateFields);
-          updateFields();
-        });
-    // --- Admin Menu Preview Section ---
-    async function fetchAdminMenu() {
-      const loading = document.getElementById('admin-menu-loading');
-      const content = document.getElementById('admin-menu-content');
-      loading.style.display = '';
-      content.classList.add('d-none');
-      try {
-        const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
-        const menu = await res.json();
-        renderAdminMenu(menu.items || []);
-        loading.style.display = 'none';
-        content.classList.remove('d-none');
-      } catch (err) {
-        loading.textContent = 'Error loading menu.';
-        content.classList.add('d-none');
-        console.error('Failed to fetch admin menu:', err);
-      }
-    }
-
-    function renderAdminMenu(menu) {
-      const content = document.getElementById('admin-menu-content');
-      if (!menu || !Array.isArray(menu) || menu.length === 0) {
-        content.innerHTML = '<em>No menu items yet.</em>';
-        return;
-      }
-      // Group by category
-      const categories = {};
-      menu.forEach(item => {
-        const cat = item.category || 'Other';
-        if (!categories[cat]) categories[cat] = [];
-        categories[cat].push(item);
-      });
-      let html = '';
-      Object.keys(categories).forEach(cat => {
-        html += `<h4>${cat}</h4><ul style='padding-left:0;'>`;
-        categories[cat].forEach(item => {
-          html += `<li style='margin-bottom:8px;list-style:none;'><b>${item.name}</b> - ${item.description ? item.description : ''}`;
-          if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-            html += '<ul style="list-style:none;padding:0;">';
-            item.sizes.forEach(size => {
-              html += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
-            });
-            html += '</ul>';
-          } else if ((cat === 'Desserts' || cat === 'Drinks') && item.price !== undefined) {
-            html += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
-          }
-          html += `</li>`;
-        });
-        html += '</ul>';
-      });
-      content.innerHTML = html;
-    }
-    // --- Pizza Master Toppings Section ---
-    async function fetchPizzaMasterToppings() {
-      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
-      const toppings = await res.json();
-      renderPizzaMasterToppings(toppings);
-    }
-    function renderPizzaMasterToppings(toppings) {
-      const meatList = document.getElementById('pizzaMeatToppingsList');
-      const vegList = document.getElementById('pizzaVegToppingsList');
-      let otherList = document.getElementById('pizzaOtherToppingsList');
-      if (!otherList) {
-        otherList = document.createElement('ul');
-        otherList.id = 'pizzaOtherToppingsList';
-        const otherDiv = document.createElement('div');
-        otherDiv.style.flex = '1';
-        const otherHeader = document.createElement('h4');
-        otherHeader.textContent = 'Other';
-        otherDiv.appendChild(otherHeader);
-        otherDiv.appendChild(otherList);
-        meatList.parentElement.parentElement.appendChild(otherDiv);
-      }
-      meatList.innerHTML = '';
-      vegList.innerHTML = '';
-      otherList.innerHTML = '';
-      toppings = Array.isArray(toppings) ? toppings : [];
-      toppings.forEach(t => {
-        const li = document.createElement('li');
-        li.style.marginBottom = '4px';
-        let isEditing = false;
-        function renderToppingItem() {
-          li.innerHTML = '';
-          if (!isEditing) {
-            li.textContent = `${t.topping} (${t.type || 'no type'}) £${t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.00'}`;
-            const editBtn = document.createElement('button');
-            editBtn.textContent = 'Edit';
-            editBtn.style.marginLeft = '8px';
-            editBtn.onclick = () => { isEditing = true; renderToppingItem(); };
-            li.appendChild(editBtn);
-            const delBtn = document.createElement('button');
-            delBtn.textContent = 'Delete';
-            delBtn.style.marginLeft = '8px';
-            delBtn.onclick = async () => {
-              await deletePizzaMasterTopping(t.topping);
-              fetchPizzaMasterToppings();
-            };
-            li.appendChild(delBtn);
-          } else {
-            const nameInput = document.createElement('input');
-            nameInput.type = 'text';
-            nameInput.value = t.topping;
-            nameInput.style.width = '90px';
-            const typeSelect = document.createElement('select');
-            ['meat','vegetable','other'].forEach(opt => {
-              const o = document.createElement('option');
-              o.value = opt;
-              o.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
-              if (t.type === opt) o.selected = true;
-              typeSelect.appendChild(o);
-            });
-            const priceInput = document.createElement('input');
-            priceInput.type = 'number';
-            priceInput.step = '0.01';
-            priceInput.min = '0';
-            priceInput.style.width = '70px';
-            priceInput.value = t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.50';
-            function updatePriceField() {
-              if (typeSelect.value === 'other') {
-                if (!priceInput.value || priceInput.value === '1.00' || priceInput.value === '0.60') priceInput.value = '0.50';
-                priceInput.readOnly = false;
-              } else if (typeSelect.value === 'meat') {
-                priceInput.value = '1.00';
-                priceInput.readOnly = false;
-              } else if (typeSelect.value === 'vegetable') {
-                priceInput.value = '0.60';
-                priceInput.readOnly = false;
-              } else {
-                priceInput.value = '';
-                priceInput.readOnly = false;
-              }
-            }
-            typeSelect.addEventListener('change', updatePriceField);
-            updatePriceField();
-            li.appendChild(nameInput);
-            li.appendChild(typeSelect);
-            li.appendChild(priceInput);
-            const saveBtn = document.createElement('button');
-            saveBtn.textContent = 'Save';
-            saveBtn.style.marginLeft = '8px';
-            saveBtn.onclick = async () => {
-              const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock');
-              let allToppings = await res.json();
-              const idx = allToppings.findIndex(x => x.topping === t.topping);
-              if (idx > -1) {
-                allToppings[idx] = {
-                  ...allToppings[idx],
-                  topping: nameInput.value.trim(),
-                  type: typeSelect.value,
-                  price: parseFloat(priceInput.value)
-                };
-                await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ toppingStatus: allToppings })
-                });
-                isEditing = false;
-                fetchPizzaMasterToppings();
-              }
-            };
-            li.appendChild(saveBtn);
-            const cancelBtn = document.createElement('button');
-            cancelBtn.textContent = 'Cancel';
-            cancelBtn.style.marginLeft = '8px';
-            cancelBtn.onclick = () => { isEditing = false; renderToppingItem(); };
-            li.appendChild(cancelBtn);
-          }
-        }
-        renderToppingItem();
-        if (typeof t.type === 'string') {
-          const typeLower = t.type.trim().toLowerCase();
-          if (typeLower === 'meat') {
-            meatList.appendChild(li);
-          } else if (typeLower === 'vegetable') {
-            vegList.appendChild(li);
-          } else {
-            otherList.appendChild(li);
-          }
-        } else {
-          otherList.appendChild(li);
-        }
-      });
-    }
-
-    async function deletePizzaMasterTopping(name) {
-      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
-      let toppings = await res.json();
-      toppings = toppings.filter(t => t.topping !== name);
-      await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toppingStatus: toppings }),
-        credentials: 'include'
-      });
-      fetchPizzaMasterToppings();
-    }
-  </script>
-  </main>
-</body>
-</html>
-[Full content from root admin-menu.html, lines 1-546]
             const toppingInput = document.getElementById('toppingInput');
             const toppingsList = document.getElementById('toppingsList');
             const addSizeBtn = document.getElementById('addSizeBtn');
@@ -878,50 +543,402 @@
         body: JSON.stringify({ toppingStatus: toppings }),
         credentials: 'include'
       });
-        fetchPizzaMasterToppings();
+      fetchPizzaMasterToppings();
+    }
+    // --- Admin Menu Preview Section ---
+    async function fetchAdminMenu() {
+      const loading = document.getElementById('admin-menu-loading');
+      const content = document.getElementById('admin-menu-content');
+      loading.style.display = '';
+      content.classList.add('d-none');
+      try {
+        const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
+        const menu = await res.json();
+        renderAdminMenu(menu.items || []);
+        loading.style.display = 'none';
+        content.classList.remove('d-none');
+      } catch (err) {
+        loading.textContent = 'Error loading menu.';
+        content.classList.add('d-none');
+        console.error('Failed to fetch admin menu:', err);
       }
     }
 
-    const pizzaMasterToppingType = document.getElementById('pizzaMasterToppingType');
-    const pizzaMasterToppingPrice = document.getElementById('pizzaMasterToppingPrice');
-    pizzaMasterToppingType.addEventListener('change', function() {
-      if (this.value === 'other') {
-        if (!pizzaMasterToppingPrice.value || pizzaMasterToppingPrice.value === '1.00' || pizzaMasterToppingPrice.value === '0.60') pizzaMasterToppingPrice.value = '0.50';
-        pizzaMasterToppingPrice.readOnly = false;
-      } else if (this.value === 'meat') {
-        pizzaMasterToppingPrice.value = '1.00';
-        pizzaMasterToppingPrice.readOnly = false;
-      } else if (this.value === 'vegetable') {
-        pizzaMasterToppingPrice.value = '0.60';
-        pizzaMasterToppingPrice.readOnly = false;
-      } else {
-        pizzaMasterToppingPrice.value = '';
-        pizzaMasterToppingPrice.readOnly = false;
+    function renderAdminMenu(menu) {
+      const content = document.getElementById('admin-menu-content');
+      if (!menu || !Array.isArray(menu) || menu.length === 0) {
+        content.innerHTML = '<em>No menu items yet.</em>';
+        return;
       }
-    });
+      // Group by category
+      const categories = {};
+      menu.forEach(item => {
+        const cat = item.category || 'Other';
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(item);
+      });
+      let html = '';
+      Object.keys(categories).forEach(cat => {
+        html += `<h4>${cat}</h4>`;
+        html += `<ul class='menu-preview-list'>`;
+        categories[cat].forEach(item => {
+          let itemHtml = `<b>${item.name}</b> - ${item.description ? item.description : ''}`;
+          if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+            itemHtml += '<ul class="menu-preview-size-list">';
+            item.sizes.forEach(size => {
+              itemHtml += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
+            });
+            itemHtml += '</ul>';
+          } else if ((cat === 'Desserts' || cat === 'Drinks') && item.price !== undefined) {
+            itemHtml += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
+          }
+          html += `<li class='menu-preview-item'>${itemHtml}</li>`;
+        });
+        html += '</ul>';
+      });
+      content.innerHTML = html;
+    }
+    // --- Pizza Master Toppings Section ---
+    async function fetchPizzaMasterToppings() {
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
+      const toppings = await res.json();
+      renderPizzaMasterToppings(toppings);
+    }
+    function renderPizzaMasterToppings(toppings) {
+      const meatList = document.getElementById('pizzaMeatToppingsList');
+      const vegList = document.getElementById('pizzaVegToppingsList');
+      let otherList = document.getElementById('pizzaOtherToppingsList');
+      if (!otherList) {
+        otherList = document.createElement('ul');
+        otherList.id = 'pizzaOtherToppingsList';
+        const otherDiv = document.createElement('div');
+        otherDiv.style.flex = '1';
+        const otherHeader = document.createElement('h4');
+        otherHeader.textContent = 'Other';
+        otherDiv.appendChild(otherHeader);
+        otherDiv.appendChild(otherList);
+        meatList.parentElement.parentElement.appendChild(otherDiv);
+      }
+      meatList.innerHTML = '';
+      vegList.innerHTML = '';
+      otherList.innerHTML = '';
+      toppings = Array.isArray(toppings) ? toppings : [];
+      toppings.forEach(t => {
+        const li = document.createElement('li');
+        li.style.marginBottom = '4px';
+        let isEditing = false;
+        function renderToppingItem() {
+          li.innerHTML = '';
+          if (!isEditing) {
+            li.textContent = `${t.topping} (${t.type || 'no type'}) £${t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.00'}`;
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.style.marginLeft = '8px';
+            editBtn.onclick = () => { isEditing = true; renderToppingItem(); };
+            li.appendChild(editBtn);
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Delete';
+            delBtn.style.marginLeft = '8px';
+            delBtn.onclick = async () => {
+              await deletePizzaMasterTopping(t.topping);
+              fetchPizzaMasterToppings();
+            };
+            li.appendChild(delBtn);
+          } else {
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = t.topping;
+            nameInput.style.width = '90px';
+            const typeSelect = document.createElement('select');
+            ['meat','vegetable','other'].forEach(opt => {
+              const o = document.createElement('option');
+              o.value = opt;
+              o.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
+              if (t.type === opt) o.selected = true;
+              typeSelect.appendChild(o);
+            });
+            const priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.step = '0.01';
+            priceInput.min = '0';
+            priceInput.style.width = '70px';
+            priceInput.value = t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.50';
+            function updatePriceField() {
+              if (typeSelect.value === 'other') {
+                if (!priceInput.value || priceInput.value === '1.00' || priceInput.value === '0.60') priceInput.value = '0.50';
+                priceInput.readOnly = false;
+              } else if (typeSelect.value === 'meat') {
+                priceInput.value = '1.00';
+                priceInput.readOnly = false;
+              } else if (typeSelect.value === 'vegetable') {
+                priceInput.value = '0.60';
+                priceInput.readOnly = false;
+              } else {
+                priceInput.value = '';
+                priceInput.readOnly = false;
+              }
+            }
+            typeSelect.addEventListener('change', updatePriceField);
+            updatePriceField();
+            li.appendChild(nameInput);
+            li.appendChild(typeSelect);
+            li.appendChild(priceInput);
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = 'Save';
+            saveBtn.style.marginLeft = '8px';
+            saveBtn.onclick = async () => {
+              const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock');
+              let allToppings = await res.json();
+              const idx = allToppings.findIndex(x => x.topping === t.topping);
+              if (idx > -1) {
+                allToppings[idx] = {
+                  ...allToppings[idx],
+                  topping: nameInput.value.trim(),
+                  type: typeSelect.value,
+                  price: parseFloat(priceInput.value)
+                };
+                await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ toppingStatus: allToppings })
+                });
+                isEditing = false;
+                fetchPizzaMasterToppings();
+              }
+            };
+            li.appendChild(saveBtn);
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.style.marginLeft = '8px';
+            cancelBtn.onclick = () => { isEditing = false; renderToppingItem(); };
+            li.appendChild(cancelBtn);
+          }
+        }
+        renderToppingItem();
+        if (typeof t.type === 'string') {
+          const typeLower = t.type.trim().toLowerCase();
+          if (typeLower === 'meat') {
+            meatList.appendChild(li);
+          } else if (typeLower === 'vegetable') {
+            vegList.appendChild(li);
+          } else {
+            otherList.appendChild(li);
+          }
+        } else {
+          otherList.appendChild(li);
+        }
+      });
+    }
 
-    document.getElementById('addPizzaMasterToppingForm').onsubmit = async function(e) {
-      e.preventDefault();
-      const name = document.getElementById('pizzaMasterToppingInput').value.trim();
-      const type = pizzaMasterToppingType.value;
-      const price = parseFloat(pizzaMasterToppingPrice.value);
-      if (!name || !type || isNaN(price)) return;
+    async function deletePizzaMasterTopping(name) {
       const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
       let toppings = await res.json();
-      let toppingObj = { topping: name, outOfStock: false, type, price };
-      toppings.push(toppingObj);
+      toppings = toppings.filter(t => t.topping !== name);
       await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ toppingStatus: toppings }),
         credentials: 'include'
       });
-      document.getElementById('pizzaMasterToppingInput').value = '';
-      pizzaMasterToppingType.value = '';
-      pizzaMasterToppingPrice.value = '';
       fetchPizzaMasterToppings();
-    };
+    }
+    // --- Admin Menu Preview Section ---
+    async function fetchAdminMenu() {
+      const loading = document.getElementById('admin-menu-loading');
+      const content = document.getElementById('admin-menu-content');
+      loading.style.display = '';
+      content.classList.add('d-none');
+      try {
+        const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
+        const menu = await res.json();
+        renderAdminMenu(menu.items || []);
+        loading.style.display = 'none';
+        content.classList.remove('d-none');
+      } catch (err) {
+        loading.textContent = 'Error loading menu.';
+        content.classList.add('d-none');
+        console.error('Failed to fetch admin menu:', err);
+      }
+    }
 
+    function renderAdminMenu(menu) {
+      const content = document.getElementById('admin-menu-content');
+      if (!menu || !Array.isArray(menu) || menu.length === 0) {
+        content.innerHTML = '<em>No menu items yet.</em>';
+        return;
+      }
+      // Group by category
+      const categories = {};
+      menu.forEach(item => {
+        const cat = item.category || 'Other';
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(item);
+      });
+      let html = '';
+      Object.keys(categories).forEach(cat => {
+        html += `<h4>${cat}</h4>`;
+        html += `<ul class='menu-preview-list'>`;
+        categories[cat].forEach(item => {
+          let itemHtml = `<b>${item.name}</b> - ${item.description ? item.description : ''}`;
+          if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+            itemHtml += '<ul class="menu-preview-size-list">';
+            item.sizes.forEach(size => {
+              itemHtml += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
+            });
+            itemHtml += '</ul>';
+          } else if ((cat === 'Desserts' || cat === 'Drinks') && item.price !== undefined) {
+            itemHtml += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
+          }
+          html += `<li class='menu-preview-item'>${itemHtml}</li>`;
+        });
+        html += '</ul>';
+      });
+      content.innerHTML = html;
+    }
+    // --- Pizza Master Toppings Section ---
+    async function fetchPizzaMasterToppings() {
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
+      const toppings = await res.json();
+      renderPizzaMasterToppings(toppings);
+    }
+    function renderPizzaMasterToppings(toppings) {
+      const meatList = document.getElementById('pizzaMeatToppingsList');
+      const vegList = document.getElementById('pizzaVegToppingsList');
+      let otherList = document.getElementById('pizzaOtherToppingsList');
+      if (!otherList) {
+        otherList = document.createElement('ul');
+        otherList.id = 'pizzaOtherToppingsList';
+        const otherDiv = document.createElement('div');
+        otherDiv.style.flex = '1';
+        const otherHeader = document.createElement('h4');
+        otherHeader.textContent = 'Other';
+        otherDiv.appendChild(otherHeader);
+        otherDiv.appendChild(otherList);
+        meatList.parentElement.parentElement.appendChild(otherDiv);
+      }
+      meatList.innerHTML = '';
+      vegList.innerHTML = '';
+      otherList.innerHTML = '';
+      toppings = Array.isArray(toppings) ? toppings : [];
+      toppings.forEach(t => {
+        const li = document.createElement('li');
+        li.style.marginBottom = '4px';
+        let isEditing = false;
+        function renderToppingItem() {
+          li.innerHTML = '';
+          if (!isEditing) {
+            li.textContent = `${t.topping} (${t.type || 'no type'}) £${t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.00'}`;
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.style.marginLeft = '8px';
+            editBtn.onclick = () => { isEditing = true; renderToppingItem(); };
+            li.appendChild(editBtn);
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Delete';
+            delBtn.style.marginLeft = '8px';
+            delBtn.onclick = async () => {
+              await deletePizzaMasterTopping(t.topping);
+              fetchPizzaMasterToppings();
+            };
+            li.appendChild(delBtn);
+          } else {
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = t.topping;
+            nameInput.style.width = '90px';
+            const typeSelect = document.createElement('select');
+            ['meat','vegetable','other'].forEach(opt => {
+              const o = document.createElement('option');
+              o.value = opt;
+              o.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
+              if (t.type === opt) o.selected = true;
+              typeSelect.appendChild(o);
+            });
+            const priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.step = '0.01';
+            priceInput.min = '0';
+            priceInput.style.width = '70px';
+            priceInput.value = t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.50';
+            function updatePriceField() {
+              if (typeSelect.value === 'other') {
+                if (!priceInput.value || priceInput.value === '1.00' || priceInput.value === '0.60') priceInput.value = '0.50';
+                priceInput.readOnly = false;
+              } else if (typeSelect.value === 'meat') {
+                priceInput.value = '1.00';
+                priceInput.readOnly = false;
+              } else if (typeSelect.value === 'vegetable') {
+                priceInput.value = '0.60';
+                priceInput.readOnly = false;
+              } else {
+                priceInput.value = '';
+                priceInput.readOnly = false;
+              }
+            }
+            typeSelect.addEventListener('change', updatePriceField);
+            updatePriceField();
+            li.appendChild(nameInput);
+            li.appendChild(typeSelect);
+            li.appendChild(priceInput);
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = 'Save';
+            saveBtn.style.marginLeft = '8px';
+            saveBtn.onclick = async () => {
+              const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock');
+              let allToppings = await res.json();
+              const idx = allToppings.findIndex(x => x.topping === t.topping);
+              if (idx > -1) {
+                allToppings[idx] = {
+                  ...allToppings[idx],
+                  topping: nameInput.value.trim(),
+                  type: typeSelect.value,
+                  price: parseFloat(priceInput.value)
+                };
+                await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ toppingStatus: allToppings })
+                });
+                isEditing = false;
+                fetchPizzaMasterToppings();
+              }
+            };
+            li.appendChild(saveBtn);
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.style.marginLeft = '8px';
+            cancelBtn.onclick = () => { isEditing = false; renderToppingItem(); };
+            li.appendChild(cancelBtn);
+          }
+        }
+        renderToppingItem();
+        if (typeof t.type === 'string') {
+          const typeLower = t.type.trim().toLowerCase();
+          if (typeLower === 'meat') {
+            meatList.appendChild(li);
+          } else if (typeLower === 'vegetable') {
+            vegList.appendChild(li);
+          } else {
+            otherList.appendChild(li);
+          }
+        } else {
+          otherList.appendChild(li);
+        }
+      });
+    }
+
+    async function deletePizzaMasterTopping(name) {
+      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
+      let toppings = await res.json();
+      toppings = toppings.filter(t => t.topping !== name);
+      await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toppingStatus: toppings }),
+        credentials: 'include'
+      });
+      fetchPizzaMasterToppings();
+    }
     // --- Salad Master Toppings Section ---
     async function fetchSaladMasterToppings() {
       const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/salad-topping-stock', { credentials: 'include' });
@@ -1194,6 +1211,439 @@
       fetchAdminMenu();
     };
   </script>
-  </main>
-</body>
-</html>
+  <script>
+// --- Admin Menu Preview Section ---
+async function fetchAdminMenu() {
+  const loading = document.getElementById('admin-menu-loading');
+  const content = document.getElementById('admin-menu-content');
+  loading.style.display = '';
+  content.classList.add('d-none');
+  try {
+    const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
+    const menu = await res.json();
+    renderAdminMenu(menu.items || []);
+    loading.style.display = 'none';
+    content.classList.remove('d-none');
+  } catch (err) {
+    loading.textContent = 'Error loading menu.';
+    content.classList.add('d-none');
+    console.error('Failed to fetch admin menu:', err);
+  }
+}
+
+function renderAdminMenu(menu) {
+  const content = document.getElementById('admin-menu-content');
+  if (!menu || !Array.isArray(menu) || menu.length === 0) {
+    content.innerHTML = '<em>No menu items yet.</em>';
+    return;
+  }
+  // Group by category
+  const categories = {};
+  menu.forEach(item => {
+    const cat = item.category || 'Other';
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(item);
+  });
+  let html = '';
+  Object.keys(categories).forEach(cat => {
+    html += `<h4>${cat}</h4>`;
+    html += `<ul class='menu-preview-list'>`;
+    categories[cat].forEach(item => {
+      let itemHtml = `<b>${item.name}</b> - ${item.description ? item.description : ''}`;
+      if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+        itemHtml += '<ul class="menu-preview-size-list">';
+        item.sizes.forEach(size => {
+          itemHtml += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
+        });
+        itemHtml += '</ul>';
+      } else if ((cat === 'Desserts' || cat === 'Drinks') && item.price !== undefined) {
+        itemHtml += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
+      }
+      html += `<li class='menu-preview-item'>${itemHtml}</li>`;
+    });
+    html += '</ul>';
+  });
+  content.innerHTML = html;
+}
+// --- Pizza Master Toppings Section ---
+async function fetchPizzaMasterToppings() {
+  const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
+  const toppings = await res.json();
+  renderPizzaMasterToppings(toppings);
+}
+function renderPizzaMasterToppings(toppings) {
+  const meatList = document.getElementById('pizzaMeatToppingsList');
+  const vegList = document.getElementById('pizzaVegToppingsList');
+  let otherList = document.getElementById('pizzaOtherToppingsList');
+  if (!otherList) {
+    otherList = document.createElement('ul');
+    otherList.id = 'pizzaOtherToppingsList';
+    const otherDiv = document.createElement('div');
+    otherDiv.style.flex = '1';
+    const otherHeader = document.createElement('h4');
+    otherHeader.textContent = 'Other';
+    otherDiv.appendChild(otherHeader);
+    otherDiv.appendChild(otherList);
+    meatList.parentElement.parentElement.appendChild(otherDiv);
+  }
+  meatList.innerHTML = '';
+  vegList.innerHTML = '';
+  otherList.innerHTML = '';
+  toppings = Array.isArray(toppings) ? toppings : [];
+  toppings.forEach(t => {
+    const li = document.createElement('li');
+    li.style.marginBottom = '4px';
+    let isEditing = false;
+    function renderToppingItem() {
+      li.innerHTML = '';
+      if (!isEditing) {
+        li.textContent = `${t.topping} (${t.type || 'no type'}) £${t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.00'}`;
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.style.marginLeft = '8px';
+        editBtn.onclick = () => { isEditing = true; renderToppingItem(); };
+        li.appendChild(editBtn);
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.style.marginLeft = '8px';
+        delBtn.onclick = async () => {
+          await deletePizzaMasterTopping(t.topping);
+          fetchPizzaMasterToppings();
+        };
+        li.appendChild(delBtn);
+      } else {
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = t.topping;
+        nameInput.style.width = '90px';
+        const typeSelect = document.createElement('select');
+        ['meat','vegetable','other'].forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt;
+          o.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
+          if (t.type === opt) o.selected = true;
+          typeSelect.appendChild(o);
+        });
+        const priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.step = '0.01';
+        priceInput.min = '0';
+        priceInput.style.width = '70px';
+        priceInput.value = t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.50';
+        function updatePriceField() {
+          if (typeSelect.value === 'other') {
+            if (!priceInput.value || priceInput.value === '1.00' || priceInput.value === '0.60') priceInput.value = '0.50';
+            priceInput.readOnly = false;
+          } else if (typeSelect.value === 'meat') {
+            priceInput.value = '1.00';
+            priceInput.readOnly = false;
+          } else if (typeSelect.value === 'vegetable') {
+            priceInput.value = '0.60';
+            priceInput.readOnly = false;
+          } else {
+            priceInput.value = '';
+            priceInput.readOnly = false;
+          }
+        }
+        typeSelect.addEventListener('change', updatePriceField);
+        updatePriceField();
+        li.appendChild(nameInput);
+        li.appendChild(typeSelect);
+        li.appendChild(priceInput);
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.style.marginLeft = '8px';
+        saveBtn.onclick = async () => {
+          const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock');
+          let allToppings = await res.json();
+          const idx = allToppings.findIndex(x => x.topping === t.topping);
+          if (idx > -1) {
+            allToppings[idx] = {
+              ...allToppings[idx],
+              topping: nameInput.value.trim(),
+              type: typeSelect.value,
+              price: parseFloat(priceInput.value)
+            };
+            await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ toppingStatus: allToppings })
+            });
+            isEditing = false;
+            fetchPizzaMasterToppings();
+          }
+        };
+        li.appendChild(saveBtn);
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.marginLeft = '8px';
+        cancelBtn.onclick = () => { isEditing = false; renderToppingItem(); };
+        li.appendChild(cancelBtn);
+      }
+    }
+    renderToppingItem();
+    if (typeof t.type === 'string') {
+      const typeLower = t.type.trim().toLowerCase();
+      if (typeLower === 'meat') {
+        meatList.appendChild(li);
+      } else if (typeLower === 'vegetable') {
+        vegList.appendChild(li);
+      } else {
+        otherList.appendChild(li);
+      }
+    } else {
+      otherList.appendChild(li);
+    }
+  });
+}
+
+async function deletePizzaMasterTopping(name) {
+  const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
+  let toppings = await res.json();
+  toppings = toppings.filter(t => t.topping !== name);
+  await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ toppingStatus: toppings }),
+    credentials: 'include'
+  });
+  fetchPizzaMasterToppings();
+}
+// --- Admin Menu Preview Section ---
+async function fetchAdminMenu() {
+  const loading = document.getElementById('admin-menu-loading');
+  const content = document.getElementById('admin-menu-content');
+  loading.style.display = '';
+  content.classList.add('d-none');
+  try {
+    const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
+    const menu = await res.json();
+    renderAdminMenu(menu.items || []);
+    loading.style.display = 'none';
+    content.classList.remove('d-none');
+  } catch (err) {
+    loading.textContent = 'Error loading menu.';
+    content.classList.add('d-none');
+    console.error('Failed to fetch admin menu:', err);
+  }
+}
+
+function renderAdminMenu(menu) {
+  const content = document.getElementById('admin-menu-content');
+  if (!menu || !Array.isArray(menu) || menu.length === 0) {
+    content.innerHTML = '<em>No menu items yet.</em>';
+    return;
+  }
+  // Group by category
+  const categories = {};
+  menu.forEach(item => {
+    const cat = item.category || 'Other';
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(item);
+  });
+  let html = '';
+  Object.keys(categories).forEach(cat => {
+    html += `<h4>${cat}</h4>`;
+    html += `<ul class='menu-preview-list'>`;
+    categories[cat].forEach(item => {
+      let itemHtml = `<b>${item.name}</b> - ${item.description ? item.description : ''}`;
+      if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+        itemHtml += '<ul class="menu-preview-size-list">';
+        item.sizes.forEach(size => {
+          itemHtml += `<li>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></li>`;
+        });
+        itemHtml += '</ul>';
+      } else if ((cat === 'Desserts' || cat === 'Drinks') && item.price !== undefined) {
+        itemHtml += ` <span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
+      }
+      html += `<li class='menu-preview-item'>${itemHtml}</li>`;
+    });
+    html += '</ul>';
+  });
+  content.innerHTML = html;
+}
+// --- Pizza Master Toppings Section ---
+async function fetchPizzaMasterToppings() {
+  const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
+  const toppings = await res.json();
+  renderPizzaMasterToppings(toppings);
+}
+function renderPizzaMasterToppings(toppings) {
+  const meatList = document.getElementById('pizzaMeatToppingsList');
+  const vegList = document.getElementById('pizzaVegToppingsList');
+  let otherList = document.getElementById('pizzaOtherToppingsList');
+  if (!otherList) {
+    otherList = document.createElement('ul');
+    otherList.id = 'pizzaOtherToppingsList';
+    const otherDiv = document.createElement('div');
+    otherDiv.style.flex = '1';
+    const otherHeader = document.createElement('h4');
+    otherHeader.textContent = 'Other';
+    otherDiv.appendChild(otherHeader);
+    otherDiv.appendChild(otherList);
+    meatList.parentElement.parentElement.appendChild(otherDiv);
+  }
+  meatList.innerHTML = '';
+  vegList.innerHTML = '';
+  otherList.innerHTML = '';
+  toppings = Array.isArray(toppings) ? toppings : [];
+  toppings.forEach(t => {
+    const li = document.createElement('li');
+    li.style.marginBottom = '4px';
+    let isEditing = false;
+    function renderToppingItem() {
+      li.innerHTML = '';
+      if (!isEditing) {
+        li.textContent = `${t.topping} (${t.type || 'no type'}) £${t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.00'}`;
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.style.marginLeft = '8px';
+        editBtn.onclick = () => { isEditing = true; renderToppingItem(); };
+        li.appendChild(editBtn);
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.style.marginLeft = '8px';
+        delBtn.onclick = async () => {
+          await deletePizzaMasterTopping(t.topping);
+          fetchPizzaMasterToppings();
+        };
+        li.appendChild(delBtn);
+      } else {
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = t.topping;
+        nameInput.style.width = '90px';
+        const typeSelect = document.createElement('select');
+        ['meat','vegetable','other'].forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt;
+          o.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
+          if (t.type === opt) o.selected = true;
+          typeSelect.appendChild(o);
+        });
+        const priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.step = '0.01';
+        priceInput.min = '0';
+        priceInput.style.width = '70px';
+        priceInput.value = t.price !== undefined ? parseFloat(t.price).toFixed(2) : '0.50';
+        function updatePriceField() {
+          if (typeSelect.value === 'other') {
+            if (!priceInput.value || priceInput.value === '1.00' || priceInput.value === '0.60') priceInput.value = '0.50';
+            priceInput.readOnly = false;
+          } else if (typeSelect.value === 'meat') {
+            priceInput.value = '1.00';
+            priceInput.readOnly = false;
+          } else if (typeSelect.value === 'vegetable') {
+            priceInput.value = '0.60';
+            priceInput.readOnly = false;
+          } else {
+            priceInput.value = '';
+            priceInput.readOnly = false;
+          }
+        }
+        typeSelect.addEventListener('change', updatePriceField);
+        updatePriceField();
+        li.appendChild(nameInput);
+        li.appendChild(typeSelect);
+        li.appendChild(priceInput);
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.style.marginLeft = '8px';
+        saveBtn.onclick = async () => {
+          const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock');
+          let allToppings = await res.json();
+          const idx = allToppings.findIndex(x => x.topping === t.topping);
+          if (idx > -1) {
+            allToppings[idx] = {
+              ...allToppings[idx],
+              topping: nameInput.value.trim(),
+              type: typeSelect.value,
+              price: parseFloat(priceInput.value)
+            };
+            await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ toppingStatus: allToppings })
+            });
+            isEditing = false;
+            fetchPizzaMasterToppings();
+          }
+        };
+        li.appendChild(saveBtn);
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.marginLeft = '8px';
+        cancelBtn.onclick = () => { isEditing = false; renderToppingItem(); };
+        li.appendChild(cancelBtn);
+      }
+    }
+    renderToppingItem();
+    if (typeof t.type === 'string') {
+      const typeLower = t.type.trim().toLowerCase();
+      if (typeLower === 'meat') {
+        meatList.appendChild(li);
+      } else if (typeLower === 'vegetable') {
+        vegList.appendChild(li);
+      } else {
+        otherList.appendChild(li);
+      }
+    } else {
+      otherList.appendChild(li);
+    }
+  });
+}
+
+async function deletePizzaMasterTopping(name) {
+  const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', { credentials: 'include' });
+  let toppings = await res.json();
+  toppings = toppings.filter(t => t.topping !== name);
+  await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/pizza-topping-stock', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ toppingStatus: toppings }),
+    credentials: 'include'
+  });
+  fetchPizzaMasterToppings();
+}
+// --- Admin Menu Preview Section ---
+async function fetchAdminMenu() {
+  const loading = document.getElementById('admin-menu-loading');
+  const content = document.getElementById('admin-menu-content');
+  loading.style.display = '';
+  content.classList.add('d-none');
+  try {
+    const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/menu', { credentials: 'include' });
+    const menu = await res.json();
+    renderAdminMenu(menu.items || []);
+    loading.style.display = 'none';
+    content.classList.remove('d-none');
+  } catch (err) {
+    loading.textContent = 'Error loading menu.';
+    content.classList.add('d-none');
+    console.error('Failed to fetch admin menu:', err);
+  }
+}
+
+function renderAdminMenu(menu) {
+  const content = document.getElementById('admin-menu-content');
+  if (!menu || !Array.isArray(menu) || menu.length === 0) {
+    content.innerHTML = '<em>No menu items yet.</em>';
+    return;
+  }
+  // Group by category
+  const categories = {};
+  menu.forEach(item => {
+    const cat = item.category || 'Other';
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(item);
+  });
+  let html = '';
+  Object.keys(categories).forEach(cat => {
+    html += `<h4>${cat}</h4>`;
+    html += `<ul class='menu-preview-list'>`;
+    categories[cat].forEach(item => {
+      let itemHtml = `<b>${item.name}</b> - ${item.description ? item.description : ''}`;
+      if(cat === 'Pizza' && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+        itemHtml += '<ul class="menu-preview-size-list">';
+        item.sizes.forEach(size => {
