@@ -1,43 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin – Menu Editor | None Go Bye</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-                <option value="8in">8in</option>
-                <option value="Gluten Free">Gluten Free</option>
-              </select>
-              <input type="number" id="sizePriceInput" placeholder="Price (£)" step="0.01" min="0">
-              <button type="button" id="addSizeBtn">Add Size</button>
-              <br><br>
-          
-            </div>
-            <button type="submit">Add / Update Item</button>
-          </form>
-          <div class="menu-list">
-            <h3>Current Menu Preview</h3>
-            <div id="admin-menu-loading">Loading menu...</div>
-      [Full content from root admin-menu.html, lines 1-546]
-                    var newText = annInput.value.trim();
-                    setAdminAnnouncement(newText);
-                    updateAnnouncementUI();
-                  };
-                  updateAnnouncementUI();
-                });
-                // --- Master Toppings Section ---
-                // (Removed duplicate/legacy DOMContentLoaded for master toppings and menu preview)
-            // --- Toppings, Sizes, and Side Options logic for menu item ---
-            // Arrays to hold current form state
-            let toppings = [];
-            let sizes = [];
-            let sideOptions = [];
-
-            // DOM elements
-            const addToppingBtn = document.getElementById('addToppingBtn');
+[Full content from root admin-menu.html, lines 1-546]
             const toppingInput = document.getElementById('toppingInput');
             const toppingsList = document.getElementById('toppingsList');
             const addSizeBtn = document.getElementById('addSizeBtn');
