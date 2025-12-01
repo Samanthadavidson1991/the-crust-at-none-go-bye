@@ -360,7 +360,8 @@
             return;
           }
           sectionDetails[currentSection].sizeTypes = sectionDetails[currentSection].sizeTypes || [];
-          sectionDetails[currentSection].sizeTypes.push({ type: sizeType, price });
+          // Always save as { name: ..., price: ... }
+          sectionDetails[currentSection].sizeTypes.push({ name: sizeType, price });
           saveSectionDetailsToStorage();
           renderSizeTypeList(currentSection);
           addSizeTypeForm.reset();
