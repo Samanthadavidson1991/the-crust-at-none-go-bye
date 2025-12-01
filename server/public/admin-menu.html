@@ -366,6 +366,61 @@
           addSizeTypeForm.reset();
         });
       }
+      // --- Add Pizza Master Topping ---
+      const addPizzaMasterToppingForm = document.getElementById('addPizzaMasterToppingForm');
+      if (addPizzaMasterToppingForm) {
+        addPizzaMasterToppingForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const name = document.getElementById('pizzaMasterToppingInput').value.trim();
+          const type = document.getElementById('pizzaMasterToppingType').value;
+          if (!name || !type) {
+            alert('Please enter a topping name and select a type');
+            return;
+          }
+          // Get default price for type
+          const price = getPriceForType('pizza', type);
+          masterToppings.pizza.push({ name, type, price });
+          saveMasterToppings();
+          renderMasterToppings('pizza');
+          addPizzaMasterToppingForm.reset();
+        });
+      }
+      // --- Add Salad Master Topping ---
+      const addSaladMasterToppingForm = document.getElementById('addSaladMasterToppingForm');
+      if (addSaladMasterToppingForm) {
+        addSaladMasterToppingForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const name = document.getElementById('saladMasterToppingInput').value.trim();
+          const type = document.getElementById('saladMasterToppingType').value;
+          if (!name || !type) {
+            alert('Please enter a topping name and select a type');
+            return;
+          }
+          const price = getPriceForType('salad', type);
+          masterToppings.salad.push({ name, type, price });
+          saveMasterToppings();
+          renderMasterToppings('salad');
+          addSaladMasterToppingForm.reset();
+        });
+      }
+      // --- Add Other Master Topping ---
+      const addOtherMasterToppingForm = document.getElementById('addOtherMasterToppingForm');
+      if (addOtherMasterToppingForm) {
+        addOtherMasterToppingForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const name = document.getElementById('otherMasterToppingInput').value.trim();
+          const type = document.getElementById('otherMasterToppingType').value;
+          if (!name || !type) {
+            alert('Please enter a topping name and select a type');
+            return;
+          }
+          const price = getPriceForType('other', type);
+          masterToppings.other.push({ name, type, price });
+          saveMasterToppings();
+          renderMasterToppings('other');
+          addOtherMasterToppingForm.reset();
+        });
+      }
       loadMasterToppings();
       loadMenuSections();
       updateAllUI();
