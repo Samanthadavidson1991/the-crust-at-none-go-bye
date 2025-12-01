@@ -492,7 +492,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       const addMenuItemBtn = document.getElementById('addMenuItemBtn');
       if (addMenuItemBtn) {
-        addMenuItemBtn.addEventListener('click', function() {
+        addMenuItemBtn.addEventListener('click', async function() {
           if (!currentSection) return;
           // Always read the latest name and description from the input fields
           const details = sectionDetails[currentSection];
@@ -503,64 +503,31 @@
             document.getElementById('sectionItemName').focus();
             return;
           }
-          stagedMenuItems.push(JSON.parse(JSON.stringify(details)));
-          renderStagedMenuItems();
-          alert('Menu item staged! You can add more or save all.');
-          // Reset all fields for next item
-          details.itemName = '';
-          details.description = '';
-          details.sizeTypes = [];
-          details.toppings = [];
-          document.getElementById('sectionItemName').value = '';
-          document.getElementById('sectionDescription').value = '';
-          renderSizeTypeList(currentSection);
-          renderSectionToppings(currentSection);
-        });
-      }
-      const saveAllMenuItemsBtn = document.getElementById('saveAllMenuItemsBtn');
-      if (saveAllMenuItemsBtn) {
-        saveAllMenuItemsBtn.addEventListener('click', async function() {
-          if (stagedMenuItems.length === 0) {
-            alert('No staged items to save.');
-            return;
-          }
+          // Save directly to backend
           try {
             await fetch('/api/menu', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
-              body: JSON.stringify(stagedMenuItems)
+              body: JSON.stringify(details)
             });
-            alert('All staged menu items saved to server!');
-            stagedMenuItems = [];
-            renderStagedMenuItems();
+            alert('Menu item saved!');
+            // Reset all fields for next item
+            details.itemName = '';
+            details.description = '';
+            details.sizeTypes = [];
+            details.toppings = [];
+            document.getElementById('sectionItemName').value = '';
+            document.getElementById('sectionDescription').value = '';
+            renderSizeTypeList(currentSection);
+            renderSectionToppings(currentSection);
             loadMenuFromServer();
           } catch (error) {
-            alert('Failed to save menu items to server');
+            alert('Failed to save menu item to server');
           }
         });
       }
     });
-
-    // --- Render Staged Menu Items ---
-    function renderStagedMenuItems() {
-      const list = document.getElementById('stagedMenuItemsList');
-      if (!list) return;
-      if (stagedMenuItems.length === 0) {
-        list.innerHTML = '<p class="text-muted">No staged items yet.</p>';
-        return;
-      }
-      let html = '<ul>';
-      stagedMenuItems.forEach((item, idx) => {
-        html += `<li><strong>${item.itemName}</strong> - ${item.description || ''} <button onclick="removeStagedMenuItem(${idx})">Remove</button></li>`;
-      });
-      html += '</ul>';
-      list.innerHTML = html;
-    }
-    window.removeStagedMenuItem = function(idx) {
-      stagedMenuItems.splice(idx, 1);
-      renderStagedMenuItems();
-    }
   </script>
 </body>
 </html>
