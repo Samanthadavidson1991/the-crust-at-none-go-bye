@@ -344,6 +344,8 @@
             return;
           }
           sectionDetails[currentSection].toppings.push(toppingName);
+          // Always save toppings as array of strings
+          sectionDetails[currentSection].toppings = sectionDetails[currentSection].toppings.map(tp => typeof tp === 'string' ? tp : tp.name);
           renderSectionToppings(currentSection);
         });
       }
@@ -472,7 +474,7 @@
       list.innerHTML = '';
       (sectionDetails[section].sizeTypes || []).forEach((item, idx) => {
         const li = document.createElement('li');
-        li.innerHTML = `<span>${item.type} - £${item.price.toFixed(2)}</span> <button onclick="deleteSizeType('${section}', ${idx})">Delete</button>`;
+        li.innerHTML = `<span>${item.name} - £${item.price.toFixed(2)}</span> <button onclick="deleteSizeType('${section}', ${idx})">Delete</button>`;
         list.appendChild(li);
       });
     }
@@ -603,17 +605,19 @@
           let category = 'pizza';
           if (currentSection.toLowerCase().includes('salad')) category = 'salad';
           else if (currentSection.toLowerCase().includes('other')) category = 'other';
-          // Save directly to backend
+          // Always save toppings as array of strings
+          details.toppings = (details.toppings || []).map(tp => typeof tp === 'string' ? tp : tp.name);
+          // Save directly to backend (update if exists, else create)
           try {
             await fetch('/api/menu', {
-              method: 'POST',
+              method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
               body: JSON.stringify({
                 name: details.itemName,
                 description: details.description,
                 sizes: details.sizeTypes || [],
-                toppings: (details.toppings || []).map(tp => ({ name: tp.name, price: tp.price })),
+                toppings: details.toppings,
                 section: currentSection,
                 category // Set category for live menu
               })

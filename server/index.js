@@ -230,6 +230,11 @@ mongoose.connect(atlasUri)
     app.post('/api/menu', async (req, res) => {
       try {
         console.log('[POST /api/menu] Received body:', req.body);
+        // Only create new item if not exists
+        const existing = await MenuItem.findOne({ name: req.body.name, section: req.body.section });
+        if (existing) {
+          return res.status(409).json({ error: 'Menu item already exists. Use PUT to update.' });
+        }
         const item = new MenuItem(req.body);
         await item.save();
         console.log('[POST /api/menu] Saved item:', item);
@@ -238,6 +243,21 @@ mongoose.connect(atlasUri)
         console.error('[POST /api/menu] Error:', err);
         res.status(400).json({ error: 'Failed to add menu item', details: err.message });
       }
+        // Add PUT endpoint for updating menu items
+        app.put('/api/menu', async (req, res) => {
+          try {
+            console.log('[PUT /api/menu] Received body:', req.body);
+            const updated = await MenuItem.findOneAndUpdate(
+              { name: req.body.name, section: req.body.section },
+              req.body,
+              { new: true, upsert: true }
+            );
+            res.json({ success: true, item: updated });
+          } catch (err) {
+            console.error('[PUT /api/menu] Error:', err);
+            res.status(400).json({ error: 'Failed to update menu item', details: err.message });
+          }
+        });
     });
 
     app.get('/api/orders', (req, res) => {
