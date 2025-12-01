@@ -114,12 +114,14 @@
         <div id="sectionToppings" class="sectionToppings">
           <h3>Menu Item Toppings</h3>
           <form id="addSectionToppingForm" class="topping-form">
-            <input type="text" id="sectionToppingInput" placeholder="Topping name" required>
-            <input type="number" id="sectionToppingPriceInput" placeholder="Price (£)" step="0.01" min="0" required>
+            <select id="sectionToppingSelect" required title="Select topping">
+              <option value="">Select topping</option>
+              <!-- Master toppings will be populated dynamically -->
+            </select>
             <button type="submit">Add Topping</button>
           </form>
           <ul id="sectionToppingsList" class="toppings-list"></ul>
-          <small class="help-text">Add toppings for this menu item and set their prices.</small>
+          <small class="help-text">Add/remove master toppings for this menu item.</small>
         </div>
         <button id="addMenuItemBtn" class="primary-btn">Add Item</button>
       </div>
@@ -245,19 +247,20 @@
     function showSectionDetails(section) {
       currentSection = section;
       const detailsDiv = document.getElementById('sectionDetails');
-      const toppingsDiv = document.getElementById('sectionToppings');
-      if (!detailsDiv || !toppingsDiv) return;
+      if (!detailsDiv) return;
       if (!section) {
         detailsDiv.style.display = 'none';
-        toppingsDiv.style.display = 'none';
         return;
       }
       detailsDiv.style.display = '';
-      toppingsDiv.style.display = '';
+      // Determine category from section name (simple logic, adjust as needed)
+      let category = 'pizza';
+      if (section.toLowerCase().includes('salad')) category = 'salad';
+      else if (section.toLowerCase().includes('other')) category = 'other';
+      populateSectionToppingSelect(category, section);
       // Populate details
-      const details = sectionDetails[section] || {};
-      document.getElementById('sectionItemName').value = details.itemName || '';
-      document.getElementById('sectionDescription').value = details.description || '';
+      document.getElementById('sectionItemName').value = sectionDetails[section]?.itemName || '';
+      document.getElementById('sectionDescription').value = sectionDetails[section]?.description || '';
       renderSizeTypeList(section);
       renderSectionToppings(section);
     }
@@ -312,17 +315,18 @@
         addSectionToppingForm.addEventListener('submit', function(e) {
           e.preventDefault();
           if (!currentSection) return;
-          const toppingName = document.getElementById('sectionToppingInput').value.trim();
-          const toppingPrice = parseFloat(document.getElementById('sectionToppingPriceInput').value);
-          if (!toppingName || isNaN(toppingPrice)) {
-            alert('Please enter a topping name and price');
+          const toppingName = document.getElementById('sectionToppingSelect').value;
+          if (!toppingName) {
+            alert('Please select a topping');
             return;
           }
           sectionDetails[currentSection].toppings = sectionDetails[currentSection].toppings || [];
-          sectionDetails[currentSection].toppings.push({ name: toppingName, price: toppingPrice });
-          saveSectionDetailsToStorage();
+          if (sectionDetails[currentSection].toppings.includes(toppingName)) {
+            alert('Topping already added');
+            return;
+          }
+          sectionDetails[currentSection].toppings.push(toppingName);
           renderSectionToppings(currentSection);
-          addSectionToppingForm.reset();
         });
       }
       // --- Size/Type Form ---
@@ -349,6 +353,24 @@
       updateAllUI();
     });
 
+    // --- Populate Section Topping Select ---
+    function populateSectionToppingSelect(category, section) {
+      const select = document.getElementById('sectionToppingSelect');
+      if (!select) return;
+      let toppings = [];
+      if (category === 'pizza') toppings = masterToppings.pizza;
+      else if (category === 'salad') toppings = masterToppings.salad;
+      else toppings = masterToppings.other;
+      // Only show master toppings not already added to this menu item
+      const addedToppings = sectionDetails[section]?.toppings || [];
+      select.innerHTML = '<option value="">Select topping</option>';
+      toppings.forEach(tp => {
+        if (!addedToppings.includes(tp.name)) {
+          select.innerHTML += `<option value="${tp.name}">${tp.name}</option>`;
+        }
+      });
+    }
+
     // --- Render Section Toppings ---
     function renderSectionToppings(section) {
       const list = document.getElementById('sectionToppingsList');
@@ -356,10 +378,15 @@
       list.innerHTML = '';
       (sectionDetails[section].toppings || []).forEach((topping, idx) => {
         const li = document.createElement('li');
-        li.innerHTML = `<span>${topping.name} - £${topping.price.toFixed(2)}</span> <button onclick="deleteSectionTopping('${section}', ${idx})">Delete</button>`;
+        li.innerHTML = `<span>${topping}</span> <button onclick="deleteSectionTopping('${section}', ${idx})">Remove</button>`;
         list.appendChild(li);
       });
     }
+    window.deleteSectionTopping = function(section, idx) {
+      sectionDetails[section].toppings.splice(idx, 1);
+      renderSectionToppings(section);
+    }
+
     // --- Render Size/Type List ---
     function renderSizeTypeList(section) {
       const list = document.getElementById('sizeTypeList');
@@ -370,15 +397,6 @@
         li.innerHTML = `<span>${item.type} - £${item.price.toFixed(2)}</span> <button onclick="deleteSizeType('${section}', ${idx})">Delete</button>`;
         list.appendChild(li);
       });
-    }
-    // --- Delete Section Topping ---
-    function deleteSectionTopping(section, idx) {
-      if (!sectionDetails[section]) return;
-      if (confirm('Are you sure you want to delete this topping?')) {
-        sectionDetails[section].toppings.splice(idx, 1);
-        saveSectionDetailsToStorage();
-        renderSectionToppings(section);
-      }
     }
     // --- Delete Size/Type ---
     function deleteSizeType(section, idx) {
