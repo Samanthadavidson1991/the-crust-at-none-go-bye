@@ -105,6 +105,32 @@
           </div>
         </div>
       </div>
+      <div id="sectionDetails" style="display:none; margin-bottom:24px;">
+        <h3>Section Details</h3>
+        <label for="sectionDescription">Description:</label>
+        <input type="text" id="sectionDescription" placeholder="Section description">
+        <div class="type-subsections">
+          <h4>Type Subsections (optional)</h4>
+          <div>
+            <label>Meat Price (£): <input type="number" id="sectionMeatPrice" step="0.01" min="0" placeholder="Optional"></label>
+          </div>
+          <div>
+            <label>Vegetable Price (£): <input type="number" id="sectionVegPrice" step="0.01" min="0" placeholder="Optional"></label>
+          </div>
+          <div>
+            <label>Other Price (£): <input type="number" id="sectionOtherPrice" step="0.01" min="0" placeholder="Optional"></label>
+          </div>
+        </div>
+        <button id="saveSectionDetailsBtn">Save Section Details</button>
+      </div>
+      <div id="sectionToppings" style="display:none; margin-bottom:24px;">
+        <h3>Section Toppings</h3>
+        <form id="addSectionToppingForm" class="topping-form">
+          <input type="text" id="sectionToppingInput" placeholder="Topping name" required>
+          <button type="submit">Add Topping</button>
+        </form>
+        <ul id="sectionToppingsList" class="toppings-list"></ul>
+      </div>
     </section>
   </main>
   <script>
@@ -115,6 +141,8 @@
       other: []
     };
     let menuSections = [];
+    let sectionDetails = {};
+    let currentSection = '';
 
     // --- Lock Page Logic ---
     function lockAdminPage() {
@@ -133,15 +161,22 @@
       try {
         const response = await fetch('/api/menu', { credentials: 'include' });
         const data = await response.json();
-        
-        // Extract unique sections from menu items
         const sections = new Set();
         if (data.items && Array.isArray(data.items)) {
           data.items.forEach(item => {
             if (item.section) sections.add(item.section);
+            // Load section details if present
+            if (item.section && !sectionDetails[item.section]) {
+              sectionDetails[item.section] = {
+                description: item.description || '',
+                meatPrice: item.meatPrice || '',
+                vegPrice: item.vegPrice || '',
+                otherPrice: item.otherPrice || '',
+                toppings: item.toppings || []
+              };
+            }
           });
         }
-        
         menuSections = Array.from(sections);
         updateSectionDropdown();
       } catch (error) {
@@ -154,7 +189,6 @@
     function updateSectionDropdown() {
       const select = document.getElementById('menuSectionSelect');
       if (!select) return;
-      
       select.innerHTML = '<option value="">-- Select Section --</option>';
       menuSections.forEach(section => {
         const option = document.createElement('option');
@@ -164,11 +198,46 @@
       });
     }
 
+    // --- Show Section Details ---
+    function showSectionDetails(section) {
+      currentSection = section;
+      const detailsDiv = document.getElementById('sectionDetails');
+      const toppingsDiv = document.getElementById('sectionToppings');
+      if (!detailsDiv || !toppingsDiv) return;
+      if (!section) {
+        detailsDiv.style.display = 'none';
+        toppingsDiv.style.display = 'none';
+        return;
+      }
+      detailsDiv.style.display = '';
+      toppingsDiv.style.display = '';
+      // Populate details
+      const details = sectionDetails[section] || {};
+      document.getElementById('sectionDescription').value = details.description || '';
+      document.getElementById('sectionMeatPrice').value = details.meatPrice || '';
+      document.getElementById('sectionVegPrice').value = details.vegPrice || '';
+      document.getElementById('sectionOtherPrice').value = details.otherPrice || '';
+      renderSectionToppings(section);
+    }
+
+    // --- Save Section Details ---
+    function saveSectionDetails() {
+      if (!currentSection) return;
+      sectionDetails[currentSection] = sectionDetails[currentSection] || {};
+      sectionDetails[currentSection].description = document.getElementById('sectionDescription').value;
+      sectionDetails[currentSection].meatPrice = document.getElementById('sectionMeatPrice').value;
+      sectionDetails[currentSection].vegPrice = document.getElementById('sectionVegPrice').value;
+      sectionDetails[currentSection].otherPrice = document.getElementById('sectionOtherPrice').value;
+      saveSectionDetailsToStorage();
+      alert('Section details saved!');
+    }
+
     // --- Add New Section ---
     document.addEventListener('DOMContentLoaded', function() {
       const addSectionBtn = document.getElementById('addSectionBtn');
       const newSectionInput = document.getElementById('newSectionInput');
-      
+      const sectionSelect = document.getElementById('menuSectionSelect');
+      const saveSectionDetailsBtn = document.getElementById('saveSectionDetailsBtn');
       if (addSectionBtn && newSectionInput) {
         addSectionBtn.addEventListener('click', function() {
           const sectionName = newSectionInput.value.trim();
@@ -176,103 +245,90 @@
             alert('Please enter a section name');
             return;
           }
-          
           if (menuSections.includes(sectionName)) {
             alert('This section already exists');
             return;
           }
-          
           menuSections.push(sectionName);
+          sectionDetails[sectionName] = { description: '', meatPrice: '', vegPrice: '', otherPrice: '', toppings: [] };
           updateSectionDropdown();
           newSectionInput.value = '';
+          sectionSelect.value = sectionName;
+          showSectionDetails(sectionName);
           alert(`Section "${sectionName}" added successfully`);
         });
       }
-
-      // --- Load Master Toppings ---
+      if (sectionSelect) {
+        sectionSelect.addEventListener('change', function() {
+          showSectionDetails(this.value);
+        });
+      }
+      if (saveSectionDetailsBtn) {
+        saveSectionDetailsBtn.addEventListener('click', saveSectionDetails);
+      }
+      // --- Section Toppings Form ---
+      const addSectionToppingForm = document.getElementById('addSectionToppingForm');
+      if (addSectionToppingForm) {
+        addSectionToppingForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          if (!currentSection) return;
+          const toppingName = document.getElementById('sectionToppingInput').value.trim();
+          if (!toppingName) {
+            alert('Please enter a topping name');
+            return;
+          }
+          sectionDetails[currentSection].toppings = sectionDetails[currentSection].toppings || [];
+          sectionDetails[currentSection].toppings.push(toppingName);
+          saveSectionDetailsToStorage();
+          renderSectionToppings(currentSection);
+          addSectionToppingForm.reset();
+        });
+      }
       loadMasterToppings();
       loadMenuSections();
-
-      // --- Pizza Master Toppings Form ---
-      const pizzaForm = document.getElementById('addPizzaMasterToppingForm');
-      if (pizzaForm) {
-        pizzaForm.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const name = document.getElementById('pizzaMasterToppingInput').value.trim();
-          const type = document.getElementById('pizzaMasterToppingType').value;
-          
-          if (!name || !type) {
-            alert('Please fill in all fields');
-            return;
-          }
-          
-          const price = getPriceForType('pizza', type);
-          const topping = { name, type, price };
-          masterToppings.pizza.push(topping);
-          saveMasterToppings();
-          renderMasterToppings('pizza');
-          pizzaForm.reset();
-        });
-      }
-
-      // --- Salad Master Toppings Form ---
-      const saladForm = document.getElementById('addSaladMasterToppingForm');
-      if (saladForm) {
-        saladForm.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const name = document.getElementById('saladMasterToppingInput').value.trim();
-          const type = document.getElementById('saladMasterToppingType').value;
-          
-          if (!name || !type) {
-            alert('Please fill in all fields');
-            return;
-          }
-          
-          const price = getPriceForType('salad', type);
-          const topping = { name, type, price };
-          masterToppings.salad.push(topping);
-          saveMasterToppings();
-          renderMasterToppings('salad');
-          saladForm.reset();
-        });
-      }
-
-      // --- Other Master Toppings Form ---
-      const otherForm = document.getElementById('addOtherMasterToppingForm');
-      if (otherForm) {
-        otherForm.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const name = document.getElementById('otherMasterToppingInput').value.trim();
-          const type = document.getElementById('otherMasterToppingType').value;
-          
-          if (!name || !type) {
-            alert('Please fill in all fields');
-            return;
-          }
-          
-          const price = getPriceForType('other', type);
-          const topping = { name, type, price };
-          masterToppings.other.push(topping);
-          saveMasterToppings();
-          renderMasterToppings('other');
-          otherForm.reset();
-        });
-      }
     });
 
-    // --- Get Price for Type ---
+    // --- Render Section Toppings ---
+    function renderSectionToppings(section) {
+      const list = document.getElementById('sectionToppingsList');
+      if (!list || !sectionDetails[section]) return;
+      list.innerHTML = '';
+      (sectionDetails[section].toppings || []).forEach((topping, idx) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${topping}</span> <button onclick="deleteSectionTopping('${section}', ${idx})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    // --- Delete Section Topping ---
+    function deleteSectionTopping(section, idx) {
+      if (!sectionDetails[section]) return;
+      if (confirm('Are you sure you want to delete this topping?')) {
+        sectionDetails[section].toppings.splice(idx, 1);
+        saveSectionDetailsToStorage();
+        renderSectionToppings(section);
+      }
+    }
+    // --- Save Section Details to LocalStorage ---
+    function saveSectionDetailsToStorage() {
+      localStorage.setItem('sectionDetails', JSON.stringify(sectionDetails));
+    }
+    // --- Load Section Details from LocalStorage ---
+    function loadSectionDetailsFromStorage() {
+      const saved = localStorage.getItem('sectionDetails');
+      if (saved) {
+        sectionDetails = JSON.parse(saved);
+      }
+    }
+    // --- Master Toppings Logic (unchanged) ---
     function getPriceForType(category, type) {
       const vegPrice = document.getElementById(`${category}VegDefaultPrice`);
       const meatPrice = document.getElementById(`${category}MeatDefaultPrice`);
       const otherPrice = document.getElementById(`${category}OtherDefaultPrice`);
-      
       if (type === 'vegetable' && vegPrice) return parseFloat(vegPrice.value);
       if (type === 'meat' && meatPrice) return parseFloat(meatPrice.value);
       if (type === 'other' && otherPrice) return parseFloat(otherPrice.value);
       return 0.50;
     }
-
-    // --- Load Master Toppings from LocalStorage ---
     function loadMasterToppings() {
       const saved = localStorage.getItem('masterToppings');
       if (saved) {
@@ -282,20 +338,14 @@
       renderMasterToppings('salad');
       renderMasterToppings('other');
     }
-
-    // --- Save Master Toppings to LocalStorage ---
     function saveMasterToppings() {
       localStorage.setItem('masterToppings', JSON.stringify(masterToppings));
     }
-
-    // --- Render Master Toppings ---
     function renderMasterToppings(category) {
       const list = document.getElementById(`${category}MasterToppingsList`);
       if (!list) return;
-      
       list.innerHTML = '';
       const toppings = masterToppings[category] || [];
-      
       toppings.forEach((topping, index) => {
         const li = document.createElement('li');
         li.innerHTML = `
@@ -305,8 +355,6 @@
         list.appendChild(li);
       });
     }
-
-    // --- Delete Master Topping ---
     function deleteMasterTopping(category, index) {
       if (confirm('Are you sure you want to delete this topping?')) {
         masterToppings[category].splice(index, 1);
@@ -314,6 +362,8 @@
         renderMasterToppings(category);
       }
     }
+    // --- Load section details from storage on page load ---
+    document.addEventListener('DOMContentLoaded', loadSectionDetailsFromStorage);
   </script>
 </body>
 </html>

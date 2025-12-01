@@ -565,3 +565,11 @@ p {
 .newSectionLabel {
   margin-left: 16px;
 }
+.sectionDetails {
+  display: none;
+  margin-bottom: 24px;
+}
+.sectionToppings {
+  display: none;
+  margin-bottom: 24px;
+}
