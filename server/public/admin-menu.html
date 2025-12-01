@@ -89,6 +89,8 @@
       </div>
       <div id="sectionDetails" class="sectionDetails">
         <h3>Section Details</h3>
+        <label for="sectionItemName">Menu Item Name:</label>
+        <input type="text" id="sectionItemName" placeholder="Menu item name">
         <label for="sectionDescription">Description:</label>
         <input type="text" id="sectionDescription" placeholder="Section description">
         <div class="type-subsections">
@@ -193,6 +195,7 @@
       toppingsDiv.style.display = '';
       // Populate details
       const details = sectionDetails[section] || {};
+      document.getElementById('sectionItemName').value = details.itemName || '';
       document.getElementById('sectionDescription').value = details.description || '';
       renderSizeTypeList(section);
       renderSectionToppings(section);
@@ -202,6 +205,7 @@
     function saveSectionDetails() {
       if (!currentSection) return;
       sectionDetails[currentSection] = sectionDetails[currentSection] || {};
+      sectionDetails[currentSection].itemName = document.getElementById('sectionItemName').value;
       sectionDetails[currentSection].description = document.getElementById('sectionDescription').value;
       saveSectionDetailsToStorage();
       alert('Section details saved!');
