@@ -445,7 +445,9 @@
         otherDiv.appendChild(otherHeader);
         otherDiv.appendChild(otherList);
         if (meatList && meatList.parentElement && meatList.parentElement.parentElement) {
-          meatList.parentElement.parentElement.appendChild(otherDiv);
+          if (meatList && meatList.parentElement && meatList.parentElement.parentElement) {
+            meatList.parentElement.parentElement.appendChild(otherDiv);
+          }
         }
       }
       meatList.innerHTML = '';
