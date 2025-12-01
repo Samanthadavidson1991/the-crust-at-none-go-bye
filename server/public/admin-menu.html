@@ -108,6 +108,14 @@
     </section>
   </main>
   <script>
+    // --- Global State ---
+    let masterToppings = {
+      pizza: [],
+      salad: [],
+      other: []
+    };
+    let menuSections = [];
+
     // --- Lock Page Logic ---
     function lockAdminPage() {
       fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })
@@ -120,48 +128,192 @@
         });
     }
 
-    // Auto-fill price based on type selection for Pizza Toppings
+    // --- Load Menu Sections ---
+    async function loadMenuSections() {
+      try {
+        const response = await fetch('/api/menu', { credentials: 'include' });
+        const data = await response.json();
+        
+        // Extract unique sections from menu items
+        const sections = new Set();
+        if (data.items && Array.isArray(data.items)) {
+          data.items.forEach(item => {
+            if (item.section) sections.add(item.section);
+          });
+        }
+        
+        menuSections = Array.from(sections);
+        updateSectionDropdown();
+      } catch (error) {
+        console.error('Failed to load menu sections:', error);
+        alert('Failed to load menu sections');
+      }
+    }
+
+    // --- Update Section Dropdown ---
+    function updateSectionDropdown() {
+      const select = document.getElementById('menuSectionSelect');
+      if (!select) return;
+      
+      select.innerHTML = '<option value="">-- Select Section --</option>';
+      menuSections.forEach(section => {
+        const option = document.createElement('option');
+        option.value = section;
+        option.textContent = section;
+        select.appendChild(option);
+      });
+    }
+
+    // --- Add New Section ---
     document.addEventListener('DOMContentLoaded', function() {
-      // Pizza
-      const pizzaTypeSelect = document.getElementById('pizzaMasterToppingType');
-      const pizzaPriceInput = document.getElementById('pizzaMasterToppingPrice');
-      const pizzaVegPrice = document.getElementById('pizzaVegDefaultPrice');
-      const pizzaMeatPrice = document.getElementById('pizzaMeatDefaultPrice');
-      const pizzaOtherPrice = document.getElementById('pizzaOtherDefaultPrice');
-      if (pizzaTypeSelect && pizzaPriceInput) {
-        pizzaTypeSelect.addEventListener('change', function() {
-          if (this.value === 'vegetable') pizzaPriceInput.value = pizzaVegPrice.value;
-          else if (this.value === 'meat') pizzaPriceInput.value = pizzaMeatPrice.value;
-          else if (this.value === 'other') pizzaPriceInput.value = pizzaOtherPrice.value;
+      const addSectionBtn = document.getElementById('addSectionBtn');
+      const newSectionInput = document.getElementById('newSectionInput');
+      
+      if (addSectionBtn && newSectionInput) {
+        addSectionBtn.addEventListener('click', function() {
+          const sectionName = newSectionInput.value.trim();
+          if (!sectionName) {
+            alert('Please enter a section name');
+            return;
+          }
+          
+          if (menuSections.includes(sectionName)) {
+            alert('This section already exists');
+            return;
+          }
+          
+          menuSections.push(sectionName);
+          updateSectionDropdown();
+          newSectionInput.value = '';
+          alert(`Section "${sectionName}" added successfully`);
         });
       }
-      // Salad
-      const saladTypeSelect = document.getElementById('saladMasterToppingType');
-      const saladPriceInput = document.getElementById('saladMasterToppingPrice');
-      const saladVegPrice = document.getElementById('saladVegDefaultPrice');
-      const saladMeatPrice = document.getElementById('saladMeatDefaultPrice');
-      const saladOtherPrice = document.getElementById('saladOtherDefaultPrice');
-      if (saladTypeSelect && saladPriceInput) {
-        saladTypeSelect.addEventListener('change', function() {
-          if (this.value === 'vegetable') saladPriceInput.value = saladVegPrice.value;
-          else if (this.value === 'meat') saladPriceInput.value = saladMeatPrice.value;
-          else if (this.value === 'other') saladPriceInput.value = saladOtherPrice.value;
+
+      // --- Load Master Toppings ---
+      loadMasterToppings();
+      loadMenuSections();
+
+      // --- Pizza Master Toppings Form ---
+      const pizzaForm = document.getElementById('addPizzaMasterToppingForm');
+      if (pizzaForm) {
+        pizzaForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const name = document.getElementById('pizzaMasterToppingInput').value.trim();
+          const type = document.getElementById('pizzaMasterToppingType').value;
+          
+          if (!name || !type) {
+            alert('Please fill in all fields');
+            return;
+          }
+          
+          const price = getPriceForType('pizza', type);
+          const topping = { name, type, price };
+          masterToppings.pizza.push(topping);
+          saveMasterToppings();
+          renderMasterToppings('pizza');
+          pizzaForm.reset();
         });
       }
-      // Other
-      const otherTypeSelect = document.getElementById('otherMasterToppingType');
-      const otherPriceInput = document.getElementById('otherMasterToppingPrice');
-      const otherVegPrice = document.getElementById('otherVegDefaultPrice');
-      const otherMeatPrice = document.getElementById('otherMeatDefaultPrice');
-      const otherOtherPrice = document.getElementById('otherOtherDefaultPrice');
-      if (otherTypeSelect && otherPriceInput) {
-        otherTypeSelect.addEventListener('change', function() {
-          if (this.value === 'vegetable') otherPriceInput.value = otherVegPrice.value;
-          else if (this.value === 'meat') otherPriceInput.value = otherMeatPrice.value;
-          else if (this.value === 'other') otherPriceInput.value = otherOtherPrice.value;
+
+      // --- Salad Master Toppings Form ---
+      const saladForm = document.getElementById('addSaladMasterToppingForm');
+      if (saladForm) {
+        saladForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const name = document.getElementById('saladMasterToppingInput').value.trim();
+          const type = document.getElementById('saladMasterToppingType').value;
+          
+          if (!name || !type) {
+            alert('Please fill in all fields');
+            return;
+          }
+          
+          const price = getPriceForType('salad', type);
+          const topping = { name, type, price };
+          masterToppings.salad.push(topping);
+          saveMasterToppings();
+          renderMasterToppings('salad');
+          saladForm.reset();
+        });
+      }
+
+      // --- Other Master Toppings Form ---
+      const otherForm = document.getElementById('addOtherMasterToppingForm');
+      if (otherForm) {
+        otherForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const name = document.getElementById('otherMasterToppingInput').value.trim();
+          const type = document.getElementById('otherMasterToppingType').value;
+          
+          if (!name || !type) {
+            alert('Please fill in all fields');
+            return;
+          }
+          
+          const price = getPriceForType('other', type);
+          const topping = { name, type, price };
+          masterToppings.other.push(topping);
+          saveMasterToppings();
+          renderMasterToppings('other');
+          otherForm.reset();
         });
       }
     });
+
+    // --- Get Price for Type ---
+    function getPriceForType(category, type) {
+      const vegPrice = document.getElementById(`${category}VegDefaultPrice`);
+      const meatPrice = document.getElementById(`${category}MeatDefaultPrice`);
+      const otherPrice = document.getElementById(`${category}OtherDefaultPrice`);
+      
+      if (type === 'vegetable' && vegPrice) return parseFloat(vegPrice.value);
+      if (type === 'meat' && meatPrice) return parseFloat(meatPrice.value);
+      if (type === 'other' && otherPrice) return parseFloat(otherPrice.value);
+      return 0.50;
+    }
+
+    // --- Load Master Toppings from LocalStorage ---
+    function loadMasterToppings() {
+      const saved = localStorage.getItem('masterToppings');
+      if (saved) {
+        masterToppings = JSON.parse(saved);
+      }
+      renderMasterToppings('pizza');
+      renderMasterToppings('salad');
+      renderMasterToppings('other');
+    }
+
+    // --- Save Master Toppings to LocalStorage ---
+    function saveMasterToppings() {
+      localStorage.setItem('masterToppings', JSON.stringify(masterToppings));
+    }
+
+    // --- Render Master Toppings ---
+    function renderMasterToppings(category) {
+      const list = document.getElementById(`${category}MasterToppingsList`);
+      if (!list) return;
+      
+      list.innerHTML = '';
+      const toppings = masterToppings[category] || [];
+      
+      toppings.forEach((topping, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span>${topping.name} (${topping.type}) - £${topping.price.toFixed(2)}</span>
+          <button onclick="deleteMasterTopping('${category}', ${index})">Delete</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    // --- Delete Master Topping ---
+    function deleteMasterTopping(category, index) {
+      if (confirm('Are you sure you want to delete this topping?')) {
+        masterToppings[category].splice(index, 1);
+        saveMasterToppings();
+        renderMasterToppings(category);
+      }
+    }
   </script>
 </body>
 </html>
