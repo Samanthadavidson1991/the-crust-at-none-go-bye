@@ -494,8 +494,11 @@
       if (addMenuItemBtn) {
         addMenuItemBtn.addEventListener('click', function() {
           if (!currentSection) return;
+          // Always read the latest name and description from the input fields
           const details = sectionDetails[currentSection];
-          if (!details.itemName || details.itemName.trim() === '') {
+          details.itemName = document.getElementById('sectionItemName').value.trim();
+          details.description = document.getElementById('sectionDescription').value.trim();
+          if (!details.itemName) {
             alert('Menu item name is required');
             document.getElementById('sectionItemName').focus();
             return;
@@ -509,7 +512,6 @@
           details.sizeTypes = [];
           details.toppings = [];
           document.getElementById('sectionItemName').value = '';
-          document.getElementById('sectionItemName').disabled = false;
           document.getElementById('sectionDescription').value = '';
           renderSizeTypeList(currentSection);
           renderSectionToppings(currentSection);
