@@ -495,8 +495,9 @@
         addMenuItemBtn.addEventListener('click', function() {
           if (!currentSection) return;
           const details = sectionDetails[currentSection];
-          if (!details.itemName) {
+          if (!details.itemName || details.itemName.trim() === '') {
             alert('Menu item name is required');
+            document.getElementById('sectionItemName').focus();
             return;
           }
           stagedMenuItems.push(JSON.parse(JSON.stringify(details)));
@@ -508,6 +509,7 @@
           details.sizeTypes = [];
           details.toppings = [];
           document.getElementById('sectionItemName').value = '';
+          document.getElementById('sectionItemName').disabled = false;
           document.getElementById('sectionDescription').value = '';
           renderSizeTypeList(currentSection);
           renderSectionToppings(currentSection);
