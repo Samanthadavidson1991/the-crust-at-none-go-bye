@@ -46,12 +46,6 @@
           </div>
           <form id="addPizzaMasterToppingForm" class="topping-form">
             <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required>
-            <select id="pizzaMasterToppingType" required title="Select topping type">
-              <option value="">Type</option>
-              <option value="meat">Meat</option>
-              <option value="vegetable">Vegetable</option>
-              <option value="other">Other</option>
-            </select>
             <button type="submit">Add Topping</button>
           </form>
         </div>
@@ -65,12 +59,6 @@
           </div>
           <form id="addSaladMasterToppingForm" class="topping-form">
             <input type="text" id="saladMasterToppingInput" placeholder="Topping name" required>
-            <select id="saladMasterToppingType" required title="Select topping type">
-              <option value="">Type</option>
-              <option value="meat">Meat</option>
-              <option value="vegetable">Vegetable</option>
-              <option value="other">Other</option>
-            </select>
             <button type="submit">Add Topping</button>
           </form>
         </div>
@@ -84,12 +72,6 @@
           </div>
           <form id="addOtherMasterToppingForm" class="topping-form">
             <input type="text" id="otherMasterToppingInput" placeholder="Topping name" required>
-            <select id="otherMasterToppingType" required title="Select topping type">
-              <option value="">Type</option>
-              <option value="meat">Meat</option>
-              <option value="vegetable">Vegetable</option>
-              <option value="other">Other</option>
-            </select>
             <button type="submit">Add Topping</button>
           </form>
         </div>
@@ -127,6 +109,7 @@
         <h3>Section Toppings</h3>
         <form id="addSectionToppingForm" class="topping-form">
           <input type="text" id="sectionToppingInput" placeholder="Topping name" required>
+          <input type="number" id="sectionToppingPriceInput" placeholder="Price (£)" step="0.01" min="0" required>
           <button type="submit">Add Topping</button>
         </form>
         <ul id="sectionToppingsList" class="toppings-list"></ul>
@@ -273,12 +256,13 @@
           e.preventDefault();
           if (!currentSection) return;
           const toppingName = document.getElementById('sectionToppingInput').value.trim();
-          if (!toppingName) {
-            alert('Please enter a topping name');
+          const toppingPrice = parseFloat(document.getElementById('sectionToppingPriceInput').value);
+          if (!toppingName || isNaN(toppingPrice)) {
+            alert('Please enter a topping name and price');
             return;
           }
           sectionDetails[currentSection].toppings = sectionDetails[currentSection].toppings || [];
-          sectionDetails[currentSection].toppings.push(toppingName);
+          sectionDetails[currentSection].toppings.push({ name: toppingName, price: toppingPrice });
           saveSectionDetailsToStorage();
           renderSectionToppings(currentSection);
           addSectionToppingForm.reset();
@@ -295,7 +279,7 @@
       list.innerHTML = '';
       (sectionDetails[section].toppings || []).forEach((topping, idx) => {
         const li = document.createElement('li');
-        li.innerHTML = `<span>${topping}</span> <button onclick="deleteSectionTopping('${section}', ${idx})">Delete</button>`;
+        li.innerHTML = `<span>${topping.name} - £${topping.price.toFixed(2)}</span> <button onclick="deleteSectionTopping('${section}', ${idx})">Delete</button>`;
         list.appendChild(li);
       });
     }
