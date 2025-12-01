@@ -46,6 +46,12 @@
           </div>
           <form id="addPizzaMasterToppingForm" class="topping-form">
             <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required>
+            <select id="pizzaMasterToppingType" required title="Select topping type">
+              <option value="">Type</option>
+              <option value="vegetable">Vegetable</option>
+              <option value="meat">Meat</option>
+              <option value="other">Other</option>
+            </select>
             <button type="submit">Add Topping</button>
           </form>
         </div>
@@ -59,6 +65,12 @@
           </div>
           <form id="addSaladMasterToppingForm" class="topping-form">
             <input type="text" id="saladMasterToppingInput" placeholder="Topping name" required>
+            <select id="saladMasterToppingType" required title="Select topping type">
+              <option value="">Type</option>
+              <option value="vegetable">Vegetable</option>
+              <option value="meat">Meat</option>
+              <option value="other">Other</option>
+            </select>
             <button type="submit">Add Topping</button>
           </form>
         </div>
@@ -72,6 +84,12 @@
           </div>
           <form id="addOtherMasterToppingForm" class="topping-form">
             <input type="text" id="otherMasterToppingInput" placeholder="Topping name" required>
+            <select id="otherMasterToppingType" required title="Select topping type">
+              <option value="">Type</option>
+              <option value="vegetable">Vegetable</option>
+              <option value="meat">Meat</option>
+              <option value="other">Other</option>
+            </select>
             <button type="submit">Add Topping</button>
           </form>
         </div>
@@ -92,7 +110,7 @@
         <small class="help-text">Select a section to edit or add a new one.</small>
       </div>
       <div id="sectionDetails" class="sectionDetails card">
-        <h3>Section Details</h3>
+        <h2 id="sectionDetailsHeader">New Menu Item</h2>
         <div class="form-row">
           <label for="sectionItemName">Menu Item Name:</label>
           <input type="text" id="sectionItemName" placeholder="Menu item name">
