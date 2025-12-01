@@ -383,6 +383,8 @@
           saveMasterToppings();
           renderMasterToppings('pizza');
           addPizzaMasterToppingForm.reset();
+          // Refresh toppings dropdown for current section
+          if (currentSection) populateSectionToppingSelect('pizza', currentSection);
         });
       }
       // --- Add Salad Master Topping ---
@@ -401,6 +403,7 @@
           saveMasterToppings();
           renderMasterToppings('salad');
           addSaladMasterToppingForm.reset();
+          if (currentSection) populateSectionToppingSelect('salad', currentSection);
         });
       }
       // --- Add Other Master Topping ---
@@ -419,6 +422,7 @@
           saveMasterToppings();
           renderMasterToppings('other');
           addOtherMasterToppingForm.reset();
+          if (currentSection) populateSectionToppingSelect('other', currentSection);
         });
       }
       loadMasterToppings();
@@ -594,6 +598,10 @@
             document.getElementById('sectionItemName').focus();
             return;
           }
+          // Determine category from section name
+          let category = 'pizza';
+          if (currentSection.toLowerCase().includes('salad')) category = 'salad';
+          else if (currentSection.toLowerCase().includes('other')) category = 'other';
           // Save directly to backend
           try {
             await fetch('/api/menu', {
@@ -605,7 +613,8 @@
                 description: details.description,
                 sizes: details.sizeTypes || [],
                 toppings: (details.toppings || []).map(tp => ({ name: tp.name, price: tp.price })),
-                section: currentSection // Use the actual section name
+                section: currentSection,
+                category // Set category for live menu
               })
             });
             alert('Menu item saved!');
