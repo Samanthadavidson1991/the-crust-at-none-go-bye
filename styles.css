@@ -616,6 +616,13 @@ button:hover, .primary-btn:hover {
   font-size: 0.95rem;
   margin-top: 8px;
 }
+.staged-menu-items {
+  margin-bottom: 32px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 24px;
+}
 .menu-preview {
   margin-top: 48px;
   background: #fff;

@@ -111,7 +111,12 @@
           <ul id="sizeTypeList" class="size-type-list"></ul>
           <small class="help-text">Add custom sizes/types and set prices for each.</small>
         </div>
-        <button id="saveSectionDetailsBtn" class="primary-btn">Save Section Details</button>
+        <button id="addMenuItemBtn" class="primary-btn">Add Item</button>
+      </div>
+      <div id="stagedMenuItems" class="staged-menu-items card">
+        <h3>Staged Menu Items</h3>
+        <div id="stagedMenuItemsList"></div>
+        <button id="saveAllMenuItemsBtn" class="primary-btn">Save All</button>
       </div>
       <div id="sectionToppings" class="sectionToppings card">
         <h3>Section Toppings</h3>
@@ -124,7 +129,7 @@
         <small class="help-text">Add toppings for this menu item and set their prices.</small>
       </div>
     </section>
-    <section class="menu-preview card" style="margin-top:48px;">
+    <section class="menu-preview card">
       <h2>Menu Preview</h2>
       <div id="menuPreviewContent"></div>
     </section>
@@ -139,6 +144,7 @@
     let menuSections = [];
     let sectionDetails = {};
     let currentSection = '';
+    let stagedMenuItems = [];
 
     // --- Lock Page Logic ---
     function lockAdminPage() {
@@ -487,6 +493,66 @@
     // After saving section details, adding/removing size/type/topping, call saveMenuToServer
     // Example:
     // saveMenuToServer();
+    // --- Add Menu Item to Staged List ---
+    document.addEventListener('DOMContentLoaded', function() {
+      const addMenuItemBtn = document.getElementById('addMenuItemBtn');
+      if (addMenuItemBtn) {
+        addMenuItemBtn.addEventListener('click', function() {
+          if (!currentSection) return;
+          const details = sectionDetails[currentSection];
+          if (!details.itemName) {
+            alert('Menu item name is required');
+            return;
+          }
+          stagedMenuItems.push(JSON.parse(JSON.stringify(details)));
+          renderStagedMenuItems();
+          alert('Menu item staged! You can add more or save all.');
+        });
+      }
+      const saveAllMenuItemsBtn = document.getElementById('saveAllMenuItemsBtn');
+      if (saveAllMenuItemsBtn) {
+        saveAllMenuItemsBtn.addEventListener('click', async function() {
+          if (stagedMenuItems.length === 0) {
+            alert('No staged items to save.');
+            return;
+          }
+          try {
+            await fetch('/api/menu', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify(stagedMenuItems)
+            });
+            alert('All staged menu items saved to server!');
+            stagedMenuItems = [];
+            renderStagedMenuItems();
+            loadMenuFromServer();
+          } catch (error) {
+            alert('Failed to save menu items to server');
+          }
+        });
+      }
+    });
+
+    // --- Render Staged Menu Items ---
+    function renderStagedMenuItems() {
+      const list = document.getElementById('stagedMenuItemsList');
+      if (!list) return;
+      if (stagedMenuItems.length === 0) {
+        list.innerHTML = '<p class="text-muted">No staged items yet.</p>';
+        return;
+      }
+      let html = '<ul>';
+      stagedMenuItems.forEach((item, idx) => {
+        html += `<li><strong>${item.itemName}</strong> - ${item.description || ''} <button onclick="removeStagedMenuItem(${idx})">Remove</button></li>`;
+      });
+      html += '</ul>';
+      list.innerHTML = html;
+    }
+    window.removeStagedMenuItem = function(idx) {
+      stagedMenuItems.splice(idx, 1);
+      renderStagedMenuItems();
+    }
   </script>
 </body>
 </html>
