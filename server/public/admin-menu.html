@@ -94,15 +94,7 @@
         <div class="type-subsections">
           <h4>Sizes/Types & Prices</h4>
           <form id="addSizeTypeForm" class="size-type-form">
-            <select id="sizeTypeDropdown" title="Select size or type">
-              <option value="">Select size/type</option>
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
-              <option value="Thin">Thin</option>
-              <option value="Deep">Deep</option>
-              <!-- Add more as needed -->
-            </select>
+            <input type="text" id="sizeTypeInput" placeholder="Size/Type name" required>
             <input type="number" id="sizeTypePriceInput" placeholder="Price (£)" step="0.01" min="0" required>
             <button type="submit">Add Size/Type</button>
           </form>
@@ -274,10 +266,10 @@
         addSizeTypeForm.addEventListener('submit', function(e) {
           e.preventDefault();
           if (!currentSection) return;
-          const sizeType = document.getElementById('sizeTypeDropdown').value;
+          const sizeType = document.getElementById('sizeTypeInput').value.trim();
           const price = parseFloat(document.getElementById('sizeTypePriceInput').value);
           if (!sizeType || isNaN(price)) {
-            alert('Please select a size/type and enter a price');
+            alert('Please enter a size/type name and price');
             return;
           }
           sectionDetails[currentSection].sizeTypes = sectionDetails[currentSection].sizeTypes || [];
