@@ -33,7 +33,7 @@
     </nav>
   </header>
   <main id="main-content">
-    <div class="master-toppings">
+    <div class="master-toppings card">
       <h2>Master Toppings</h2>
       <div class="toppings-group">
         <div class="toppings-category">
@@ -78,21 +78,29 @@
       </div>
     </div>
     <section class="admin-section">
-      <div class="menu-section-controls">
-        <label for="menuSectionSelect">Select Section:</label>
-        <select id="menuSectionSelect" title="Select menu section">
-          <!-- Sections will be populated dynamically -->
-        </select>
-        <label for="newSectionInput" class="newSectionLabel">Add New Section:</label>
-        <input type="text" id="newSectionInput" placeholder="New section name">
-        <button id="addSectionBtn">Add Section</button>
+      <div class="menu-section-controls card">
+        <h2>Menu Sections</h2>
+        <div class="form-row">
+          <label for="menuSectionSelect">Select Section:</label>
+          <select id="menuSectionSelect" title="Select menu section"></select>
+        </div>
+        <div class="form-row">
+          <label for="newSectionInput" class="newSectionLabel">Add New Section:</label>
+          <input type="text" id="newSectionInput" placeholder="New section name">
+          <button id="addSectionBtn">Add Section</button>
+        </div>
+        <small class="help-text">Select a section to edit or add a new one.</small>
       </div>
-      <div id="sectionDetails" class="sectionDetails">
+      <div id="sectionDetails" class="sectionDetails card">
         <h3>Section Details</h3>
-        <label for="sectionItemName">Menu Item Name:</label>
-        <input type="text" id="sectionItemName" placeholder="Menu item name">
-        <label for="sectionDescription">Description:</label>
-        <input type="text" id="sectionDescription" placeholder="Section description">
+        <div class="form-row">
+          <label for="sectionItemName">Menu Item Name:</label>
+          <input type="text" id="sectionItemName" placeholder="Menu item name">
+        </div>
+        <div class="form-row">
+          <label for="sectionDescription">Description:</label>
+          <input type="text" id="sectionDescription" placeholder="Section description">
+        </div>
         <div class="type-subsections">
           <h4>Sizes/Types & Prices</h4>
           <form id="addSizeTypeForm" class="size-type-form">
@@ -101,10 +109,11 @@
             <button type="submit">Add Size/Type</button>
           </form>
           <ul id="sizeTypeList" class="size-type-list"></ul>
+          <small class="help-text">Add custom sizes/types and set prices for each.</small>
         </div>
-        <button id="saveSectionDetailsBtn">Save Section Details</button>
+        <button id="saveSectionDetailsBtn" class="primary-btn">Save Section Details</button>
       </div>
-      <div id="sectionToppings" class="sectionToppings">
+      <div id="sectionToppings" class="sectionToppings card">
         <h3>Section Toppings</h3>
         <form id="addSectionToppingForm" class="topping-form">
           <input type="text" id="sectionToppingInput" placeholder="Topping name" required>
@@ -112,6 +121,7 @@
           <button type="submit">Add Topping</button>
         </form>
         <ul id="sectionToppingsList" class="toppings-list"></ul>
+        <small class="help-text">Add toppings for this menu item and set their prices.</small>
       </div>
     </section>
   </main>
