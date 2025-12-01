@@ -559,3 +559,9 @@ p {
 .admin-section {
   margin-top: 32px;
 }
+.menu-section-controls {
+  margin-bottom: 24px;
+}
+.newSectionLabel {
+  margin-left: 16px;
+}
