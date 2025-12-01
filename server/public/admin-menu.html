@@ -124,6 +124,10 @@
         <small class="help-text">Add toppings for this menu item and set their prices.</small>
       </div>
     </section>
+    <section class="menu-preview card" style="margin-top:48px;">
+      <h2>Menu Preview</h2>
+      <div id="menuPreviewContent"></div>
+    </section>
   </main>
   <script>
     // --- Global State ---
@@ -295,6 +299,7 @@
       }
       loadMasterToppings();
       loadMenuSections();
+      updateAllUI();
     });
 
     // --- Render Section Toppings ---
@@ -391,8 +396,52 @@
         renderMasterToppings(category);
       }
     }
-    // --- Load section details from storage on page load ---
-    document.addEventListener('DOMContentLoaded', loadSectionDetailsFromStorage);
+    // --- Render Menu Preview ---
+    function renderMenuPreview() {
+      const preview = document.getElementById('menuPreviewContent');
+      if (!preview) return;
+      let html = '';
+      Object.entries(sectionDetails).forEach(([section, details]) => {
+        if (!details.itemName && !details.description && (!details.sizeTypes || details.sizeTypes.length === 0) && (!details.toppings || details.toppings.length === 0)) return;
+        html += `<div class="menu-preview-section">
+          <h3>${details.itemName || section}</h3>
+          <p class="text-muted">${details.description || ''}</p>`;
+        if (details.sizeTypes && details.sizeTypes.length) {
+          html += '<ul class="menu-preview-sizes">';
+          details.sizeTypes.forEach(st => {
+            html += `<li>${st.type} - £${st.price.toFixed(2)}</li>`;
+          });
+          html += '</ul>';
+        }
+        if (details.toppings && details.toppings.length) {
+          html += '<ul class="menu-preview-toppings">';
+          details.toppings.forEach(tp => {
+            html += `<li>${tp.name} - £${tp.price.toFixed(2)}</li>`;
+          });
+          html += '</ul>';
+        }
+        html += '</div><hr>';
+      });
+      preview.innerHTML = html || '<p class="text-muted">No menu items yet. Add sections and details above.</p>';
+    }
+    // Update preview after any change
+    function updateAllUI() {
+      renderMasterToppings('pizza');
+      renderMasterToppings('salad');
+      renderMasterToppings('other');
+      renderMenuPreview();
+    }
+    // Call updateAllUI after changes
+    document.addEventListener('DOMContentLoaded', function() {
+      // ...existing code...
+      loadMasterToppings();
+      loadMenuSections();
+      updateAllUI();
+    });
+    // After saving section details, adding/removing size/type/topping, call updateAllUI
+    // Example:
+    // saveSectionDetailsToStorage();
+    // updateAllUI();
   </script>
 </body>
 </html>
