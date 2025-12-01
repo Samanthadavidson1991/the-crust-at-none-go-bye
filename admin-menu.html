@@ -67,7 +67,7 @@
         <form id="addPizzaMasterToppingForm" class="mb-12 flex gap-8 align-center">
           <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required title="Pizza topping name">
           <select id="pizzaMasterToppingType" required title="Topping type">
-            <option value="">Type</option>
+            <!DOCTYPE html>
             <option value="meat">Meat</option>
             <option value="vegetable">Vegetable</option>
             <option value="other">Other</option>
@@ -543,4 +543,5 @@
         body: JSON.stringify({ toppingStatus: toppings }),
         credentials: 'include'
       });
-      fetchPizzaMasterTopping
+      fetchPizzaMasterToppings();
+    }
