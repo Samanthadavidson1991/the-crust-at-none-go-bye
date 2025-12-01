@@ -182,12 +182,14 @@
                 document.addEventListener('DOMContentLoaded', function() {
                   const categorySelect = document.getElementById('categorySelect');
                   const dessertDrinkFields = document.getElementById('dessertDrinkFields');
-                  function updateDessertDrinkFields() {
-                    const cat = categorySelect.value;
-                    dessertDrinkFields.style.display = (cat === 'Desserts' || cat === 'Drinks') ? '' : 'none';
+                  if (categorySelect && dessertDrinkFields) {
+                    function updateDessertDrinkFields() {
+                      const cat = categorySelect.value;
+                      dessertDrinkFields.style.display = (cat === 'Desserts' || cat === 'Drinks') ? '' : 'none';
+                    }
+                    categorySelect.addEventListener('change', updateDessertDrinkFields);
+                    updateDessertDrinkFields();
                   }
-                  categorySelect.addEventListener('change', updateDessertDrinkFields);
-                  updateDessertDrinkFields();
                 });
               </script>
         <h3>Current Menu Preview</h3>
@@ -442,7 +444,9 @@
         otherHeader.textContent = 'Other';
         otherDiv.appendChild(otherHeader);
         otherDiv.appendChild(otherList);
-        meatList.parentElement.parentElement.appendChild(otherDiv);
+        if (meatList && meatList.parentElement && meatList.parentElement.parentElement) {
+          meatList.parentElement.parentElement.appendChild(otherDiv);
+        }
       }
       meatList.innerHTML = '';
       vegList.innerHTML = '';
