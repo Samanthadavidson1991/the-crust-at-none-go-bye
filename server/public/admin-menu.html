@@ -33,6 +33,68 @@
     </nav>
   </header>
   <main id="main-content">
+    <div class="master-toppings">
+      <h2>Master Toppings</h2>
+      <div class="toppings-group">
+        <div class="toppings-category">
+          <h3>Pizza Toppings</h3>
+          <ul id="pizzaMasterToppingsList" class="toppings-list"></ul>
+          <div class="default-prices">
+            <label>Vegetable Price (£): <input type="number" id="pizzaVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
+            <label>Meat Price (£): <input type="number" id="pizzaMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
+            <label>Other Price (£): <input type="number" id="pizzaOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
+          </div>
+          <form id="addPizzaMasterToppingForm" class="topping-form">
+            <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required>
+            <select id="pizzaMasterToppingType" required title="Select topping type">
+              <option value="">Type</option>
+              <option value="meat">Meat</option>
+              <option value="vegetable">Vegetable</option>
+              <option value="other">Other</option>
+            </select>
+            <button type="submit">Add Topping</button>
+          </form>
+        </div>
+        <div class="toppings-category">
+          <h3>Salad Toppings</h3>
+          <ul id="saladMasterToppingsList" class="toppings-list"></ul>
+          <div class="default-prices">
+            <label>Vegetable Price (£): <input type="number" id="saladVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
+            <label>Meat Price (£): <input type="number" id="saladMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
+            <label>Other Price (£): <input type="number" id="saladOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
+          </div>
+          <form id="addSaladMasterToppingForm" class="topping-form">
+            <input type="text" id="saladMasterToppingInput" placeholder="Topping name" required>
+            <select id="saladMasterToppingType" required title="Select topping type">
+              <option value="">Type</option>
+              <option value="meat">Meat</option>
+              <option value="vegetable">Vegetable</option>
+              <option value="other">Other</option>
+            </select>
+            <button type="submit">Add Topping</button>
+          </form>
+        </div>
+        <div class="toppings-category">
+          <h3>Other Toppings</h3>
+          <ul id="otherMasterToppingsList" class="toppings-list"></ul>
+          <div class="default-prices">
+            <label>Vegetable Price (£): <input type="number" id="otherVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
+            <label>Meat Price (£): <input type="number" id="otherMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
+            <label>Other Price (£): <input type="number" id="otherOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
+          </div>
+          <form id="addOtherMasterToppingForm" class="topping-form">
+            <input type="text" id="otherMasterToppingInput" placeholder="Topping name" required>
+            <select id="otherMasterToppingType" required title="Select topping type">
+              <option value="">Type</option>
+              <option value="meat">Meat</option>
+              <option value="vegetable">Vegetable</option>
+              <option value="other">Other</option>
+            </select>
+            <button type="submit">Add Topping</button>
+          </form>
+        </div>
+      </div>
+    </div>
     <section class="admin-section">
       <div class="menu-section-controls">
         <label for="menuSectionSelect">Select Section:</label>
@@ -43,69 +105,7 @@
         <input type="text" id="newSectionInput" placeholder="New section name">
         <button id="addSectionBtn">Add Section</button>
       </div>
-      <div class="master-toppings">
-        <h2>Master Toppings</h2>
-        <div class="toppings-group">
-          <div class="toppings-category">
-            <h3>Pizza Toppings</h3>
-            <ul id="pizzaMasterToppingsList" class="toppings-list"></ul>
-            <div class="default-prices">
-              <label>Vegetable Price (£): <input type="number" id="pizzaVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
-              <label>Meat Price (£): <input type="number" id="pizzaMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
-              <label>Other Price (£): <input type="number" id="pizzaOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
-            </div>
-            <form id="addPizzaMasterToppingForm" class="topping-form">
-              <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required>
-              <select id="pizzaMasterToppingType" required title="Select topping type">
-                <option value="">Type</option>
-                <option value="meat">Meat</option>
-                <option value="vegetable">Vegetable</option>
-                <option value="other">Other</option>
-              </select>
-              <button type="submit">Add Topping</button>
-            </form>
-          </div>
-          <div class="toppings-category">
-            <h3>Salad Toppings</h3>
-            <ul id="saladMasterToppingsList" class="toppings-list"></ul>
-            <div class="default-prices">
-              <label>Vegetable Price (£): <input type="number" id="saladVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
-              <label>Meat Price (£): <input type="number" id="saladMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
-              <label>Other Price (£): <input type="number" id="saladOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
-            </div>
-            <form id="addSaladMasterToppingForm" class="topping-form">
-              <input type="text" id="saladMasterToppingInput" placeholder="Topping name" required>
-              <select id="saladMasterToppingType" required title="Select topping type">
-                <option value="">Type</option>
-                <option value="meat">Meat</option>
-                <option value="vegetable">Vegetable</option>
-                <option value="other">Other</option>
-              </select>
-              <button type="submit">Add Topping</button>
-            </form>
-          </div>
-          <div class="toppings-category">
-            <h3>Other Toppings</h3>
-            <ul id="otherMasterToppingsList" class="toppings-list"></ul>
-            <div class="default-prices">
-              <label>Vegetable Price (£): <input type="number" id="otherVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
-              <label>Meat Price (£): <input type="number" id="otherMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
-              <label>Other Price (£): <input type="number" id="otherOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
-            </div>
-            <form id="addOtherMasterToppingForm" class="topping-form">
-              <input type="text" id="otherMasterToppingInput" placeholder="Topping name" required>
-              <select id="otherMasterToppingType" required title="Select topping type">
-                <option value="">Type</option>
-                <option value="meat">Meat</option>
-                <option value="vegetable">Vegetable</option>
-                <option value="other">Other</option>
-              </select>
-              <button type="submit">Add Topping</button>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div id="sectionDetails" style="display:none; margin-bottom:24px;">
+      <div id="sectionDetails" class="sectionDetails">
         <h3>Section Details</h3>
         <label for="sectionDescription">Description:</label>
         <input type="text" id="sectionDescription" placeholder="Section description">
@@ -123,7 +123,7 @@
         </div>
         <button id="saveSectionDetailsBtn">Save Section Details</button>
       </div>
-      <div id="sectionToppings" style="display:none; margin-bottom:24px;">
+      <div id="sectionToppings" class="sectionToppings">
         <h3>Section Toppings</h3>
         <form id="addSectionToppingForm" class="topping-form">
           <input type="text" id="sectionToppingInput" placeholder="Topping name" required>
