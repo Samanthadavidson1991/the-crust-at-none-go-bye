@@ -1,4 +1,3 @@
-
 /* Dough/Gluten Free Counters Styling for Orders Page */
 .dough-counters {
     display: flex;
@@ -551,4 +550,12 @@ p {
         top: 2vh !important;
         max-width: 98vw !important;
     }
+}
+
+.lock-page-btn {
+  float: right;
+  margin-top: 8px;
+}
+.admin-section {
+  margin-top: 32px;
 }
