@@ -111,22 +111,17 @@
           <ul id="sizeTypeList" class="size-type-list"></ul>
           <small class="help-text">Add custom sizes/types and set prices for each.</small>
         </div>
+        <div id="sectionToppings" class="sectionToppings">
+          <h3>Menu Item Toppings</h3>
+          <form id="addSectionToppingForm" class="topping-form">
+            <input type="text" id="sectionToppingInput" placeholder="Topping name" required>
+            <input type="number" id="sectionToppingPriceInput" placeholder="Price (£)" step="0.01" min="0" required>
+            <button type="submit">Add Topping</button>
+          </form>
+          <ul id="sectionToppingsList" class="toppings-list"></ul>
+          <small class="help-text">Add toppings for this menu item and set their prices.</small>
+        </div>
         <button id="addMenuItemBtn" class="primary-btn">Add Item</button>
-      </div>
-      <div id="sectionToppings" class="sectionToppings card">
-        <h3>Section Toppings</h3>
-        <form id="addSectionToppingForm" class="topping-form">
-          <input type="text" id="sectionToppingInput" placeholder="Topping name" required>
-          <input type="number" id="sectionToppingPriceInput" placeholder="Price (£)" step="0.01" min="0" required>
-          <button type="submit">Add Topping</button>
-        </form>
-        <ul id="sectionToppingsList" class="toppings-list"></ul>
-        <small class="help-text">Add toppings for this menu item and set their prices.</small>
-      </div>
-      <div id="stagedMenuItems" class="staged-menu-items card">
-        <h3>Staged Menu Items</h3>
-        <div id="stagedMenuItemsList"></div>
-        <button id="saveAllMenuItemsBtn" class="primary-btn">Save All</button>
       </div>
     </section>
     <section class="menu-preview card">
@@ -507,6 +502,15 @@
           stagedMenuItems.push(JSON.parse(JSON.stringify(details)));
           renderStagedMenuItems();
           alert('Menu item staged! You can add more or save all.');
+          // Reset all fields for next item
+          details.itemName = '';
+          details.description = '';
+          details.sizeTypes = [];
+          details.toppings = [];
+          document.getElementById('sectionItemName').value = '';
+          document.getElementById('sectionDescription').value = '';
+          renderSizeTypeList(currentSection);
+          renderSectionToppings(currentSection);
         });
       }
       const saveAllMenuItemsBtn = document.getElementById('saveAllMenuItemsBtn');
