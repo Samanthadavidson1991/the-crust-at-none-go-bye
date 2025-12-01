@@ -92,16 +92,21 @@
         <label for="sectionDescription">Description:</label>
         <input type="text" id="sectionDescription" placeholder="Section description">
         <div class="type-subsections">
-          <h4>Type Subsections (optional)</h4>
-          <div>
-            <label>Meat Price (£): <input type="number" id="sectionMeatPrice" step="0.01" min="0" placeholder="Optional"></label>
-          </div>
-          <div>
-            <label>Vegetable Price (£): <input type="number" id="sectionVegPrice" step="0.01" min="0" placeholder="Optional"></label>
-          </div>
-          <div>
-            <label>Other Price (£): <input type="number" id="sectionOtherPrice" step="0.01" min="0" placeholder="Optional"></label>
-          </div>
+          <h4>Sizes/Types & Prices</h4>
+          <form id="addSizeTypeForm" class="size-type-form">
+            <select id="sizeTypeDropdown" title="Select size or type">
+              <option value="">Select size/type</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+              <option value="Thin">Thin</option>
+              <option value="Deep">Deep</option>
+              <!-- Add more as needed -->
+            </select>
+            <input type="number" id="sizeTypePriceInput" placeholder="Price (£)" step="0.01" min="0" required>
+            <button type="submit">Add Size/Type</button>
+          </form>
+          <ul id="sizeTypeList" class="size-type-list"></ul>
         </div>
         <button id="saveSectionDetailsBtn">Save Section Details</button>
       </div>
@@ -197,9 +202,7 @@
       // Populate details
       const details = sectionDetails[section] || {};
       document.getElementById('sectionDescription').value = details.description || '';
-      document.getElementById('sectionMeatPrice').value = details.meatPrice || '';
-      document.getElementById('sectionVegPrice').value = details.vegPrice || '';
-      document.getElementById('sectionOtherPrice').value = details.otherPrice || '';
+      renderSizeTypeList(section);
       renderSectionToppings(section);
     }
 
@@ -208,9 +211,6 @@
       if (!currentSection) return;
       sectionDetails[currentSection] = sectionDetails[currentSection] || {};
       sectionDetails[currentSection].description = document.getElementById('sectionDescription').value;
-      sectionDetails[currentSection].meatPrice = document.getElementById('sectionMeatPrice').value;
-      sectionDetails[currentSection].vegPrice = document.getElementById('sectionVegPrice').value;
-      sectionDetails[currentSection].otherPrice = document.getElementById('sectionOtherPrice').value;
       saveSectionDetailsToStorage();
       alert('Section details saved!');
     }
@@ -268,6 +268,25 @@
           addSectionToppingForm.reset();
         });
       }
+      // --- Size/Type Form ---
+      const addSizeTypeForm = document.getElementById('addSizeTypeForm');
+      if (addSizeTypeForm) {
+        addSizeTypeForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          if (!currentSection) return;
+          const sizeType = document.getElementById('sizeTypeDropdown').value;
+          const price = parseFloat(document.getElementById('sizeTypePriceInput').value);
+          if (!sizeType || isNaN(price)) {
+            alert('Please select a size/type and enter a price');
+            return;
+          }
+          sectionDetails[currentSection].sizeTypes = sectionDetails[currentSection].sizeTypes || [];
+          sectionDetails[currentSection].sizeTypes.push({ type: sizeType, price });
+          saveSectionDetailsToStorage();
+          renderSizeTypeList(currentSection);
+          addSizeTypeForm.reset();
+        });
+      }
       loadMasterToppings();
       loadMenuSections();
     });
@@ -283,6 +302,17 @@
         list.appendChild(li);
       });
     }
+    // --- Render Size/Type List ---
+    function renderSizeTypeList(section) {
+      const list = document.getElementById('sizeTypeList');
+      if (!list || !sectionDetails[section]) return;
+      list.innerHTML = '';
+      (sectionDetails[section].sizeTypes || []).forEach((item, idx) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${item.type} - £${item.price.toFixed(2)}</span> <button onclick="deleteSizeType('${section}', ${idx})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
     // --- Delete Section Topping ---
     function deleteSectionTopping(section, idx) {
       if (!sectionDetails[section]) return;
@@ -290,6 +320,15 @@
         sectionDetails[section].toppings.splice(idx, 1);
         saveSectionDetailsToStorage();
         renderSectionToppings(section);
+      }
+    }
+    // --- Delete Size/Type ---
+    function deleteSizeType(section, idx) {
+      if (!sectionDetails[section]) return;
+      if (confirm('Are you sure you want to delete this size/type?')) {
+        sectionDetails[section].sizeTypes.splice(idx, 1);
+        saveSectionDetailsToStorage();
+        renderSizeTypeList(section);
       }
     }
     // --- Save Section Details to LocalStorage ---
