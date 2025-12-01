@@ -96,9 +96,18 @@
             <option value="vegetable">Vegetable</option>
             <option value="other">Other</option>
           </select>
-          <input type="number" id="saladMasterToppingPrice" placeholder="Price (£)" step="0.01" min="0" required title="Topping price">
-          <button type="submit">Add Topping</button>
-        </form>
+            <input type="number" id="saladMasterToppingPrice" placeholder="Price (£)" step="0.01" min="0" required title="Topping price">          
+          </form>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const saladMasterToppingType = document.getElementById('saladMasterToppingType');
+              if (saladMasterToppingType) {
+                saladMasterToppingType.addEventListener('change', function() {
+                  // ...existing code...
+                });
+              }
+            });
+          </script>
         <div class="flex gap-40">
           <div class="flex-1">
             <h4>Meat</h4>
