@@ -199,12 +199,12 @@
     async function saveMenuToServer() {
       try {
         // Convert sectionDetails to array of menu items
-        const items = Object.values(sectionDetails).map(details => ({
+        const items = Object.entries(sectionDetails).map(([section, details]) => ({
           name: details.itemName,
           description: details.description,
           sizes: details.sizeTypes || [],
           toppings: (details.toppings || []).map(tp => ({ name: tp.name, price: tp.price })),
-          section: details.itemName // Use itemName as section for now
+          section // Use the actual section name
         }));
         await fetch('/api/menu', {
           method: 'POST',
@@ -600,7 +600,13 @@
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
-              body: JSON.stringify(details)
+              body: JSON.stringify({
+                name: details.itemName,
+                description: details.description,
+                sizes: details.sizeTypes || [],
+                toppings: (details.toppings || []).map(tp => ({ name: tp.name, price: tp.price })),
+                section: currentSection // Use the actual section name
+              })
             });
             alert('Menu item saved!');
             // Reset all fields for next item
