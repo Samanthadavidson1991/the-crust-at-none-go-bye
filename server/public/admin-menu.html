@@ -373,10 +373,10 @@
     // --- Save menu to server ---
     async function saveMenuToServer() {
       try {
-        // Flatten sectionDetails to array of menu items for backend
+        // Flatten sectionDetails to array of menu items for backend, only for existing sections
         const items = [];
         Object.entries(sectionDetails).forEach(([section, arr]) => {
-          if (Array.isArray(arr)) {
+          if (Array.isArray(arr) && menuSections.includes(section)) {
             arr.forEach(item => {
               items.push({
                 name: item.name,
@@ -742,25 +742,29 @@
       const preview = document.getElementById('menuPreviewContent');
       if (!preview) return;
       let html = '';
-      Object.entries(sectionDetails).forEach(([section, details]) => {
-        if (!details.itemName && !details.description && (!details.sizeTypes || details.sizeTypes.length === 0) && (!details.toppings || details.toppings.length === 0)) return;
+      Object.entries(sectionDetails).forEach(([section, items]) => {
+        if (!Array.isArray(items) || items.length === 0) return;
         html += `<div class="menu-preview-section">
-          <h3>${details.itemName || section}</h3>
-          <p class="text-muted">${details.description || ''}</p>`;
-        if (details.sizeTypes && details.sizeTypes.length) {
-          html += '<ul class="menu-preview-sizes">';
-          details.sizeTypes.forEach(st => {
-            html += `<li>${st.type} - £${st.price.toFixed(2)}</li>`;
-          });
-          html += '</ul>';
-        }
-        if (details.toppings && details.toppings.length) {
-          html += '<ul class="menu-preview-toppings">';
-          details.toppings.forEach(tp => {
-            html += `<li>${tp.name} - £${tp.price.toFixed(2)}</li>`;
-          });
-          html += '</ul>';
-        }
+          <h2>${section}</h2>`;
+        items.forEach(item => {
+          html += `<div class="menu-preview-item">
+            <b>${item.name}</b> <span class="text-muted">${item.description || ''}</span>`;
+          if (item.sizes && item.sizes.length) {
+            html += '<ul class="menu-preview-sizes">';
+            item.sizes.forEach(sz => {
+              html += `<li>${sz.name} - £${parseFloat(sz.price).toFixed(2)}</li>`;
+            });
+            html += '</ul>';
+          }
+          if (item.toppings && item.toppings.length) {
+            html += '<ul class="menu-preview-toppings">';
+            item.toppings.forEach(tp => {
+              html += `<li>${tp.name ? tp.name : tp}</li>`;
+            });
+            html += '</ul>';
+          }
+          html += '</div>';
+        });
         html += '</div><hr>';
       });
       preview.innerHTML = html || '<p class="text-muted">No menu items yet. Add sections and details above.</p>';
