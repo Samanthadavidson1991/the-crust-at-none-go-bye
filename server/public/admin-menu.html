@@ -406,15 +406,9 @@
         if (data.items && Array.isArray(data.items)) {
           data.items.forEach(item => {
             if (item.section) sections.add(item.section);
-            // Load section details if present
+            // Always initialize as array
             if (item.section && !sectionDetails[item.section]) {
-              sectionDetails[item.section] = {
-                description: item.description || '',
-                meatPrice: item.meatPrice || '',
-                vegPrice: item.vegPrice || '',
-                otherPrice: item.otherPrice || '',
-                toppings: item.toppings || []
-              };
+              sectionDetails[item.section] = [];
             }
           });
         }
