@@ -259,11 +259,15 @@ mongoose.connect(atlasUri)
           const submittedKeys = new Set(req.body.map(item => `${item.name}|||${item.section}`));
           // 2. Fetch all current items from MongoDB
           const allItems = await MenuItem.find({});
+          console.log('[PUT /api/menu] Current DB items:', allItems);
           // 3. Delete any item not present in submittedKeys
           for (const dbItem of allItems) {
             const key = `${dbItem.name}|||${dbItem.section}`;
             if (!submittedKeys.has(key)) {
+              console.log(`[PUT /api/menu] Deleting item: ${key}`);
               await MenuItem.deleteOne({ _id: dbItem._id });
+            } else {
+              console.log(`[PUT /api/menu] Keeping item: ${key}`);
             }
           }
           // 4. Upsert submitted items
@@ -276,6 +280,7 @@ mongoose.connect(atlasUri)
             );
             results.push(updated);
           }
+          console.log('[PUT /api/menu] Upserted items:', results);
           res.json({ success: true, items: results });
         } else {
           // Single update
@@ -284,6 +289,7 @@ mongoose.connect(atlasUri)
             req.body,
             { new: true, upsert: true }
           );
+          console.log('[PUT /api/menu] Upserted single item:', updated);
           res.json({ success: true, item: updated });
         }
       } catch (err) {

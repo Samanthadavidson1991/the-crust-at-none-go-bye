@@ -425,6 +425,7 @@
         const data = await response.json();
         sectionDetails = {};
         const foundSections = new Set();
+        console.log('[DEBUG] Loaded menu data:', data);
         if (data.items && Array.isArray(data.items)) {
           data.items.forEach(item => {
             const section = item.section || 'Uncategorized';
@@ -439,6 +440,8 @@
           });
         }
         menuSections = Array.from(foundSections);
+        console.log('[DEBUG] sectionDetails after load:', sectionDetails);
+        console.log('[DEBUG] menuSections after load:', menuSections);
         updateAllUI();
         // Automatically select and show the first section after loading
         if (menuSections.length > 0) {
