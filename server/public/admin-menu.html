@@ -38,7 +38,20 @@
       <div class="toppings-group">
         <div class="toppings-category">
           <h3>Pizza Toppings</h3>
-          <ul id="pizzaMasterToppingsList" class="toppings-list"></ul>
+          <div class="toppings-columns" style="display:flex;gap:18px;justify-content:center;">
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Vegetable</h4>
+              <ul id="pizzaVegToppingsList" class="toppings-list"></ul>
+            </div>
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Meat</h4>
+              <ul id="pizzaMeatToppingsList" class="toppings-list"></ul>
+            </div>
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Other</h4>
+              <ul id="pizzaOtherToppingsList" class="toppings-list"></ul>
+            </div>
+          </div>
           <style>
             .toppings-list {
               background: #fff;
@@ -59,10 +72,10 @@
               border-bottom: none;
             }
           </style>
-            <label>Vegetable Price (£): <input type="number" id="pizzaVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
-            <label>Meat Price (£): <input type="number" id="pizzaMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
-            <label>Other Price (£): <input type="number" id="pizzaOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
-          </div>
+          <label>Vegetable Price (£): <input type="number" id="pizzaVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
+          <label>Meat Price (£): <input type="number" id="pizzaMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
+          <label>Other Price (£): <input type="number" id="pizzaOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
+        </div>
           <form id="addPizzaMasterToppingForm" class="topping-form">
             <input type="text" id="pizzaMasterToppingInput" placeholder="Topping name" required>
             <select id="pizzaMasterToppingType" required title="Select topping type">
@@ -76,12 +89,26 @@
         </div>
         <div class="toppings-category">
           <h3>Salad Toppings</h3>
-          <ul id="saladMasterToppingsList" class="toppings-list"></ul>
+          <div class="toppings-columns" style="display:flex;gap:18px;justify-content:center;">
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Vegetable</h4>
+              <ul id="saladVegToppingsList" class="toppings-list"></ul>
+            </div>
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Meat</h4>
+              <ul id="saladMeatToppingsList" class="toppings-list"></ul>
+            </div>
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Other</h4>
+              <ul id="saladOtherToppingsList" class="toppings-list"></ul>
+            </div>
+          </div>
           <div class="default-prices">
             <label>Vegetable Price (£): <input type="number" id="saladVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
             <label>Meat Price (£): <input type="number" id="saladMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
             <label>Other Price (£): <input type="number" id="saladOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
           </div>
+        </div>
           <form id="addSaladMasterToppingForm" class="topping-form">
             <input type="text" id="saladMasterToppingInput" placeholder="Topping name" required>
             <select id="saladMasterToppingType" required title="Select topping type">
@@ -95,12 +122,26 @@
         </div>
         <div class="toppings-category">
           <h3>Other Toppings</h3>
-          <ul id="otherMasterToppingsList" class="toppings-list"></ul>
+          <div class="toppings-columns" style="display:flex;gap:18px;justify-content:center;">
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Vegetable</h4>
+              <ul id="otherVegToppingsList" class="toppings-list"></ul>
+            </div>
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Meat</h4>
+              <ul id="otherMeatToppingsList" class="toppings-list"></ul>
+            </div>
+            <div style="flex:1;min-width:120px;">
+              <h4 style="margin-bottom:6px;">Other</h4>
+              <ul id="otherOtherToppingsList" class="toppings-list"></ul>
+            </div>
+          </div>
           <div class="default-prices">
             <label>Vegetable Price (£): <input type="number" id="otherVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
             <label>Meat Price (£): <input type="number" id="otherMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
             <label>Other Price (£): <input type="number" id="otherOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
           </div>
+        </div>
           <form id="addOtherMasterToppingForm" class="topping-form">
             <input type="text" id="otherMasterToppingInput" placeholder="Topping name" required>
             <select id="otherMasterToppingType" required title="Select topping type">
@@ -748,9 +789,14 @@
       localStorage.setItem('masterToppings', JSON.stringify(masterToppings));
     }
     function renderMasterToppings(category) {
-      const list = document.getElementById(`${category}MasterToppingsList`);
-      if (!list) return;
-      list.innerHTML = '';
+      // Render toppings by type into three columns
+      const vegList = document.getElementById(`${category}VegToppingsList`);
+      const meatList = document.getElementById(`${category}MeatToppingsList`);
+      const otherList = document.getElementById(`${category}OtherToppingsList`);
+      if (!vegList || !meatList || !otherList) return;
+      vegList.innerHTML = '';
+      meatList.innerHTML = '';
+      otherList.innerHTML = '';
       const toppings = masterToppings[category] || [];
       toppings.forEach((topping, index) => {
         const li = document.createElement('li');
@@ -758,7 +804,9 @@
           <span>${topping.name} (${topping.type}) - £${topping.price.toFixed(2)}</span>
           <button onclick="deleteMasterTopping('${category}', ${index})">Delete</button>
         `;
-        list.appendChild(li);
+        if (topping.type === 'vegetable') vegList.appendChild(li);
+        else if (topping.type === 'meat') meatList.appendChild(li);
+        else otherList.appendChild(li);
       });
     }
     function deleteMasterTopping(category, index) {
