@@ -203,11 +203,11 @@
           name: details.itemName,
           description: details.description,
           sizes: details.sizeTypes || [],
-          toppings: (details.toppings || []).map(tp => ({ name: tp.name, price: tp.price })),
+          toppings: (details.toppings || []).map(tp => typeof tp === 'string' ? tp : tp.name),
           section // Use the actual section name
         }));
         await fetch('/api/menu', {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify(items)

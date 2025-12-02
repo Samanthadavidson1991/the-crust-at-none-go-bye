@@ -247,12 +247,27 @@ mongoose.connect(atlasUri)
         app.put('/api/menu', async (req, res) => {
           try {
             console.log('[PUT /api/menu] Received body:', req.body);
-            const updated = await MenuItem.findOneAndUpdate(
-              { name: req.body.name, section: req.body.section },
-              req.body,
-              { new: true, upsert: true }
-            );
-            res.json({ success: true, item: updated });
+            if (Array.isArray(req.body)) {
+              // Bulk update
+              const results = [];
+              for (const item of req.body) {
+                const updated = await MenuItem.findOneAndUpdate(
+                  { name: item.name, section: item.section },
+                  item,
+                  { new: true, upsert: true }
+                );
+                results.push(updated);
+              }
+              res.json({ success: true, items: results });
+            } else {
+              // Single update
+              const updated = await MenuItem.findOneAndUpdate(
+                { name: req.body.name, section: req.body.section },
+                req.body,
+                { new: true, upsert: true }
+              );
+              res.json({ success: true, item: updated });
+            }
           } catch (err) {
             console.error('[PUT /api/menu] Error:', err);
             res.status(400).json({ error: 'Failed to update menu item', details: err.message });
