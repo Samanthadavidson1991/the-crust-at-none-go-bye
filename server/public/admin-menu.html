@@ -109,39 +109,44 @@
         </div>
         <small class="help-text">Select a section to edit or add a new one.</small>
       </div>
-      <div id="sectionDetails" class="sectionDetails card">
-        <h2 id="sectionDetailsHeader">New Menu Item</h2>
+      <div id="sectionItems" class="sectionItems card">
+        <h2 id="sectionItemsHeader">Menu Items in Section</h2>
+        <div id="menuItemsList"></div>
+        <button id="addNewMenuItemBtn" class="primary-btn">Add New Item</button>
+      </div>
+      <div id="menuItemEditor" class="menuItemEditor card" style="display:none;">
+        <h2 id="menuItemEditorHeader">Edit Menu Item</h2>
         <div class="form-row">
-          <label for="sectionItemName">Menu Item Name:</label>
-          <input type="text" id="sectionItemName" placeholder="Menu item name">
+          <label for="editorItemName">Menu Item Name:</label>
+          <input type="text" id="editorItemName" placeholder="Menu item name">
         </div>
         <div class="form-row">
-          <label for="sectionDescription">Description:</label>
-          <input type="text" id="sectionDescription" placeholder="Section description">
+          <label for="editorDescription">Description:</label>
+          <input type="text" id="editorDescription" placeholder="Description">
         </div>
         <div class="type-subsections">
           <h4>Sizes/Types & Prices</h4>
-          <form id="addSizeTypeForm" class="size-type-form">
-            <input type="text" id="sizeTypeInput" placeholder="Size/Type name" required>
-            <input type="number" id="sizeTypePriceInput" placeholder="Price (£)" step="0.01" min="0" required>
+          <form id="editorAddSizeTypeForm" class="size-type-form">
+            <input type="text" id="editorSizeTypeInput" placeholder="Size/Type name" required>
+            <input type="number" id="editorSizeTypePriceInput" placeholder="Price (£)" step="0.01" min="0" required>
             <button type="submit">Add Size/Type</button>
           </form>
-          <ul id="sizeTypeList" class="size-type-list"></ul>
+          <ul id="editorSizeTypeList" class="size-type-list"></ul>
           <small class="help-text">Add custom sizes/types and set prices for each.</small>
         </div>
-        <div id="sectionToppings" class="sectionToppings">
+        <div id="editorToppings" class="sectionToppings">
           <h3>Menu Item Toppings</h3>
-          <form id="addSectionToppingForm" class="topping-form">
-            <select id="sectionToppingSelect" required title="Select topping">
+          <form id="editorAddToppingForm" class="topping-form">
+            <select id="editorToppingSelect" required title="Select topping">
               <option value="">Select topping</option>
-              <!-- Master toppings will be populated dynamically -->
             </select>
             <button type="submit">Add Topping</button>
           </form>
-          <ul id="sectionToppingsList" class="toppings-list"></ul>
+          <ul id="editorToppingsList" class="toppings-list"></ul>
           <small class="help-text">Add/remove master toppings for this menu item.</small>
         </div>
-        <button id="addMenuItemBtn" class="primary-btn">Add Item</button>
+        <button id="saveMenuItemBtn" class="primary-btn">Save Item</button>
+        <button id="cancelMenuItemBtn" class="secondary-btn">Cancel</button>
       </div>
     </section>
     <section class="menu-preview card">
@@ -157,11 +162,162 @@
       other: []
     };
     let menuSections = [];
+    // sectionDetails: { [sectionName]: [ { item fields... }, ... ] }
     let sectionDetails = {};
     let currentSection = '';
-    let stagedMenuItems = [];
+    let editingItemIndex = null;
 
     // --- Lock Page Logic ---
+        // --- Section Items UI Logic ---
+        function updateSectionItemsUI() {
+          const listDiv = document.getElementById('menuItemsList');
+          listDiv.innerHTML = '';
+          if (!currentSection || !sectionDetails[currentSection] || sectionDetails[currentSection].length === 0) {
+            listDiv.innerHTML = '<em>No items in this section.</em>';
+            return;
+          }
+          sectionDetails[currentSection].forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'menu-item-card';
+            card.innerHTML = `
+              <b>${item.name}</b> <span style="color:#888">${item.description || ''}</span><br>
+              <small>Sizes: ${item.sizes.map(s => `${s.name} (£${s.price})`).join(', ')}</small><br>
+              <small>Toppings: ${item.toppings.map(t => t.name).join(', ')}</small>
+              <button class="edit-menu-item-btn" data-idx="${idx}">Edit</button>
+              <button class="delete-menu-item-btn" data-idx="${idx}">Delete</button>
+            `;
+            listDiv.appendChild(card);
+          });
+          // Attach event listeners
+          Array.from(listDiv.getElementsByClassName('edit-menu-item-btn')).forEach(btn => {
+            btn.onclick = () => editMenuItem(parseInt(btn.dataset.idx));
+          });
+          Array.from(listDiv.getElementsByClassName('delete-menu-item-btn')).forEach(btn => {
+            btn.onclick = () => deleteMenuItem(parseInt(btn.dataset.idx));
+          });
+        }
+
+        document.getElementById('addNewMenuItemBtn').onclick = () => {
+          showMenuItemEditor();
+        };
+
+        function showMenuItemEditor(item = null, idx = null) {
+          document.getElementById('menuItemEditor').style.display = '';
+          document.getElementById('editorItemName').value = item ? item.name : '';
+          document.getElementById('editorDescription').value = item ? item.description : '';
+          // Sizes
+          editorSizeTypes = item ? [...item.sizes] : [];
+          updateEditorSizeTypeList();
+          // Toppings
+          editorToppings = item ? [...item.toppings] : [];
+          updateEditorToppingsList();
+          editingItemIndex = idx;
+        }
+
+        document.getElementById('cancelMenuItemBtn').onclick = () => {
+          document.getElementById('menuItemEditor').style.display = 'none';
+          editingItemIndex = null;
+        };
+
+        document.getElementById('saveMenuItemBtn').onclick = () => {
+          const name = document.getElementById('editorItemName').value.trim();
+          const description = document.getElementById('editorDescription').value.trim();
+          if (!name) {
+            alert('Menu item name required');
+            return;
+          }
+          const newItem = {
+            name,
+            description,
+            sizes: [...editorSizeTypes],
+            toppings: [...editorToppings]
+          };
+          if (editingItemIndex !== null) {
+            sectionDetails[currentSection][editingItemIndex] = newItem;
+          } else {
+            if (!sectionDetails[currentSection]) sectionDetails[currentSection] = [];
+            sectionDetails[currentSection].push(newItem);
+          }
+          document.getElementById('menuItemEditor').style.display = 'none';
+          editingItemIndex = null;
+          updateSectionItemsUI();
+          updateMenuPreviewUI();
+          saveMenuToServer();
+        };
+
+        function editMenuItem(idx) {
+          const item = sectionDetails[currentSection][idx];
+          showMenuItemEditor(item, idx);
+        }
+
+        function deleteMenuItem(idx) {
+          if (confirm('Delete this menu item?')) {
+            sectionDetails[currentSection].splice(idx, 1);
+            updateSectionItemsUI();
+            updateMenuPreviewUI();
+            saveMenuToServer();
+          }
+        }
+
+        // --- Editor Size/Type Logic ---
+        let editorSizeTypes = [];
+        document.getElementById('editorAddSizeTypeForm').onsubmit = e => {
+          e.preventDefault();
+          const name = document.getElementById('editorSizeTypeInput').value.trim();
+          const price = parseFloat(document.getElementById('editorSizeTypePriceInput').value);
+          if (!name || isNaN(price)) return;
+          editorSizeTypes.push({ name, price });
+          document.getElementById('editorSizeTypeInput').value = '';
+          document.getElementById('editorSizeTypePriceInput').value = '';
+          updateEditorSizeTypeList();
+        };
+
+        function updateEditorSizeTypeList() {
+          const ul = document.getElementById('editorSizeTypeList');
+          ul.innerHTML = '';
+          editorSizeTypes.forEach((sz, idx) => {
+            const li = document.createElement('li');
+            li.textContent = `${sz.name} (£${sz.price})`;
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Remove';
+            delBtn.onclick = () => {
+              editorSizeTypes.splice(idx, 1);
+              updateEditorSizeTypeList();
+            };
+            li.appendChild(delBtn);
+            ul.appendChild(li);
+          });
+        }
+
+        // --- Editor Toppings Logic ---
+        let editorToppings = [];
+        document.getElementById('editorAddToppingForm').onsubmit = e => {
+          e.preventDefault();
+          const sel = document.getElementById('editorToppingSelect');
+          const name = sel.value;
+          if (!name) return;
+          if (!editorToppings.some(t => t.name === name)) {
+            editorToppings.push({ name });
+            updateEditorToppingsList();
+          }
+        };
+
+        function updateEditorToppingsList() {
+          const ul = document.getElementById('editorToppingsList');
+          ul.innerHTML = '';
+          editorToppings.forEach((tp, idx) => {
+            const li = document.createElement('li');
+            li.textContent = tp.name;
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Remove';
+            delBtn.onclick = () => {
+              editorToppings.splice(idx, 1);
+              updateEditorToppingsList();
+            };
+            li.appendChild(delBtn);
+            ul.appendChild(li);
+          });
+        }
     function lockAdminPage() {
       fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })
         .then(r => {
@@ -181,12 +337,14 @@
         sectionDetails = {};
         if (data.items && Array.isArray(data.items)) {
           data.items.forEach(item => {
-            sectionDetails[item.section || item.name] = {
-              itemName: item.name || '',
+            const section = item.section || 'Uncategorized';
+            if (!sectionDetails[section]) sectionDetails[section] = [];
+            sectionDetails[section].push({
+              name: item.name || '',
               description: item.description || '',
-              sizeTypes: item.sizes || [],
+              sizes: item.sizes || [],
               toppings: (item.toppings || []).map(tp => typeof tp === 'string' ? { name: tp, price: 0 } : tp)
-            };
+            });
           });
         }
         updateAllUI();
@@ -198,14 +356,19 @@
     // --- Save menu to server ---
     async function saveMenuToServer() {
       try {
-        // Convert sectionDetails to array of menu items
-        const items = Object.entries(sectionDetails).map(([section, details]) => ({
-          name: details.itemName,
-          description: details.description,
-          sizes: details.sizeTypes || [],
-          toppings: (details.toppings || []).map(tp => typeof tp === 'string' ? tp : tp.name),
-          section // Use the actual section name
-        }));
+        // Flatten sectionDetails to array of menu items
+        const items = [];
+        Object.entries(sectionDetails).forEach(([section, arr]) => {
+          arr.forEach(item => {
+            items.push({
+              name: item.name,
+              description: item.description,
+              sizes: item.sizes || [],
+              toppings: (item.toppings || []).map(tp => typeof tp === 'string' ? tp : tp.name),
+              section
+            });
+          });
+        });
         await fetch('/api/menu', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
