@@ -369,18 +369,20 @@
     // --- Save menu to server ---
     async function saveMenuToServer() {
       try {
-        // Flatten sectionDetails to array of menu items
+        // Flatten sectionDetails to array of menu items for backend
         const items = [];
         Object.entries(sectionDetails).forEach(([section, arr]) => {
-          arr.forEach(item => {
-            items.push({
-              name: item.name,
-              description: item.description,
-              sizes: item.sizes || [],
-              toppings: (item.toppings || []).map(tp => typeof tp === 'string' ? tp : tp.name),
-              section
+          if (Array.isArray(arr)) {
+            arr.forEach(item => {
+              items.push({
+                name: item.name,
+                description: item.description,
+                sizes: item.sizes || [],
+                toppings: (item.toppings || []).map(tp => typeof tp === 'string' ? tp : tp.name),
+                section
+              });
             });
-          });
+          }
         });
         await fetch('/api/menu', {
           method: 'PUT',
