@@ -159,56 +159,74 @@
       <div class="menu-section-controls card">
         <h2>Menu Sections</h2>
         <div class="form-row">
-          <label for="menuSectionSelect">Select Section:</label>
-          <select id="menuSectionSelect" title="Select menu section"></select>
-          <button id="deleteSectionBtn" class="danger-btn" style="margin-left:8px;">Delete Section</button>
-        </div>
-        <div class="form-row">
           <label for="newSectionInput" class="newSectionLabel">Add New Section:</label>
           <input type="text" id="newSectionInput" placeholder="New section name">
           <button id="addSectionBtn">Add Section</button>
         </div>
-        <small class="help-text">Select a section to edit or add a new one.</small>
+        <small class="help-text">Each section below manages its own menu items.</small>
       </div>
-      <div id="sectionItems" class="sectionItems card">
-        <h2 id="sectionItemsHeader" style="margin-bottom:16px;">Menu Items in Section</h2>
-        <div id="menuItemsList" style="display:flex;flex-wrap:wrap;gap:24px;justify-content:center;"></div>
-        <button id="addNewMenuItemBtn" class="primary-btn" style="margin-top:18px;font-size:1.1em;padding:10px 24px;border-radius:24px;display:inline-flex;align-items:center;gap:8px;"><span style="font-size:1.3em;">➕</span> Add New Item</button>
-      </div>
-      <div id="menuItemEditor" class="menuItemEditor card" style="display:none;">
-        <h2 id="menuItemEditorHeader">Edit Menu Item</h2>
-        <div class="form-row">
-          <label for="editorItemName">Menu Item Name:</label>
-          <input type="text" id="editorItemName" placeholder="Menu item name">
-        </div>
-        <div class="form-row">
-          <label for="editorDescription">Description:</label>
-          <input type="text" id="editorDescription" placeholder="Description">
-        </div>
-        <div class="type-subsections">
-          <h4>Sizes/Types & Prices</h4>
-          <form id="editorAddSizeTypeForm" class="size-type-form">
-            <input type="text" id="editorSizeTypeInput" placeholder="Size/Type name" required>
-            <input type="number" id="editorSizeTypePriceInput" placeholder="Price (£)" step="0.01" min="0" required>
-            <button type="submit">Add Size/Type</button>
-          </form>
-          <ul id="editorSizeTypeList" class="size-type-list"></ul>
-          <small class="help-text">Add custom sizes/types and set prices for each.</small>
-        </div>
-        <div id="editorToppings" class="sectionToppings">
-          <h3>Menu Item Toppings</h3>
-          <form id="editorAddToppingForm" class="topping-form">
-            <select id="editorToppingSelect" required title="Select topping">
-              <option value="">Select topping</option>
-            </select>
-            <button type="submit">Add Topping</button>
-          </form>
-          <ul id="editorToppingsList" class="toppings-list"></ul>
-          <small class="help-text">Add/remove master toppings for this menu item.</small>
-        </div>
-        <button id="saveMenuItemBtn" class="primary-btn">Save Item</button>
-        <button id="cancelMenuItemBtn" class="secondary-btn">Cancel</button>
-      </div>
+      <div id="allSectionsContainer"></div>
+      <script>
+        // --- Render all sections as cards with their own menu item lists ---
+        function renderAllSections() {
+          const container = document.getElementById('allSectionsContainer');
+          container.innerHTML = '';
+          Object.keys(sectionDetails).forEach(section => {
+            const card = document.createElement('div');
+            card.className = 'section-card card';
+            card.style.marginBottom = '32px';
+            card.innerHTML = `
+              <h3 style="margin-bottom:12px;">${section}</h3>
+              <div class="section-items-list" id="itemsList_${section}"></div>
+              <button class="add-menu-item-btn" data-section="${section}" style="margin-top:12px;">➕ Add Item</button>
+            `;
+            container.appendChild(card);
+            renderSectionItems(section);
+          });
+          // Attach add item button listeners
+          Array.from(document.getElementsByClassName('add-menu-item-btn')).forEach(btn => {
+            btn.onclick = () => showMenuItemEditor(null, null, btn.dataset.section);
+          });
+        }
+
+        function renderSectionItems(section) {
+          const listDiv = document.getElementById(`itemsList_${section}`);
+          listDiv.innerHTML = '';
+          const items = sectionDetails[section] || [];
+          items.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'menu-item-card';
+            card.style.boxShadow = '0 2px 12px rgba(185,71,46,0.08)';
+            card.style.border = '2px solid #f3f7ef';
+            card.style.background = '#fff';
+            card.style.margin = '0 0 12px 0';
+            card.style.maxWidth = '340px';
+            card.style.padding = '1.2rem 1rem';
+            card.style.textAlign = 'left';
+            card.innerHTML = `
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <b style="font-size:1.2em;">${item.name}</b>
+                <span>
+                  <button class="edit-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Edit" style="background:#e9ece5;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;margin-right:4px;">✏️</button>
+                  <button class="delete-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Delete" style="background:#ffeaea;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;">🗑️</button>
+                </span>
+              </div>
+              <div style="color:#888;margin-bottom:8px;">${item.description || ''}</div>
+              <div style="margin-bottom:8px;"><span style="font-weight:600;">Sizes:</span> ${item.sizes.map(s => `<span style='background:#f3f7ef;border-radius:12px;padding:2px 10px;margin-right:6px;'>${s.name} (£${s.price})</span>`).join('')}</div>
+              <div><span style="font-weight:600;">Toppings:</span> ${item.toppings.map(t => t.name || t).join(', ') || '<span style="color:#bbb;">None</span>'}</div>
+            `;
+            listDiv.appendChild(card);
+          });
+          // Attach event listeners
+          Array.from(listDiv.getElementsByClassName('edit-menu-item-btn')).forEach(btn => {
+            btn.onclick = () => showMenuItemEditor(sectionDetails[btn.dataset.section][btn.dataset.idx], btn.dataset.idx, btn.dataset.section);
+          });
+          Array.from(listDiv.getElementsByClassName('delete-menu-item-btn')).forEach(btn => {
+            btn.onclick = () => deleteMenuItem(btn.dataset.idx, btn.dataset.section);
+          });
+        }
+        // Call renderAllSections() after any change to sectionDetails
+      </script>
     </section>
     <section class="menu-preview card">
       <h2>Menu Preview</h2>
