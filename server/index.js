@@ -250,6 +250,10 @@ mongoose.connect(atlasUri)
       try {
         console.log('[PUT /api/menu] Received body:', req.body);
         if (Array.isArray(req.body)) {
+          // SAFEGUARD: Prevent deleting all items if menu is empty
+          if (req.body.length === 0) {
+            return res.status(400).json({ error: 'Menu array is empty. Refusing to delete all items. Please add at least one section and item before saving.' });
+          }
           // Bulk update
           // 1. Build a set of all submitted items (name + section)
           const submittedKeys = new Set(req.body.map(item => `${item.name}|||${item.section}`));
