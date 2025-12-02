@@ -428,7 +428,8 @@
         console.log('[DEBUG] Loaded menu data:', data);
         if (data.items && Array.isArray(data.items)) {
           data.items.forEach(item => {
-            const section = item.section || 'Uncategorized';
+            // Only default to 'Uncategorized' if section is truly missing or empty
+            const section = (item.section && item.section.trim()) ? item.section.trim() : 'Uncategorized';
             foundSections.add(section);
             if (!sectionDetails[section]) sectionDetails[section] = [];
             sectionDetails[section].push({
