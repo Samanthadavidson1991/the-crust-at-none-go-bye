@@ -329,6 +329,7 @@
           document.getElementById('menuItemEditor').style.display = 'none';
           editingItemIndex = null;
           updateSectionItemsUI();
+          console.log('[DEBUG] sectionDetails after save:', JSON.parse(JSON.stringify(sectionDetails)));
           saveMenuToServer();
           // Do NOT reload from backend after saving a single item; keep all items in sectionDetails
         };
@@ -353,7 +354,10 @@
           e.preventDefault();
           const name = document.getElementById('editorSizeTypeInput').value.trim();
           const price = parseFloat(document.getElementById('editorSizeTypePriceInput').value);
-          if (!name || isNaN(price)) return;
+          if (isNaN(price)) {
+            alert('Please enter a price for the size/type.');
+            return;
+          }
           editorSizeTypes.push({ name, price });
           document.getElementById('editorSizeTypeInput').value = '';
           document.getElementById('editorSizeTypePriceInput').value = '';
@@ -589,7 +593,9 @@
       }
       if (sectionSelect) {
         sectionSelect.addEventListener('change', function() {
+          console.log('[DEBUG] sectionDetails before section switch:', JSON.parse(JSON.stringify(sectionDetails)));
           showSectionDetails(this.value);
+          console.log('[DEBUG] sectionDetails after section switch:', JSON.parse(JSON.stringify(sectionDetails)));
         });
       }
       if (saveSectionDetailsBtn) {
