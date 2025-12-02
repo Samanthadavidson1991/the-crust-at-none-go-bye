@@ -440,6 +440,12 @@
         }
         menuSections = Array.from(foundSections);
         updateAllUI();
+        // Automatically select and show the first section after loading
+        if (menuSections.length > 0) {
+          const sectionSelect = document.getElementById('menuSectionSelect');
+          sectionSelect.value = menuSections[0];
+          showSectionDetails(menuSections[0]);
+        }
       } catch (error) {
         console.error('Failed to load menu from server:', error);
       }
