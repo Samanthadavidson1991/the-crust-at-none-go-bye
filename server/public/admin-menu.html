@@ -445,10 +445,14 @@
     // --- Save menu to server ---
     async function saveMenuToServer() {
       try {
-        // Flatten sectionDetails to array of menu items for backend, only for existing sections
+        // Always sync menuSections with sectionDetails keys before saving
+        menuSections = Object.keys(sectionDetails).filter(
+          key => Array.isArray(sectionDetails[key])
+        );
+        // Flatten sectionDetails to array of menu items for backend
         const items = [];
         Object.entries(sectionDetails).forEach(([section, arr]) => {
-          if (Array.isArray(arr) && menuSections.includes(section)) {
+          if (Array.isArray(arr)) {
             arr.forEach(item => {
               items.push({
                 name: item.name,
@@ -460,6 +464,9 @@
             });
           }
         });
+        if (items.length === 0) {
+          alert('Warning: You are about to save an empty menu. Please add at least one section and item.');
+        }
         await fetch('/api/menu', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
