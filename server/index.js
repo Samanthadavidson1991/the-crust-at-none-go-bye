@@ -312,7 +312,7 @@ mongoose.connect(atlasUri)
     app.get('/api/gf-dough-stock', (req, res) => {
       res.json({ stock: 10 }); // Example gluten-free stock value
     });
-
+    });
     // All route definitions are now inside mongoose.connect .then()
 
     // Start server after all middleware and routes are set up
@@ -323,7 +323,7 @@ mongoose.connect(atlasUri)
         console.log(`Server running on port ${PORT}`);
       }
     });
-  }) // <-- Add this closing brace to end .then()
+  }) // <-- Correct closing brace for .then()
   .catch(err => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
