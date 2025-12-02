@@ -239,10 +239,12 @@
             alert('Menu item name required');
             return;
           }
+          // Convert sizes to {name, price} for backend
+          const sizes = editorSizeTypes.map(sz => ({ name: sz.name || sz.type, price: sz.price }));
           const newItem = {
             name,
             description,
-            sizes: [...editorSizeTypes],
+            sizes,
             toppings: [...editorToppings]
           };
           if (editingItemIndex !== null) {
