@@ -254,7 +254,7 @@
           document.getElementById('menuItemEditor').style.display = 'none';
           editingItemIndex = null;
           updateSectionItemsUI();
-          updateMenuPreviewUI();
+          renderMenuPreview();
           saveMenuToServer();
         };
 
@@ -267,7 +267,7 @@
           if (confirm('Delete this menu item?')) {
             sectionDetails[currentSection].splice(idx, 1);
             updateSectionItemsUI();
-            updateMenuPreviewUI();
+            renderMenuPreview();
             saveMenuToServer();
           }
         }
