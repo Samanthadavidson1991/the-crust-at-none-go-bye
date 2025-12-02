@@ -489,7 +489,7 @@
             return;
           }
           menuSections.push(sectionName);
-          sectionDetails[sectionName] = { description: '', meatPrice: '', vegPrice: '', otherPrice: '', toppings: [] };
+          sectionDetails[sectionName] = [];
           updateSectionDropdown();
           newSectionInput.value = '';
           sectionSelect.value = sectionName;
