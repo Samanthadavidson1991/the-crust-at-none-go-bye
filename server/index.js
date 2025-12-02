@@ -251,6 +251,18 @@ mongoose.connect(atlasUri)
         console.log('[PUT /api/menu] Received body:', req.body);
         if (Array.isArray(req.body)) {
           // Bulk update
+          // 1. Build a set of all submitted items (name + section)
+          const submittedKeys = new Set(req.body.map(item => `${item.name}|||${item.section}`));
+          // 2. Fetch all current items from MongoDB
+          const allItems = await MenuItem.find({});
+          // 3. Delete any item not present in submittedKeys
+          for (const dbItem of allItems) {
+            const key = `${dbItem.name}|||${dbItem.section}`;
+            if (!submittedKeys.has(key)) {
+              await MenuItem.deleteOne({ _id: dbItem._id });
+            }
+          }
+          // 4. Upsert submitted items
           const results = [];
           for (const item of req.body) {
             const updated = await MenuItem.findOneAndUpdate(
