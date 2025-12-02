@@ -101,6 +101,7 @@
         <div class="form-row">
           <label for="menuSectionSelect">Select Section:</label>
           <select id="menuSectionSelect" title="Select menu section"></select>
+          <button id="deleteSectionBtn" class="danger-btn" style="margin-left:8px;">Delete Section</button>
         </div>
         <div class="form-row">
           <label for="newSectionInput" class="newSectionLabel">Add New Section:</label>
@@ -256,8 +257,9 @@
           document.getElementById('menuItemEditor').style.display = 'none';
           editingItemIndex = null;
           updateSectionItemsUI();
-          renderMenuPreview();
           saveMenuToServer();
+          // After saving, reload menu from backend to update preview
+          setTimeout(() => { loadMenuFromServer(); }, 500);
         };
 
         function editMenuItem(idx) {
@@ -605,6 +607,26 @@
       loadMasterToppings();
       loadMenuSections();
       updateAllUI();
+      // Delete section logic
+      const deleteSectionBtn = document.getElementById('deleteSectionBtn');
+      deleteSectionBtn.onclick = function() {
+        const sectionSelect = document.getElementById('menuSectionSelect');
+        const section = sectionSelect.value;
+        if (!section) {
+          alert('Select a section to delete');
+          return;
+        }
+        if (!confirm(`Delete section "${section}" and all its items?`)) return;
+        // Remove from menuSections and sectionDetails
+        menuSections = menuSections.filter(s => s !== section);
+        delete sectionDetails[section];
+        // Update dropdown and UI
+        updateSectionDropdown();
+        sectionSelect.value = '';
+        updateSectionItemsUI();
+        renderMenuPreview();
+        saveMenuToServer();
+      };
     });
 
     // --- Populate Section Topping Select ---
