@@ -39,7 +39,26 @@
         <div class="toppings-category">
           <h3>Pizza Toppings</h3>
           <ul id="pizzaMasterToppingsList" class="toppings-list"></ul>
-          <div class="default-prices">
+          <style>
+            .toppings-list {
+              background: #fff;
+              border-radius: 12px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+              padding: 12px 18px 8px 18px;
+              margin-bottom: 12px;
+              list-style: none;
+              font-size: 1.08em;
+            }
+            .toppings-list li {
+              margin-bottom: 6px;
+              padding: 2px 0;
+              border-bottom: 1px solid #f3f7ef;
+              list-style: none;
+            }
+            .toppings-list li:last-child {
+              border-bottom: none;
+            }
+          </style>
             <label>Vegetable Price (£): <input type="number" id="pizzaVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
             <label>Meat Price (£): <input type="number" id="pizzaMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
             <label>Other Price (£): <input type="number" id="pizzaOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
