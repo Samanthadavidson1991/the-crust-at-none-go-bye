@@ -330,8 +330,7 @@
           editingItemIndex = null;
           updateSectionItemsUI();
           saveMenuToServer();
-          // After saving, reload menu from backend to update preview
-          setTimeout(() => { loadMenuFromServer(); }, 500);
+          // Do NOT reload from backend after saving a single item; keep all items in sectionDetails
         };
 
         function editMenuItem(idx) {
