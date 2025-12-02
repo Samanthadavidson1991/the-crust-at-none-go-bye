@@ -296,9 +296,7 @@
           });
         }
 
-        document.getElementById('addNewMenuItemBtn').onclick = () => {
-          showMenuItemEditor();
-        };
+        // Removed obsolete addNewMenuItemBtn handler; now handled per section card
 
         function showMenuItemEditor(item = null, idx = null) {
           document.getElementById('menuItemEditor').style.display = '';
