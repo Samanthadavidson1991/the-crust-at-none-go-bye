@@ -155,7 +155,7 @@
         if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
           html += '<ul style="list-style:none;padding:0;">';
           item.sizes.forEach(size => {
-            html += `<li class='menu-size-option'><span>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></span></li>`;
+            html += `<li class='menu-size-option' data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}'><span>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></span></li>`;
           });
           html += '</ul>';
         }
