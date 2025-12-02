@@ -211,6 +211,19 @@
           // Toppings
           editorToppings = item ? [...item.toppings] : [];
           updateEditorToppingsList();
+          // Populate toppings dropdown
+          const toppingSelect = document.getElementById('editorToppingSelect');
+          toppingSelect.innerHTML = '<option value="">Select topping</option>';
+          // Determine section category
+          let category = 'pizza';
+          if (currentSection && currentSection.toLowerCase().includes('salad')) category = 'salad';
+          else if (currentSection && currentSection.toLowerCase().includes('other')) category = 'other';
+          const toppings = masterToppings[category] || [];
+          toppings.forEach(tp => {
+            if (!editorToppings.some(t => t.name === tp.name)) {
+              toppingSelect.innerHTML += `<option value="${tp.name}">${tp.name}</option>`;
+            }
+          });
           editingItemIndex = idx;
         }
 
