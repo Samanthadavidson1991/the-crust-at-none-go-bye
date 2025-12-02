@@ -193,8 +193,11 @@
     document.querySelectorAll('.menu-size-option').forEach(opt => {
       if (opt.style.pointerEvents === 'none') return;
       opt.addEventListener('click', function(e) {
+        console.log('DEBUG: .menu-size-option clicked', opt);
         const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
         const size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
+        console.log('DEBUG: Parsed item:', item);
+        console.log('DEBUG: Parsed size:', size);
         // Find the toppings form for this item
         let removed = [];
         let extraToppings = [];
@@ -225,6 +228,7 @@
         let totalPrice = parseFloat(size.price) || 0;
         extraToppingPrices.forEach(p => { totalPrice += p; });
         const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: allToppings, removed };
+        console.log('DEBUG: Calling addToOrder with:', orderObj);
         addToOrder(orderObj);
         // Reset the toppings form after adding to order
         if (form) {
