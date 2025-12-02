@@ -614,16 +614,13 @@
             alert('Please enter a section name');
             return;
           }
-          if (menuSections.includes(sectionName)) {
+          if (sectionDetails[sectionName]) {
             alert('This section already exists');
             return;
           }
-          menuSections.push(sectionName);
           sectionDetails[sectionName] = [];
-          updateSectionDropdown();
           newSectionInput.value = '';
-          sectionSelect.value = sectionName;
-          showSectionDetails(sectionName);
+          renderAllSections();
           alert(`Section "${sectionName}" added successfully`);
         });
       }
