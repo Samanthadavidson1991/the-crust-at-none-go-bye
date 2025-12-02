@@ -233,40 +233,48 @@
         function updateSectionItemsUI() {
           const listDiv = document.getElementById('menuItemsList');
           listDiv.innerHTML = '';
-          if (!currentSection || !sectionDetails[currentSection] || sectionDetails[currentSection].length === 0) {
-            listDiv.innerHTML = '<em>No items in this section.</em>';
-            return;
-          }
-          sectionDetails[currentSection].forEach((item, idx) => {
-            const card = document.createElement('div');
-            card.className = 'menu-item-card';
-            card.style.boxShadow = '0 2px 12px rgba(185,71,46,0.08)';
-            card.style.border = '2px solid #f3f7ef';
-            card.style.background = '#fff';
-            card.style.margin = '0';
-            card.style.maxWidth = '340px';
-            card.style.padding = '1.2rem 1rem';
-            card.style.textAlign = 'left';
-            card.innerHTML = `
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <b style="font-size:1.2em;">${item.name}</b>
-                <span>
-                  <button class="edit-menu-item-btn" data-idx="${idx}" title="Edit" style="background:#e9ece5;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;margin-right:4px;">✏️</button>
-                  <button class="delete-menu-item-btn" data-idx="${idx}" title="Delete" style="background:#ffeaea;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;">🗑️</button>
-                </span>
-              </div>
-              <div style="color:#888;margin-bottom:8px;">${item.description || ''}</div>
-              <div style="margin-bottom:8px;"><span style="font-weight:600;">Sizes:</span> ${item.sizes.map(s => `<span style='background:#f3f7ef;border-radius:12px;padding:2px 10px;margin-right:6px;'>${s.name} (£${s.price})</span>`).join('')}</div>
-              <div><span style="font-weight:600;">Toppings:</span> ${item.toppings.map(t => t.name || t).join(', ') || '<span style="color:#bbb;">None</span>'}</div>
-            `;
-            listDiv.appendChild(card);
+          console.log('[DEBUG] updateSectionItemsUI: currentSection =', currentSection);
+          console.log('[DEBUG] updateSectionItemsUI: sectionDetails keys =', Object.keys(sectionDetails));
+          // TEMP: Show all items from all sections for debugging
+          let totalItems = 0;
+          Object.entries(sectionDetails).forEach(([section, items]) => {
+            if (!Array.isArray(items)) return;
+            items.forEach((item, idx) => {
+              totalItems++;
+              const card = document.createElement('div');
+              card.className = 'menu-item-card';
+              card.style.boxShadow = '0 2px 12px rgba(185,71,46,0.08)';
+              card.style.border = '2px solid #f3f7ef';
+              card.style.background = '#fff';
+              card.style.margin = '0';
+              card.style.maxWidth = '340px';
+              card.style.padding = '1.2rem 1rem';
+              card.style.textAlign = 'left';
+              card.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <b style="font-size:1.2em;">${item.name}</b>
+                  <span style="font-size:0.9em;color:#888;">[Section: ${section}]</span>
+                  <span>
+                    <button class="edit-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Edit" style="background:#e9ece5;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;margin-right:4px;">✏️</button>
+                    <button class="delete-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Delete" style="background:#ffeaea;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;">🗑️</button>
+                  </span>
+                </div>
+                <div style="color:#888;margin-bottom:8px;">${item.description || ''}</div>
+                <div style="margin-bottom:8px;"><span style="font-weight:600;">Sizes:</span> ${item.sizes.map(s => `<span style='background:#f3f7ef;border-radius:12px;padding:2px 10px;margin-right:6px;'>${s.name} (£${s.price})</span>`).join('')}</div>
+                <div><span style="font-weight:600;">Toppings:</span> ${item.toppings.map(t => t.name || t).join(', ') || '<span style="color:#bbb;">None</span>'}</div>
+              `;
+              listDiv.appendChild(card);
+            });
           });
-          // Attach event listeners
+          if (totalItems === 0) {
+            listDiv.innerHTML = '<em>No items in any section.</em>';
+          }
+          // Attach event listeners for all edit/delete buttons
           Array.from(listDiv.getElementsByClassName('edit-menu-item-btn')).forEach(btn => {
-            btn.onclick = () => editMenuItem(parseInt(btn.dataset.idx));
+            btn.onclick = () => editMenuItem(parseInt(btn.dataset.idx), btn.dataset.section);
           });
           Array.from(listDiv.getElementsByClassName('delete-menu-item-btn')).forEach(btn => {
-            btn.onclick = () => deleteMenuItem(parseInt(btn.dataset.idx));
+            btn.onclick = () => deleteMenuItem(parseInt(btn.dataset.idx), btn.dataset.section);
           });
         }
 
@@ -339,13 +347,19 @@
         };
 
         function editMenuItem(idx) {
-          const item = sectionDetails[currentSection][idx];
+          // Support section override for debug mode
+          let section = currentSection;
+          if (arguments.length > 1 && arguments[1]) section = arguments[1];
+          const item = sectionDetails[section][idx];
           showMenuItemEditor(item, idx);
         }
 
         function deleteMenuItem(idx) {
+          // Support section override for debug mode
+          let section = currentSection;
+          if (arguments.length > 1 && arguments[1]) section = arguments[1];
           if (confirm('Delete this menu item?')) {
-            sectionDetails[currentSection].splice(idx, 1);
+            sectionDetails[section].splice(idx, 1);
             updateSectionItemsUI();
             renderMenuPreview();
             saveMenuToServer();
