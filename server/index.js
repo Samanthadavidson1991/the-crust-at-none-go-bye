@@ -312,17 +312,15 @@ mongoose.connect(atlasUri)
     app.get('/api/gf-dough-stock', (req, res) => {
       res.json({ stock: 10 }); // Example gluten-free stock value
     });
-    });
-    // All route definitions are now inside mongoose.connect .then()
 
-       app.listen(PORT, '0.0.0.0', err => {
+    app.listen(PORT, '0.0.0.0', err => {
       if (err) {
         process.exit(1);
       } else {
         console.log(`Server running on port ${PORT}`);
       }
     });
-  }) // closes .then()
+  })
   .catch(err => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
