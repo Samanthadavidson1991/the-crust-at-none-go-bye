@@ -369,4 +369,3 @@ mongoose.connect(atlasUri)
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-}
