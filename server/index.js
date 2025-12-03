@@ -1,3 +1,13 @@
+// Delete menu item by ID
+app.delete('/api/menu/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    await MenuItem.findByIdAndDelete(id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete menu item', details: err.message });
+  }
+});
 // ...existing code...
 
 // Place this after app is initialized

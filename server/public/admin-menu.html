@@ -290,12 +290,34 @@
           grouped[section].forEach(item => {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'menu-preview-item';
-            itemDiv.innerHTML = `<strong>${item.name}</strong> - ${item.description}<br>`;
+            itemDiv.innerHTML = `<strong>${item.name}</strong> - ${item.description ? item.description : ''}<br>`;
             if (item.sizes && item.sizes.length > 0) {
               itemDiv.innerHTML += '<ul>' + item.sizes.map(s => `<li>${s.name}: \u00a3${s.price.toFixed(2)}</li>`).join('') + '</ul>';
             } else if (item.price) {
               itemDiv.innerHTML += `<span>Price: \u00a3${item.price.toFixed(2)}</span>`;
             }
+            // Add delete button
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Delete';
+            delBtn.className = 'delete-menu-item-btn';
+            delBtn.style.marginLeft = '10px';
+            delBtn.onclick = async function() {
+              if (!confirm('Delete this menu item?')) return;
+              try {
+                const res = await fetch(API_BASE_URL + '/api/menu/' + item._id, {
+                  method: 'DELETE',
+                  credentials: 'include'
+                });
+                if (res.ok) {
+                  loadMenuPreview();
+                } else {
+                  alert('Failed to delete menu item');
+                }
+              } catch (err) {
+                alert('Failed to delete menu item: ' + err.message);
+              }
+            };
+            itemDiv.appendChild(delBtn);
             secDiv.appendChild(itemDiv);
           });
           preview.appendChild(secDiv);
