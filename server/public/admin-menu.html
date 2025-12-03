@@ -264,7 +264,7 @@
         try {
           const res = await fetch(API_BASE_URL + '/api/menu', { credentials: 'include' });
           const data = await res.json();
-          renderMenuPreview(data.menu || []);
+          renderMenuPreview(data.items || []);
         } catch (err) {
           document.getElementById('menuPreview').innerHTML = '<em>Error loading menu preview.</em>';
         }
