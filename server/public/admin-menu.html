@@ -41,16 +41,19 @@
             <label>Description<br>
               <textarea id="itemDescInput" required placeholder="Description"></textarea>
             </label><br>
+            <label>Section<br>
+              <select id="sectionDropdown" required style="min-width: 200px;"></select>
+            </label><br>
             <div id="sizesArea">
               <label>Add Size/Type & Price</label><br>
               <input type="text" id="sizeNameInput" placeholder="Size/Type (e.g. 12in, Large)">
-              <input type="number" id="sizePriceInput" placeholder="Price (£)" step="0.01" min="0">
+              <input type="number" id="sizePriceInput" placeholder="Price (\u00a3)" step="0.01" min="0">
               <button type="button" id="addSizeBtn">Add Size/Type</button>
               <ul id="sizesList"></ul>
             </div>
             <div id="singlePriceArea">
               <label>Single Price (if no sizes/types)</label><br>
-              <input type="number" id="singlePriceInput" placeholder="Price (£)" step="0.01" min="0">
+              <input type="number" id="singlePriceInput" placeholder="Price (\u00a3)" step="0.01" min="0">
             </div>
             <button type="submit">Add Menu Item</button>
           </form>
@@ -60,12 +63,14 @@
           const menuItemForm = document.getElementById('menuItemForm');
           const itemNameInput = document.getElementById('itemNameInput');
           const itemDescInput = document.getElementById('itemDescInput');
+          const sectionDropdown = document.getElementById('sectionDropdown');
           const sizeNameInput = document.getElementById('sizeNameInput');
           const sizePriceInput = document.getElementById('sizePriceInput');
           const addSizeBtn = document.getElementById('addSizeBtn');
           const sizesList = document.getElementById('sizesList');
           const singlePriceInput = document.getElementById('singlePriceInput');
           let sizes = [];
+          let sections = [];
 
           addSizeBtn.onclick = function() {
             const name = sizeNameInput.value.trim();
@@ -82,7 +87,7 @@
             sizesList.innerHTML = '';
             sizes.forEach((s, i) => {
               const li = document.createElement('li');
-              li.textContent = `${s.name} - £${s.price.toFixed(2)}`;
+              li.textContent = `${s.name} - \u00a3${s.price.toFixed(2)}`;
               const removeBtn = document.createElement('button');
               removeBtn.textContent = 'x';
               removeBtn.type = 'button';
@@ -95,10 +100,28 @@
           }
           renderSizes();
 
+          function renderSectionDropdown() {
+            sectionDropdown.innerHTML = '';
+            if (!sections || sections.length === 0) {
+              sectionDropdown.innerHTML = '<option value="" disabled selected>No sections available</option>';
+              sectionDropdown.disabled = true;
+            } else {
+              sectionDropdown.disabled = false;
+              sectionDropdown.innerHTML = '<option value="" disabled selected>Select section</option>';
+              sections.forEach(section => {
+                const opt = document.createElement('option');
+                opt.value = section.name;
+                opt.textContent = section.name;
+                sectionDropdown.appendChild(opt);
+              });
+            }
+          }
+
           menuItemForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const name = itemNameInput.value.trim();
             const description = itemDescInput.value.trim();
+            const section = sectionDropdown.value;
             let item = { name, description };
             if (sizes.length > 0) {
               item.sizes = sizes;
@@ -108,9 +131,7 @@
                 item.price = parseFloat(price);
               }
             }
-            // Assign to a section (prompt for now, can be improved)
-            const section = prompt('Enter section name for this item (must match an existing section):');
-            if (section) item.section = section.trim();
+            if (section) item.section = section;
             // Save to backend
             try {
               const res = await fetch(API_BASE_URL + '/api/menu', {
@@ -124,6 +145,7 @@
                 menuItemForm.reset();
                 sizes = [];
                 renderSizes();
+                loadMenuPreview();
               } else {
                 const err = await res.json();
                 alert('Error: ' + (err.error || 'Failed to add item'));
@@ -146,7 +168,9 @@
         try {
           const res = await fetch(API_BASE_URL + '/api/sections', { credentials: 'include' });
           const data = await res.json();
-          renderSections(data.sections || []);
+          sections = data.sections || [];
+          renderSections(sections);
+          renderSectionDropdown();
         } catch (err) {
           console.error('Failed to load sections:', err);
           sectionsContainer.innerHTML = '<em>Error loading sections.</em>';
@@ -225,6 +249,55 @@
 
       // Initial load
       loadSections();
+
+      // --- MENU PREVIEW ---
+      const menuPreviewContainer = document.createElement('section');
+      menuPreviewContainer.innerHTML = '<h2>Menu Preview</h2><div id="menuPreview"></div>';
+      document.querySelector('main').appendChild(menuPreviewContainer);
+
+      async function loadMenuPreview() {
+        try {
+          const res = await fetch(API_BASE_URL + '/api/menu', { credentials: 'include' });
+          const data = await res.json();
+          renderMenuPreview(data.menu || []);
+        } catch (err) {
+          document.getElementById('menuPreview').innerHTML = '<em>Error loading menu preview.</em>';
+        }
+      }
+
+      function renderMenuPreview(menuItems) {
+        const preview = document.getElementById('menuPreview');
+        preview.innerHTML = '';
+        if (!menuItems || menuItems.length === 0) {
+          preview.innerHTML = '<em>No menu items yet.</em>';
+          return;
+        }
+        // Group by section
+        const grouped = {};
+        menuItems.forEach(item => {
+          if (!grouped[item.section]) grouped[item.section] = [];
+          grouped[item.section].push(item);
+        });
+        Object.keys(grouped).forEach(section => {
+          const secDiv = document.createElement('div');
+          secDiv.className = 'menu-preview-section';
+          secDiv.innerHTML = `<h3>${section}</h3>`;
+          grouped[section].forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'menu-preview-item';
+            itemDiv.innerHTML = `<strong>${item.name}</strong> - ${item.description}<br>`;
+            if (item.sizes && item.sizes.length > 0) {
+              itemDiv.innerHTML += '<ul>' + item.sizes.map(s => `<li>${s.name}: \u00a3${s.price.toFixed(2)}</li>`).join('') + '</ul>';
+            } else if (item.price) {
+              itemDiv.innerHTML += `<span>Price: \u00a3${item.price.toFixed(2)}</span>`;
+            }
+            secDiv.appendChild(itemDiv);
+          });
+          preview.appendChild(secDiv);
+        });
+      }
+
+      loadMenuPreview();
     </script>
   </main>
   <script src="/admin-menu.js"></script>
