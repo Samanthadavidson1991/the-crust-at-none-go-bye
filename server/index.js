@@ -364,3 +364,8 @@ mongoose.connect(atlasUri)
         ]
       });
     });
+
+// Ensure the server starts
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
