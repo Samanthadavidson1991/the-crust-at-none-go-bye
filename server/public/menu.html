@@ -101,95 +101,156 @@
   }
 
   async function fetchMenu() {
-    // Fetch menu, toppings, and dough stocks in parallel
+    // Fetch menu, sections, toppings, and dough stocks in parallel
     fetchSpecialOffers();
     try {
-      const [menuRes, toppingsRes] = await Promise.all([
+      const [menuRes, sectionsRes, toppingsRes] = await Promise.all([
         fetch('https://the-crust-at-none-go-bye.onrender.com/api/menu'),
+        fetch('https://the-crust-at-none-go-bye.onrender.com/api/sections'),
         fetch('https://the-crust-at-none-go-bye.onrender.com/api/pizza-topping-stock')
       ]);
       if (!menuRes.ok) throw new Error('Menu fetch failed');
+      if (!sectionsRes.ok) throw new Error('Sections fetch failed');
       if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
       const menuData = await menuRes.json();
+      const sectionsData = await sectionsRes.json();
       const masterToppings = await toppingsRes.json();
       console.log('DEBUG: menuData', menuData);
+      console.log('DEBUG: sectionsData', sectionsData);
       console.log('DEBUG: masterToppings', masterToppings);
       await fetchDoughStocks();
-      console.log('DEBUG: Calling renderMenu with:', menuData.items, masterToppings);
-      renderMenu(menuData.items, masterToppings);
+      renderMenu(menuData.items, masterToppings, sectionsData.sections);
     } catch (err) {
       console.error('DEBUG: fetchMenu error', err);
       const content = document.getElementById('menu-content');
       content.style.display = 'block';
-      content.innerHTML = '<em style="color:red">Failed to load menu or toppings. Please try again later.</em>';
+      content.innerHTML = '<em style="color:red">Failed to load menu, sections, or toppings. Please try again later.</em>';
     }
   }
 
   function renderMenu(menu, masterToppings) {
-      console.log('DEBUG: renderMenu received menu:', menu);
-      console.log('DEBUG: renderMenu received masterToppings:', masterToppings);
+    console.log('DEBUG: renderMenu received menu:', menu);
+    console.log('DEBUG: renderMenu received masterToppings:', masterToppings);
+    console.log('DEBUG: renderMenu received sections:', arguments[2]);
     const content = document.getElementById('menu-content');
     if (!menu || !Array.isArray(menu) || menu.length === 0) {
       content.innerHTML = '<em>No menu items found.</em>';
       return;
     }
     content.style.display = 'block';
-    // Group by section
-    const sections = {};
+    const dbSections = arguments[2] || [];
+    // Group items by section name
+    const sectionMap = {};
     menu.forEach(item => {
       const section = item.section || 'Other';
-      if (!sections[section]) sections[section] = [];
-      sections[section].push(item);
+      if (!sectionMap[section]) sectionMap[section] = [];
+      sectionMap[section].push(item);
     });
     let html = '';
-    Object.keys(sections).forEach(section => {
-      html += `<h2>${section}</h2><ul class='menu-card-list'>`;
-      sections[section].forEach(item => {
-        // Determine if this item is dough-tracked or gf-dough-tracked
-        const isDoughTracked = !!item.doughTracked;
-        const isGFDoughTracked = !!item.gfDoughTracked;
-        let outOfStock = false;
-        if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
-        if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
-        html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
-        if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-          html += '<ul style="list-style:none;padding:0;">';
-          item.sizes.forEach(size => {
-            html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
-              <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
-                <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                  <span class="menu-size-label">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-              </button>
-            </li>`;
+    // Render sections in DB order, then any extra sections
+    dbSections.forEach(sec => {
+      const sectionName = sec.name;
+      if (sectionMap[sectionName]) {
+        html += `<h2>${sectionName}</h2><ul class='menu-card-list'>`;
+        sectionMap[sectionName].forEach(item => {
+          // ...existing item rendering code...
+          const isDoughTracked = !!item.doughTracked;
+          const isGFDoughTracked = !!item.gfDoughTracked;
+          let outOfStock = false;
+          if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
+          if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
+          html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+          if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+            html += '<ul style="list-style:none;padding:0;">';
+            item.sizes.forEach(size => {
+              html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
+                <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
+                  <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                    <span class="menu-size-label">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                </button>
+              </li>`;
+            });
+            html += '</ul>';
+          }
+          // Toppings UI
+          html += `<form class='toppings-form' data-name='${item.name}'>`;
+          if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+            html += `<small><b>Remove Toppings:</b></small><br>`;
+            item.toppings.forEach(topping => {
+              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
+            });
+          }
+          // Add Extra Toppings: all master toppings (not already on pizza)
+          html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
+            (masterToppings.toppings || []).forEach(mt => {
+            let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
+            // Show all master toppings, but disable if already on pizza
+            const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
+            html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
+            html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
+            html += `</label>`;
           });
-          html += '</ul>';
-        }
-        // Toppings UI
-        html += `<form class='toppings-form' data-name='${item.name}'>`;
-        if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-          html += `<small><b>Remove Toppings:</b></small><br>`;
-          item.toppings.forEach(topping => {
-            html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
-          });
-        }
-        // Add Extra Toppings: all master toppings (not already on pizza)
-        html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
-          (masterToppings.toppings || []).forEach(mt => {
-          let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-          // Show all master toppings, but disable if already on pizza
-          const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
-          html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
-          html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
-          html += `</label>`;
+          html += `</form>`;
+          if (outOfStock) {
+            html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
+              html += `<div class='out-of-stock-label'>Out of stock</div>`;
+          }
+          html += `</li>`;
         });
-        html += `</form>`;
-        if (outOfStock) {
-          html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
-            html += `<div class='out-of-stock-label'>Out of stock</div>`;
-        }
-        html += `</li>`;
-      });
-      html += '</ul>';
+        html += '</ul>';
+      }
+    });
+    // Render any sections not in DB (fallback)
+    Object.keys(sectionMap).forEach(section => {
+      if (!dbSections.find(sec => sec.name === section)) {
+        html += `<h2>${section}</h2><ul class='menu-card-list'>`;
+        sectionMap[section].forEach(item => {
+          // ...existing item rendering code...
+          const isDoughTracked = !!item.doughTracked;
+          const isGFDoughTracked = !!item.gfDoughTracked;
+          let outOfStock = false;
+          if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
+          if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
+          html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+          if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+            html += '<ul style="list-style:none;padding:0;">';
+            item.sizes.forEach(size => {
+              html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
+                <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
+                  <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                    <span class="menu-size-label">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                </button>
+              </li>`;
+            });
+            html += '</ul>';
+          }
+          // Toppings UI
+          html += `<form class='toppings-form' data-name='${item.name}'>`;
+          if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+            html += `<small><b>Remove Toppings:</b></small><br>`;
+            item.toppings.forEach(topping => {
+              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
+            });
+          }
+          // Add Extra Toppings: all master toppings (not already on pizza)
+          html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
+            (masterToppings.toppings || []).forEach(mt => {
+            let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
+            // Show all master toppings, but disable if already on pizza
+            const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
+            html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
+            html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
+            html += `</label>`;
+          });
+          html += `</form>`;
+          if (outOfStock) {
+            html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
+              html += `<div class='out-of-stock-label'>Out of stock</div>`;
+          }
+          html += `</li>`;
+        });
+        html += '</ul>';
+      }
     });
     content.innerHTML = html;
 
