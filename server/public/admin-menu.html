@@ -542,44 +542,7 @@
     }
 
     // --- Add New Section ---
-    document.addEventListener('DOMContentLoaded', function() {
-      const addSectionBtn = document.getElementById('addSectionBtn');
-      const newSectionInput = document.getElementById('newSectionInput');
-      const sectionSelect = document.getElementById('menuSectionSelect');
-      const saveSectionDetailsBtn = document.getElementById('saveSectionDetailsBtn');
-      if (addSectionBtn && newSectionInput) {
-        console.log('[DEBUG] Add Section handler attached');
-        addSectionBtn.addEventListener('click', function() {
-          console.log('[DEBUG] Add Section button clicked');
-          const sectionName = newSectionInput.value.trim();
-          if (!sectionName) {
-            alert('Please enter a section name');
-            return;
-          }
-          if (sectionDetails[sectionName]) {
-            alert('This section already exists');
-            return;
-          }
-          sectionDetails[sectionName] = [];
-          newSectionInput.value = '';
-          renderAllSections();
-          updateSectionDropdown && updateSectionDropdown();
-          renderMenuPreview && renderMenuPreview();
-          alert(`Section "${sectionName}" added successfully`);
-        });
-      } else {
-        console.log('[DEBUG] Add Section handler NOT attached: addSectionBtn or newSectionInput missing');
-      }
-      if (sectionSelect) {
-        sectionSelect.addEventListener('change', function() {
-          console.log('[DEBUG] sectionDetails before section switch:', JSON.parse(JSON.stringify(sectionDetails)));
-          showSectionDetails(this.value);
-          console.log('[DEBUG] sectionDetails after section switch:', JSON.parse(JSON.stringify(sectionDetails)));
-        });
-      }
-      if (saveSectionDetailsBtn) {
-        saveSectionDetailsBtn.addEventListener('click', saveSectionDetails);
-      }
+    // Handler moved to bottom script block
       // --- Section Toppings Form ---
       const addSectionToppingForm = document.getElementById('addSectionToppingForm');
       if (addSectionToppingForm) {
@@ -926,6 +889,35 @@
   </script>
 </body>
 <script>
+// --- Add Section Handler (moved to bottom) ---
+document.addEventListener('DOMContentLoaded', function() {
+  const addSectionBtn = document.getElementById('addSectionBtn');
+  const newSectionInput = document.getElementById('newSectionInput');
+  if (addSectionBtn && newSectionInput) {
+    console.log('[DEBUG] Add Section handler attached');
+    addSectionBtn.addEventListener('click', function() {
+      console.log('[DEBUG] Add Section button clicked');
+      const sectionName = newSectionInput.value.trim();
+      if (!sectionName) {
+        alert('Please enter a section name');
+        return;
+      }
+      if (sectionDetails[sectionName]) {
+        alert('This section already exists');
+        return;
+      }
+      sectionDetails[sectionName] = [];
+      newSectionInput.value = '';
+      renderAllSections();
+      if (typeof updateSectionDropdown === 'function') updateSectionDropdown();
+      if (typeof renderMenuPreview === 'function') renderMenuPreview();
+      alert(`Section "${sectionName}" added successfully`);
+    });
+  } else {
+    console.log('[DEBUG] Add Section handler NOT attached: addSectionBtn or newSectionInput missing');
+  }
+});
+
 // --- Render all sections as cards with their own menu item lists ---
 function renderAllSections() {
   const container = document.getElementById('allSectionsContainer');
