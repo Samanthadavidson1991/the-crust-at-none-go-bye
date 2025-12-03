@@ -38,40 +38,20 @@
       <div class="toppings-group">
         <div class="toppings-category">
           <h3>Pizza Toppings</h3>
-          <div class="toppings-columns" style="display:flex;gap:18px;justify-content:center;">
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Vegetable</h4>
+          <div class="toppings-columns">
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Vegetable</h4>
               <ul id="pizzaVegToppingsList" class="toppings-list"></ul>
             </div>
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Meat</h4>
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Meat</h4>
               <ul id="pizzaMeatToppingsList" class="toppings-list"></ul>
             </div>
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Other</h4>
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Other</h4>
               <ul id="pizzaOtherToppingsList" class="toppings-list"></ul>
             </div>
           </div>
-          <style>
-            .toppings-list {
-              background: #fff;
-              border-radius: 12px;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-              padding: 12px 18px 8px 18px;
-              margin-bottom: 12px;
-              list-style: none;
-              font-size: 1.08em;
-            }
-            .toppings-list li {
-              margin-bottom: 6px;
-              padding: 2px 0;
-              border-bottom: 1px solid #f3f7ef;
-              list-style: none;
-            }
-            .toppings-list li:last-child {
-              border-bottom: none;
-            }
-          </style>
           <label>Vegetable Price (£): <input type="number" id="pizzaVegDefaultPrice" step="0.01" min="0" value="0.60"></label>
           <label>Meat Price (£): <input type="number" id="pizzaMeatDefaultPrice" step="0.01" min="0" value="1.00"></label>
           <label>Other Price (£): <input type="number" id="pizzaOtherDefaultPrice" step="0.01" min="0" value="0.50"></label>
@@ -89,17 +69,17 @@
         </div>
         <div class="toppings-category">
           <h3>Salad Toppings</h3>
-          <div class="toppings-columns" style="display:flex;gap:18px;justify-content:center;">
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Vegetable</h4>
+          <div class="toppings-columns">
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Vegetable</h4>
               <ul id="saladVegToppingsList" class="toppings-list"></ul>
             </div>
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Meat</h4>
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Meat</h4>
               <ul id="saladMeatToppingsList" class="toppings-list"></ul>
             </div>
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Other</h4>
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Other</h4>
               <ul id="saladOtherToppingsList" class="toppings-list"></ul>
             </div>
           </div>
@@ -122,17 +102,17 @@
         </div>
         <div class="toppings-category">
           <h3>Other Toppings</h3>
-          <div class="toppings-columns" style="display:flex;gap:18px;justify-content:center;">
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Vegetable</h4>
+          <div class="toppings-columns">
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Vegetable</h4>
               <ul id="otherVegToppingsList" class="toppings-list"></ul>
             </div>
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Meat</h4>
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Meat</h4>
               <ul id="otherMeatToppingsList" class="toppings-list"></ul>
             </div>
-            <div style="flex:1;min-width:120px;">
-              <h4 style="margin-bottom:6px;">Other</h4>
+            <div class="toppings-col">
+              <h4 class="toppings-heading">Other</h4>
               <ul id="otherOtherToppingsList" class="toppings-list"></ul>
             </div>
           </div>
@@ -174,11 +154,10 @@
           Object.keys(sectionDetails).forEach(section => {
             const card = document.createElement('div');
             card.className = 'section-card card';
-            card.style.marginBottom = '32px';
             card.innerHTML = `
-              <h3 style="margin-bottom:12px;">${section}</h3>
+              <h3 class="section-title">${section}</h3>
               <div class="section-items-list" id="itemsList_${section}"></div>
-              <button class="add-menu-item-btn" data-section="${section}" style="margin-top:12px;">➕ Add Item</button>
+              <button class="add-menu-item-btn" data-section="${section}">➕ Add Item</button>
             `;
             container.appendChild(card);
             renderSectionItems(section);
@@ -196,24 +175,17 @@
           items.forEach((item, idx) => {
             const card = document.createElement('div');
             card.className = 'menu-item-card';
-            card.style.boxShadow = '0 2px 12px rgba(185,71,46,0.08)';
-            card.style.border = '2px solid #f3f7ef';
-            card.style.background = '#fff';
-            card.style.margin = '0 0 12px 0';
-            card.style.maxWidth = '340px';
-            card.style.padding = '1.2rem 1rem';
-            card.style.textAlign = 'left';
             card.innerHTML = `
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <b style="font-size:1.2em;">${item.name}</b>
+              <div class="menu-item-header">
+                <b class="menu-item-title">${item.name}</b>
                 <span>
-                  <button class="edit-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Edit" style="background:#e9ece5;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;margin-right:4px;">✏️</button>
-                  <button class="delete-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Delete" style="background:#ffeaea;border:none;border-radius:50%;padding:6px 10px;cursor:pointer;font-size:1.1em;">🗑️</button>
+                  <button class="edit-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Edit">✏️</button>
+                  <button class="delete-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Delete">🗑️</button>
                 </span>
               </div>
-              <div style="color:#888;margin-bottom:8px;">${item.description || ''}</div>
-              <div style="margin-bottom:8px;"><span style="font-weight:600;">Sizes:</span> ${item.sizes.map(s => `<span style='background:#f3f7ef;border-radius:12px;padding:2px 10px;margin-right:6px;'>${s.name} (£${s.price})</span>`).join('')}</div>
-              <div><span style="font-weight:600;">Toppings:</span> ${item.toppings.map(t => t.name || t).join(', ') || '<span style="color:#bbb;">None</span>'}</div>
+              <div class="menu-item-desc">${item.description || ''}</div>
+              <div class="menu-item-sizes"><span class="menu-item-label">Sizes:</span> ${item.sizes.map(s => `<span class='menu-item-size-badge'>${s.name} (£${s.price})</span>`).join('')}</div>
+              <div class="menu-item-toppings"><span class="menu-item-label">Toppings:</span> ${item.toppings.map(t => t.name || t).join(', ') || '<span class="menu-item-none">None</span>'}</div>
             `;
             listDiv.appendChild(card);
           });

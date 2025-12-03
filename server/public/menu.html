@@ -13,7 +13,7 @@
 <body class="menu-page app-body" id="menu-page">
   <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
   <div id="cart-badge" class="cart-badge d-none">
-    <button id="cart-badge-btn" class="cart-badge-btn" aria-label="View checkout cart" tabindex="0" style="background:none;border:none;cursor:pointer;font:inherit;color:inherit;">
+    <button id="cart-badge-btn" class="cart-badge-btn no-style-btn" aria-label="View checkout cart" tabindex="0">
       🛒 <span id="cart-count">0</span> in checkout
     </button>
   </div>
@@ -28,7 +28,7 @@
   </header>
   <main>
     <main id="main-content">
-    <div id="special-offers-banner" style="display:none;margin-bottom:24px;"></div>
+    <div id="special-offers-banner" class="special-offers-banner"></div>
     <section id="dynamic-menu">
       <div id="menu-content" class="d-none"></div>
     </section>
@@ -156,8 +156,9 @@
           html += '<ul style="list-style:none;padding:0;">';
           item.sizes.forEach(size => {
             html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
-              <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' style="background:#fff;border:2px solid #b9472e;border-radius:20px;padding:6px 16px;cursor:pointer;font-size:1em;transition:background 0.2s;display:inline-block;margin-bottom:4px;">
+              <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
                 <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                  <span class="menu-size-label">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
               </button>
             </li>`;
           });
@@ -184,6 +185,7 @@
         html += `</form>`;
         if (outOfStock) {
           html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
+            html += `<div class='out-of-stock-label'>Out of stock</div>`;
         }
         html += `</li>`;
       });

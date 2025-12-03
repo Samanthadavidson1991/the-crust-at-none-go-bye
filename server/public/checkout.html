@@ -142,17 +142,17 @@
           summaryDiv.innerHTML = '<p>Your order is currently empty.</p>';
           return;
         }
-        let html = '<ul style="list-style:none;padding:0;">';
+        let html = '<ul class="unstyled-list">';
         // Debug: show raw order data
-        html += `<pre style='background:#fbeeee;color:#b9472e;font-size:0.9em;white-space:pre-wrap;text-align:left;'>DEBUG ORDER DATA:\n${JSON.stringify(order, null, 2)}</pre>`;
+        html += `<pre class='debug-order-data'>DEBUG ORDER DATA:\n${JSON.stringify(order, null, 2)}</pre>`;
         order.forEach((item, idx) => {
           let line = `<b>${item.name}</b>`;
-          if (item.selectedSize) line += ` <span style='color:#b9472e;'>[${item.selectedSize.name}]</span>`;
-          if (item.selectedSide) line += ` <span style='color:#b9472e;'>[${item.selectedSide.name}]</span>`;
-          if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) line += ` <span style='color:#888;'>Toppings: ${item.toppings.join(', ')}</span>`;
-          if (item.removed && Array.isArray(item.removed) && item.removed.length) line += ` <span style='color:#b9472e;'>Removed: ${item.removed.join(', ')}</span>`;
+          if (item.selectedSize) line += ` <span class='selected-size'>[${item.selectedSize.name}]</span>`;
+          if (item.selectedSide) line += ` <span class='selected-size'>[${item.selectedSide.name}]</span>`;
+          if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) line += ` <span class='toppings-list-inline'>Toppings: ${item.toppings.join(', ')}</span>`;
+          if (item.removed && Array.isArray(item.removed) && item.removed.length) line += ` <span class='removed-list'>Removed: ${item.removed.join(', ')}</span>`;
           line += ` x${item.quantity} - £${(parseFloat(item.price) * item.quantity).toFixed(2)}`;
-          line += ` <button class='remove-item-btn' data-idx='${idx}' style='margin-left:12px;background:#eee;color:#b9472e;border:none;border-radius:6px;padding:2px 10px;cursor:pointer;'>Remove</button>`;
+          line += ` <button class='remove-item-btn'>Remove</button>`;
           html += `<li>${line}</li>`;
         });
         html += '</ul>';

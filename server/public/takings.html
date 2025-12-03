@@ -27,15 +27,15 @@
   </header>
   <main>
     <main id="main-content">
-    <section class="admin-section summary-section" style="background: #fbeeee; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.07); max-width: 600px; margin: 32px auto 32px auto; padding: 1.5rem 1rem;">
-      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+    <section class="admin-section summary-section">
+      <div class="takings-row">
         <button id="prev-day-btn">&#8592; Previous</button>
-        <input type="date" id="takings-date-picker" style="font-size: 1.1em; padding: 4px 8px;">
+        <input type="date" id="takings-date-picker" class="takings-date-picker" title="Select date">
         <button id="next-day-btn">Next &#8594;</button>
       </div>
-      <div id="running-totals" style="margin-bottom: 18px; font-size: 1.08em;"></div>
+      <div id="running-totals" class="takings-running-totals"></div>
       <h2>Summary for <span id="summary-date"></span></h2>
-      <div id="takings-summary" style="margin-top: 18px; font-size: 1.15em;"></div>
+      <div id="takings-summary" class="takings-summary"></div>
     </section>
   </main>
   <script>
@@ -177,6 +177,6 @@
         });
     }
   </script>
-  <button id="lock-page-btn" style="float:right;margin-top:8px;" onclick="lockAdminPage()">Lock this page</button>
+  <button id="lock-page-btn" class="float-right mt-8" onclick="lockAdminPage()">Lock this page</button>
 </body>
 </html>

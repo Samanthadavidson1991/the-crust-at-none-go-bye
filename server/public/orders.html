@@ -189,13 +189,13 @@
           // Refund status display
           let refundInfo = '';
           if (order.refundAmount && order.refundAmount > 0) {
-            refundInfo = `<div style="color:#b9472e;font-size:0.98em;margin-top:4px;"><b>Refunded:</b> £${order.refundAmount.toFixed(2)}<br><span style='font-size:0.95em;'>${order.refundDate ? new Date(order.refundDate).toLocaleString() : ''}</span><br>${order.refundReason ? `<span style='font-size:0.95em;'><b>Reason:</b> ${order.refundReason}</span>` : ''}</div>`;
+            refundInfo = `<div class='refund-info'><b>Refunded:</b> £${order.refundAmount.toFixed(2)}<br><span class='refund-date'>${order.refundDate ? new Date(order.refundDate).toLocaleString() : ''}</span><br>${order.refundReason ? `<span class='refund-reason'><b>Reason:</b> ${order.refundReason}</span>` : ''}</div>`;
           }
           // Order count for this name
           let nameDisplay = order.name || '';
           if (order.name) {
             const count = orderCountsByName[order.name.toLowerCase()];
-            if (count > 1) nameDisplay += ` <span style='color:#888;font-size:0.98em;'>(x${count})</span>`;
+            if (count > 1) nameDisplay += ` <span class='item-count'>(x${count})</span>`;
           }
           let distanceInfo = '<span class="distance-info">?</span>';
           let durationInfo = '<span class="distance-info">?</span>';
@@ -217,20 +217,20 @@
           }
           let itemsHtml = '';
           if (Array.isArray(order.items) && order.items.length) {
-            itemsHtml = '<ul style="margin:0;padding-left:18px">' + order.items.map(item => {
+            itemsHtml = '<ul class="order-items-list">' + order.items.map(item => {
               // console.log('Order item:', item); // removed for production
               let details = '';
               // List all toppings/ingredients if present
               if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-                details += '<br><span style="font-size:0.95em;color:#555">Ingredients: ' + item.toppings.join(', ') + '</span>';
+                details += '<br><span class="order-ingredients">Ingredients: ' + item.toppings.join(', ') + '</span>';
               }
               // Show notes for add/remove (e.g. removed ingredients)
               if (item.removed && Array.isArray(item.removed) && item.removed.length) {
-                details += `<br><span style='color:#b9472e;font-size:0.95em'>Removed: ${item.removed.join(', ')}</span>`;
+                details += `<br><span class='order-removed'>Removed: ${item.removed.join(', ')}</span>`;
               }
               // Show notes for other customizations
               if (item.notes) {
-                details += `<br><em style='color:#b9472e'>(${item.notes})</em>`;
+                details += `<br><em class='order-notes'>(${item.notes})</em>`;
               }
               return `<li>${item.quantity || 1} × ${item.name}${item.size ? ' (' + item.size + ')' : ''}${details}</li>`;
             }).join('') + '</ul>';
@@ -277,18 +277,18 @@
           // Show customer notes if present
           let customerNotes = '';
           if (order.customerNotes && order.customerNotes.trim()) {
-            customerNotes = `<div style='color:#b9472e;font-size:1em;margin-top:2px'><b>Customer notes:</b> ${order.customerNotes}</div>`;
+            customerNotes = `<div class='customer-notes'><b>Customer notes:</b> ${order.customerNotes}</div>`;
           } else if (order.address && order.address.comments) {
-            customerNotes = `<div style='color:#b9472e;font-size:1em;margin-top:2px'><b>Customer notes:</b> ${order.address.comments}</div>`;
+            customerNotes = `<div class='customer-notes'><b>Customer notes:</b> ${order.address.comments}</div>`;
           }
           // Allergens display
           let allergensHtml = '';
           if (order.allergens && order.allergens.trim()) {
-            allergensHtml = `<div style='color:#b9472e;font-size:1em;'>${order.allergens}</div>`;
+            allergensHtml = `<div class='order-allergens'>${order.allergens}</div>`;
           } else {
             allergensHtml = `<span class="muted">None</span>`;
           }
-          const highlight = order.status === 'Pending Manual Approval' ? ' style="background:#ffe5b4;font-weight:bold;"' : '';
+          const highlight = order.status === 'Pending Manual Approval' ? ' highlight-pending' : '';
           let actionBtns = '';
           // Show Accept/Decline for any order not yet accepted or declined
           if (order.status !== 'Accepted' && order.status !== 'Declined') {
@@ -354,9 +354,10 @@
                 const modal = document.createElement('div');
                 modal.id = 'refund-modal';
                 modal.style = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0008;z-index:1000;align-items:center;justify-content:center;';
+                                modal.className = 'modal-bg';
                 modal.innerHTML = `
-                  <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;width:90%;margin:auto;position:relative;">
-                    <button id="close-refund-modal" style="position:absolute;top:8px;right:12px;font-size:1.3em;background:none;border:none;cursor:pointer;">&times;</button>
+                  <div class="modal-content modal-small">
+                    <button id="close-refund-modal" class="modal-close-btn">&times;</button>
                     <h3>Refund Order</h3>
                     <div id="refund-modal-content"></div>
                   </div>
@@ -375,21 +376,32 @@
                 const modal = document.createElement('div');
                 modal.id = 'edit-order-modal';
                 modal.style = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0008;z-index:1001;align-items:center;justify-content:center;';
+                                modal.className = 'modal-bg';
                 modal.innerHTML = `
-                  <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:500px;width:98%;margin:auto;position:relative;">
-                    <button id="close-edit-order-modal" style="position:absolute;top:8px;right:12px;font-size:1.3em;background:none;border:none;cursor:pointer;">&times;</button>
+                  <div class="modal-content modal-large">
+                    <button id="close-edit-order-modal" class="modal-close-btn">&times;</button>
                     <h3>Edit Order</h3>
                     <form id="edit-order-form">
                       <label>Name:<br><input type="text" id="edit-order-name" style="width:98%"></label><br>
+                                            <label>Name:<br><input type="text" id="edit-order-name" class="modal-input"></label><br>
                       <label>Type:<br><select id="edit-order-type" style="width:98%"><option value="Delivery">Delivery</option><option value="Collection">Collection</option></select></label><br>
+                                            <label>Type:<br><select id="edit-order-type" class="modal-input"><option value="Delivery">Delivery</option><option value="Collection">Collection</option></select></label><br>
                       <label>Time Slot:<br><input type="text" id="edit-order-timeslot" style="width:98%"></label><br>
+                                            <label>Time Slot:<br><input type="text" id="edit-order-timeslot" class="modal-input"></label><br>
                       <label>Address:<br><input type="text" id="edit-order-address" style="width:98%"></label><br>
+                                            <label>Address:<br><input type="text" id="edit-order-address" class="modal-input"></label><br>
                       <label>Postcode:<br><input type="text" id="edit-order-postcode" style="width:98%"></label><br>
+                                            <label>Postcode:<br><input type="text" id="edit-order-postcode" class="modal-input"></label><br>
                       <label>Email:<br><input type="email" id="edit-order-email" style="width:98%"></label><br>
+                                            <label>Email:<br><input type="email" id="edit-order-email" class="modal-input"></label><br>
                       <label>Phone:<br><input type="text" id="edit-order-phone" style="width:98%"></label><br>
+                                            <label>Phone:<br><input type="text" id="edit-order-phone" class="modal-input"></label><br>
                       <label>Customer Notes:<br><input type="text" id="edit-order-notes" style="width:98%"></label><br>
+                                            <label>Customer Notes:<br><input type="text" id="edit-order-notes" class="modal-input"></label><br>
                       <label>Allergens:<br><input type="text" id="edit-order-allergens" style="width:98%"></label><br>
+                                            <label>Allergens:<br><input type="text" id="edit-order-allergens" class="modal-input"></label><br>
                       <label>Payment Type:<br><select id="edit-order-payment" style="width:98%"><option value="card">Card</option><option value="cash">Cash</option></select></label><br>
+                                            <label>Payment Type:<br><select id="edit-order-payment" class="modal-input"><option value="card">Card</option><option value="cash">Cash</option></select></label><br>
                       <div id="edit-order-items-section" style="margin:18px 0 8px 0;padding:8px 0;border-top:1px solid #eee;">
                         <b>Order Items:</b>
                         <div id="edit-order-items-list"></div>
@@ -703,6 +715,6 @@
       setDateAndFetch(d);
     });
   </script>
-  <button id="lock-page-btn" style="float:right;margin-top:8px;" onclick="lockAdminPage()">Lock this page</button>
+  <button id="lock-page-btn" class="float-right mt-8" onclick="lockAdminPage()">Lock this page</button>
 </body>
 </html>
