@@ -38,9 +38,10 @@
             <label>Item Name<br>
               <input type="text" id="itemNameInput" required placeholder="Menu item name">
             </label><br>
-            <label>Description<br>
-              <textarea id="itemDescInput" required placeholder="Description"></textarea>
+            <label>Description (optional)<br>
+              <textarea id="itemDescInput" placeholder="Description"></textarea>
             </label><br>
+            <label><input type="checkbox" id="showsToppingsInput"> Shows toppings</label><br>
             <label>Section<br>
               <select id="sectionDropdown" required style="min-width: 200px;"></select>
             </label><br>
@@ -63,6 +64,7 @@
           const menuItemForm = document.getElementById('menuItemForm');
           const itemNameInput = document.getElementById('itemNameInput');
           const itemDescInput = document.getElementById('itemDescInput');
+          const showsToppingsInput = document.getElementById('showsToppingsInput');
           const sectionDropdown = document.getElementById('sectionDropdown');
           const sizeNameInput = document.getElementById('sizeNameInput');
           const sizePriceInput = document.getElementById('sizePriceInput');
@@ -122,7 +124,10 @@
             const name = itemNameInput.value.trim();
             const description = itemDescInput.value.trim();
             const section = sectionDropdown.value;
-            let item = { name, description };
+            const showsToppings = showsToppingsInput.checked;
+            let item = { name };
+            if (description) item.description = description;
+            item.showsToppings = showsToppings;
             if (sizes.length > 0) {
               item.sizes = sizes;
             } else {
