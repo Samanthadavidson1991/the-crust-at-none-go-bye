@@ -612,6 +612,8 @@
           sectionDetails[sectionName] = [];
           newSectionInput.value = '';
           renderAllSections();
+          updateSectionDropdown && updateSectionDropdown();
+          renderMenuPreview && renderMenuPreview();
           alert(`Section "${sectionName}" added successfully`);
         });
       }
