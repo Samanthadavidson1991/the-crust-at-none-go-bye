@@ -147,65 +147,14 @@
       </div>
       <div id="allSectionsContainer"></div>
       <script>
-        // --- Render all sections as cards with their own menu item lists ---
-        function renderAllSections() {
-          const container = document.getElementById('allSectionsContainer');
-          container.innerHTML = '';
-          Object.keys(sectionDetails).forEach(section => {
-            const card = document.createElement('div');
-            card.className = 'section-card card';
-            card.innerHTML = `
-              <h3 class="section-title">${section}</h3>
-              <div class="section-items-list" id="itemsList_${section}"></div>
-              <button class="add-menu-item-btn" data-section="${section}">➕ Add Item</button>
-            `;
-            container.appendChild(card);
-            renderSectionItems(section);
-          });
-          // Attach add item button listeners
-          Array.from(document.getElementsByClassName('add-menu-item-btn')).forEach(btn => {
-            btn.onclick = () => showMenuItemEditor(null, null, btn.dataset.section);
-          });
-        }
-
-        function renderSectionItems(section) {
-          const listDiv = document.getElementById(`itemsList_${section}`);
-          listDiv.innerHTML = '';
-          const items = sectionDetails[section] || [];
-          items.forEach((item, idx) => {
-            const card = document.createElement('div');
-            card.className = 'menu-item-card';
-            card.innerHTML = `
-              <div class="menu-item-header">
-                <b class="menu-item-title">${item.name}</b>
-                <span>
-                  <button class="edit-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Edit">✏️</button>
-                  <button class="delete-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Delete">🗑️</button>
-                </span>
-              </div>
-              <div class="menu-item-desc">${item.description || ''}</div>
-              <div class="menu-item-sizes"><span class="menu-item-label">Sizes:</span> ${item.sizes.map(s => `<span class='menu-item-size-badge'>${s.name} (£${s.price})</span>`).join('')}</div>
-              <div class="menu-item-toppings"><span class="menu-item-label">Toppings:</span> ${item.toppings.map(t => t.name || t).join(', ') || '<span class="menu-item-none">None</span>'}</div>
-            `;
-            listDiv.appendChild(card);
-          });
-          // Attach event listeners
-          Array.from(listDiv.getElementsByClassName('edit-menu-item-btn')).forEach(btn => {
-            btn.onclick = () => showMenuItemEditor(sectionDetails[btn.dataset.section][btn.dataset.idx], btn.dataset.idx, btn.dataset.section);
-          });
-          Array.from(listDiv.getElementsByClassName('delete-menu-item-btn')).forEach(btn => {
-            btn.onclick = () => deleteMenuItem(btn.dataset.idx, btn.dataset.section);
-          });
-        }
-        // Call renderAllSections() after any change to sectionDetails
-      </script>
+      <!-- moved script to bottom of file -->
     </section>
     <section class="menu-preview card">
       <h2>Menu Preview</h2>
       <div id="menuPreviewContent"></div>
     </section>
   </main>
-  <script>
+  <!-- scripts moved to bottom -->
     // --- Global State ---
     let masterToppings = {
       pizza: [],
@@ -976,4 +925,57 @@
     });
   </script>
 </body>
+<script>
+// --- Render all sections as cards with their own menu item lists ---
+function renderAllSections() {
+  const container = document.getElementById('allSectionsContainer');
+  container.innerHTML = '';
+  Object.keys(sectionDetails).forEach(section => {
+    const card = document.createElement('div');
+    card.className = 'section-card card';
+    card.innerHTML = `
+      <h3 class="section-title">${section}</h3>
+      <div class="section-items-list" id="itemsList_${section}"></div>
+      <button class="add-menu-item-btn" data-section="${section}">➕ Add Item</button>
+    `;
+    container.appendChild(card);
+    renderSectionItems(section);
+  });
+  // Attach add item button listeners
+  Array.from(document.getElementsByClassName('add-menu-item-btn')).forEach(btn => {
+    btn.onclick = () => showMenuItemEditor(null, null, btn.dataset.section);
+  });
+}
+
+function renderSectionItems(section) {
+  const listDiv = document.getElementById(`itemsList_${section}`);
+  listDiv.innerHTML = '';
+  const items = sectionDetails[section] || [];
+  items.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'menu-item-card';
+    card.innerHTML = `
+      <div class="menu-item-header">
+        <b class="menu-item-title">${item.name}</b>
+        <span>
+          <button class="edit-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Edit">✏️</button>
+          <button class="delete-menu-item-btn" data-section="${section}" data-idx="${idx}" title="Delete">🗑️</button>
+        </span>
+      </div>
+      <div class="menu-item-desc">${item.description || ''}</div>
+      <div class="menu-item-sizes"><span class="menu-item-label">Sizes:</span> ${item.sizes.map(s => `<span class='menu-item-size-badge'>${s.name} (£${s.price})</span>`).join('')}</div>
+      <div class="menu-item-toppings"><span class="menu-item-label">Toppings:</span> ${item.toppings.map(t => t.name || t).join(', ') || '<span class="menu-item-none">None</span>'}</div>
+    `;
+    listDiv.appendChild(card);
+  });
+  // Attach event listeners
+  Array.from(listDiv.getElementsByClassName('edit-menu-item-btn')).forEach(btn => {
+    btn.onclick = () => showMenuItemEditor(sectionDetails[btn.dataset.section][btn.dataset.idx], btn.dataset.idx, btn.dataset.section);
+  });
+  Array.from(listDiv.getElementsByClassName('delete-menu-item-btn')).forEach(btn => {
+    btn.onclick = () => deleteMenuItem(btn.dataset.idx, btn.dataset.section);
+  });
+}
+// Call renderAllSections() after any change to sectionDetails
+</script>
 </html>
