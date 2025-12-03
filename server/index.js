@@ -213,6 +213,45 @@ mongoose.connect(atlasUri)
     // Mock API endpoints for admin dashboard
     // Use MenuItem model for menu endpoints
     const MenuItem = require('./menu-item.model');
+    const Section = require('./section.model');
+
+    // Section endpoints
+    app.get('/api/sections', async (req, res) => {
+      try {
+        const sections = await Section.find({}).sort({ order: 1 });
+        res.json({ sections });
+      } catch (err) {
+        console.error('[GET /api/sections] Error:', err);
+        res.status(500).json({ error: 'Failed to fetch sections', details: err.message });
+      }
+    });
+
+    app.post('/api/sections', async (req, res) => {
+      try {
+        const { name } = req.body;
+        const existing = await Section.findOne({ name });
+        if (existing) {
+          return res.status(409).json({ error: 'Section already exists' });
+        }
+        const section = new Section({ name });
+        await section.save();
+        res.json({ success: true, section });
+      } catch (err) {
+        console.error('[POST /api/sections] Error:', err);
+        res.status(400).json({ error: 'Failed to add section', details: err.message });
+      }
+    });
+
+    app.delete('/api/sections/:id', async (req, res) => {
+      try {
+        const { id } = req.params;
+        await Section.findByIdAndDelete(id);
+        res.json({ success: true });
+      } catch (err) {
+        console.error('[DELETE /api/sections] Error:', err);
+        res.status(400).json({ error: 'Failed to delete section', details: err.message });
+      }
+    });
 
     // Serve menu for both admin and main site
     app.get('/api/menu', async (req, res) => {

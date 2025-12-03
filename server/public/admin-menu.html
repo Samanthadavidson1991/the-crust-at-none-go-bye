@@ -34,41 +34,96 @@
       <div id="sectionsContainer"></div>
     </section>
     <script>
-      // Section creator logic
+      // Section creator logic with MongoDB backend
       const sectionForm = document.getElementById('sectionCreatorForm');
       const sectionInput = document.getElementById('sectionNameInput');
       const sectionsContainer = document.getElementById('sectionsContainer');
-      let sections = [];
+      const API_BASE_URL = window.location.hostname === 'localhost' ? '' : 'https://the-crust-at-none-go-bye-admin.onrender.com';
 
-      sectionForm.addEventListener('submit', function(e) {
+      // Load sections from backend on page load
+      async function loadSections() {
+        try {
+          const res = await fetch(API_BASE_URL + '/api/sections', { credentials: 'include' });
+          const data = await res.json();
+          renderSections(data.sections || []);
+        } catch (err) {
+          console.error('Failed to load sections:', err);
+          sectionsContainer.innerHTML = '<em>Error loading sections.</em>';
+        }
+      }
+
+      // Add section to backend
+      sectionForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const name = sectionInput.value.trim();
-        if (name && !sections.includes(name)) {
-          sections.push(name);
-          sectionInput.value = '';
-          renderSections();
+        if (!name) return;
+
+        try {
+          const res = await fetch(API_BASE_URL + '/api/sections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ name })
+          });
+
+          if (res.ok) {
+            sectionInput.value = '';
+            loadSections(); // Reload sections from backend
+          } else {
+            const err = await res.json();
+            alert('Error: ' + (err.error || 'Failed to add section'));
+          }
+        } catch (err) {
+          alert('Failed to add section: ' + err.message);
         }
       });
 
-      function renderSections() {
+      // Delete section from backend
+      async function deleteSection(id) {
+        if (!confirm('Delete this section?')) return;
+
+        try {
+          const res = await fetch(API_BASE_URL + '/api/sections/' + id, {
+            method: 'DELETE',
+            credentials: 'include'
+          });
+
+          if (res.ok) {
+            loadSections(); // Reload sections from backend
+          } else {
+            alert('Failed to delete section');
+          }
+        } catch (err) {
+          alert('Failed to delete section: ' + err.message);
+        }
+      }
+
+      // Render sections in UI
+      function renderSections(sections) {
         sectionsContainer.innerHTML = '';
-        sections.forEach((section, idx) => {
+        if (!sections || sections.length === 0) {
+          sectionsContainer.innerHTML = '<em>No sections yet. Add one above.</em>';
+          return;
+        }
+
+        sections.forEach((section) => {
           const div = document.createElement('div');
           div.className = 'section-row';
-          div.innerHTML = `<span>${section}</span> <button type='button' data-idx='${idx}' class='delete-section-btn'>Delete</button>`;
+          div.innerHTML = `<span>${section.name}</span> <button type='button' data-id='${section._id}' class='delete-section-btn'>Delete</button>`;
           sectionsContainer.appendChild(div);
         });
+
         // Add delete logic
         Array.from(document.getElementsByClassName('delete-section-btn')).forEach(btn => {
           btn.onclick = function() {
-            const idx = parseInt(this.getAttribute('data-idx'));
-            sections.splice(idx, 1);
-            renderSections();
+            const id = this.getAttribute('data-id');
+            deleteSection(id);
           };
         });
       }
-      // Initial render
-      renderSections();
+
+      // Initial load
+      loadSections();
     </script>
   </main>
   <script src="/admin-menu.js"></script>
