@@ -296,18 +296,26 @@
           editingItemIndex = idx;
         }
 
-        document.getElementById('cancelMenuItemBtn').onclick = () => {
-          document.getElementById('menuItemEditor').style.display = 'none';
-          editingItemIndex = null;
-        };
+        const cancelBtn = document.getElementById('cancelMenuItemBtn');
+        if (cancelBtn) {
+          cancelBtn.onclick = () => {
+            document.getElementById('menuItemEditor').style.display = 'none';
+            editingItemIndex = null;
+          };
+        }
 
-        document.getElementById('saveMenuItemBtn').onclick = () => {
-          if (!currentSection || currentSection.trim() === '') {
-            alert('Please select a valid section before saving a menu item.');
-            return;
-          }
-          const name = document.getElementById('editorItemName').value.trim();
-          const description = document.getElementById('editorDescription').value.trim();
+        const saveBtn = document.getElementById('saveMenuItemBtn');
+        if (saveBtn) {
+          saveBtn.onclick = () => {
+            if (!currentSection || currentSection.trim() === '') {
+              alert('Please select a valid section before saving a menu item.');
+              return;
+            }
+            const name = document.getElementById('editorItemName').value.trim();
+            const description = document.getElementById('editorDescription').value.trim();
+            // ...existing code...
+          };
+        }
           if (!name) {
             alert('Menu item name required');
             return;
