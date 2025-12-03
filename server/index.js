@@ -1,17 +1,3 @@
-// ...existing code...
-// ...existing code...
-// Place this after all middleware and model setup
-// Delete menu item by ID
-app.delete('/api/menu/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    await MenuItem.findByIdAndDelete(id);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to delete menu item', details: err.message });
-  }
-});
-
 // Place this after app is initialized
 // Admin authentication check endpoint
 // (Moved below app initialization)
@@ -349,6 +335,17 @@ mongoose.connect(atlasUri)
       }
     });
 
+    // Delete menu item by ID
+    app.delete('/api/menu/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        await MenuItem.findByIdAndDelete(id);
+        res.json({ success: true });
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to delete menu item', details: err.message });
+      }
+    });
+
     app.get('/api/orders', (req, res) => {
       res.json([
         { _id: 'order1', name: 'Sam', items: [{ name: 'Margherita', quantity: 1 }], timeSlot: '18:00', status: 'Pending' },
@@ -357,43 +354,13 @@ mongoose.connect(atlasUri)
     });
 
     app.get('/api/pizza-topping-stock', (req, res) => {
-        res.set('Cache-Control', 'no-store');
+      res.set('Cache-Control', 'no-store');
       res.json({
         toppings: [
           { name: 'Pepperoni', stock: 20 },
           { name: 'Mushrooms', stock: 15 },
-          { name: 'Olives', stock: 10 }
+          { name: 'Onions', stock: 10 },
+          { name: 'Cheese', stock: 30 }
         ]
       });
     });
-
-    app.get('/api/salad-topping-stock', (req, res) => {
-      res.json({
-        toppings: [
-          { name: 'Lettuce', stock: 30 },
-          { name: 'Tomato', stock: 25 },
-          { name: 'Cucumber', stock: 20 }
-        ]
-      });
-    });
-
-    // Dough stock endpoints for menu.html
-    app.get('/api/dough-stock', (req, res) => {
-      res.json({ stock: 20 }); // Example stock value
-    });
-    app.get('/api/gf-dough-stock', (req, res) => {
-      res.json({ stock: 10 }); // Example gluten-free stock value
-    });
-
-    app.listen(PORT, '0.0.0.0', err => {
-      if (err) {
-        process.exit(1);
-      } else {
-        console.log(`Server running on port ${PORT}`);
-      }
-    });
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  });
