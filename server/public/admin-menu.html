@@ -33,5 +33,42 @@
       <h2>Sections</h2>
       <div id="sectionsContainer"></div>
     </section>
+    <script>
+      // Section creator logic
+      const sectionForm = document.getElementById('sectionCreatorForm');
+      const sectionInput = document.getElementById('sectionNameInput');
+      const sectionsContainer = document.getElementById('sectionsContainer');
+      let sections = [];
+
+      sectionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = sectionInput.value.trim();
+        if (name && !sections.includes(name)) {
+          sections.push(name);
+          sectionInput.value = '';
+          renderSections();
+        }
+      });
+
+      function renderSections() {
+        sectionsContainer.innerHTML = '';
+        sections.forEach((section, idx) => {
+          const div = document.createElement('div');
+          div.className = 'section-row';
+          div.innerHTML = `<span>${section}</span> <button type='button' data-idx='${idx}' class='delete-section-btn'>Delete</button>`;
+          sectionsContainer.appendChild(div);
+        });
+        // Add delete logic
+        Array.from(document.getElementsByClassName('delete-section-btn')).forEach(btn => {
+          btn.onclick = function() {
+            const idx = parseInt(this.getAttribute('data-idx'));
+            sections.splice(idx, 1);
+            renderSections();
+          };
+        });
+      }
+      // Initial render
+      renderSections();
+    </script>
   </main>
   <script src="/admin-menu.js"></script>

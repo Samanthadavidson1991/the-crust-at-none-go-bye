@@ -191,6 +191,46 @@
                   const dessertDrinkFields = document.getElementById('dessertDrinkFields');
                   if (categorySelect && dessertDrinkFields) {
                     function updateDessertDrinkFields() {
+        <script>
+          document.getElementById('menuForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            // Gather form data
+            const category = document.getElementById('categorySelect').value;
+            const name = this.elements['name'].value.trim();
+            const description = this.elements['description'].value.trim();
+            let price = null;
+            let item = { category, name, description };
+            // Gather toppings, sizes, sideOptions from global arrays
+            if (category === 'Pizza') {
+              item.toppings = window.toppings || [];
+              item.sizes = window.sizes || [];
+            } else if (category === 'Sides') {
+              item.sideOptions = window.sideOptions || [];
+            } else if (category === 'Desserts' || category === 'Drinks') {
+              price = document.getElementById('dessertDrinkPriceInput').value;
+              item.price = price ? parseFloat(price) : null;
+            }
+            // POST to backend
+            try {
+              const res = await fetch(API_BASE_URL + '/api/menu', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(item)
+              });
+              if (res.ok) {
+                alert('Menu item saved!');
+                fetchAdminMenu(); // Refresh menu preview
+                this.reset();
+              } else {
+                const err = await res.json();
+                alert('Error saving menu item: ' + (err.error || 'Unknown error'));
+              }
+            } catch (err) {
+              alert('Failed to save menu item: ' + err.message);
+            }
+          });
+        </script>
                       const cat = categorySelect.value;
                       dessertDrinkFields.style.display = (cat === 'Desserts' || cat === 'Drinks') ? '' : 'none';
                     }
