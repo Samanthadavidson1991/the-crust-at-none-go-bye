@@ -1,0 +1,33 @@
+// Minimal admin menu logic
+let sections = [];
+
+function renderSections() {
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = '';
+  sections.forEach((section, idx) => {
+    const div = document.createElement('div');
+    div.className = 'section-card';
+    div.innerHTML = `<b>${section}</b>`;
+    container.appendChild(div);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const addSectionBtn = document.getElementById('addSectionBtn');
+  const newSectionInput = document.getElementById('newSectionInput');
+  addSectionBtn.addEventListener('click', () => {
+    const name = newSectionInput.value.trim();
+    if (!name) {
+      alert('Enter a section name');
+      return;
+    }
+    if (sections.includes(name)) {
+      alert('Section already exists');
+      return;
+    }
+    sections.push(name);
+    newSectionInput.value = '';
+    renderSections();
+  });
+  renderSections();
+});
