@@ -599,7 +599,9 @@
       const sectionSelect = document.getElementById('menuSectionSelect');
       const saveSectionDetailsBtn = document.getElementById('saveSectionDetailsBtn');
       if (addSectionBtn && newSectionInput) {
+        console.log('[DEBUG] Add Section handler attached');
         addSectionBtn.addEventListener('click', function() {
+          console.log('[DEBUG] Add Section button clicked');
           const sectionName = newSectionInput.value.trim();
           if (!sectionName) {
             alert('Please enter a section name');
@@ -616,6 +618,8 @@
           renderMenuPreview && renderMenuPreview();
           alert(`Section "${sectionName}" added successfully`);
         });
+      } else {
+        console.log('[DEBUG] Add Section handler NOT attached: addSectionBtn or newSectionInput missing');
       }
       if (sectionSelect) {
         sectionSelect.addEventListener('change', function() {
