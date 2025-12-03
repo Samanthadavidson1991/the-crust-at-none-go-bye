@@ -272,6 +272,21 @@
 
         function showMenuItemEditor(item = null, idx = null) {
           document.getElementById('menuItemEditor').style.display = '';
+          // If the form doesn't exist, inject it (idempotent)
+          const editor = document.getElementById('menuItemEditor');
+          if (editor && !document.getElementById('editorAddSizeTypeForm')) {
+            const form = document.createElement('form');
+            form.id = 'editorAddSizeTypeForm';
+            form.innerHTML = `
+              <input type="text" id="editorSizeTypeInput" placeholder="Size/type name" required>
+              <input type="number" id="editorSizeTypePriceInput" placeholder="Price (£)" step="0.01" min="0" required>
+              <button type="submit">Add Size/Type</button>
+            `;
+            editor.appendChild(form);
+            const ul = document.createElement('ul');
+            ul.id = 'editorSizeTypeList';
+            editor.appendChild(ul);
+          }
           document.getElementById('editorItemName').value = item ? item.name : '';
           document.getElementById('editorDescription').value = item ? item.description : '';
           // Sizes
