@@ -146,8 +146,7 @@
         <small class="help-text">Each section below manages its own menu items.</small>
       </div>
       <div id="allSectionsContainer"></div>
-      <script>
-      <!-- moved script to bottom of file -->
+      <!-- script moved to bottom of file -->
     </section>
     <section class="menu-preview card">
       <h2>Menu Preview</h2>
@@ -155,19 +154,6 @@
     </section>
   </main>
   <!-- scripts moved to bottom -->
-    // --- Global State ---
-    let masterToppings = {
-      pizza: [],
-      salad: [],
-      other: []
-    };
-    let menuSections = [];
-    // sectionDetails: { [sectionName]: [ { item fields... }, ... ] }
-    let sectionDetails = {};
-    let currentSection = '';
-    let editingItemIndex = null;
-
-    // --- Lock Page Logic ---
         // --- Section Items UI Logic ---
         function updateSectionItemsUI() {
           const listDiv = document.getElementById('menuItemsList');
@@ -889,6 +875,18 @@
   </script>
 </body>
 <script>
+// --- Global State (moved to bottom, before all logic) ---
+let masterToppings = {
+  pizza: [],
+  salad: [],
+  other: []
+};
+let menuSections = [];
+// sectionDetails: { [sectionName]: [ { item fields... }, ... ] }
+let sectionDetails = {};
+let currentSection = '';
+let editingItemIndex = null;
+
 // --- Add Section Handler (moved to bottom) ---
 document.addEventListener('DOMContentLoaded', function() {
   const addSectionBtn = document.getElementById('addSectionBtn');
