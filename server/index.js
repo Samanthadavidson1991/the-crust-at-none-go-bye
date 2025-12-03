@@ -364,6 +364,8 @@ mongoose.connect(atlasUri)
         ]
       });
     });
+  // End of mongoose.connect .then()
+}
 
 // Ensure the server starts
 app.listen(PORT, () => {
