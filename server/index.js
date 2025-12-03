@@ -1,3 +1,6 @@
+// ...existing code...
+// ...existing code...
+// Place this after all middleware and model setup
 // Delete menu item by ID
 app.delete('/api/menu/:id', async (req, res) => {
   try {
@@ -8,7 +11,6 @@ app.delete('/api/menu/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete menu item', details: err.message });
   }
 });
-// ...existing code...
 
 // Place this after app is initialized
 // Admin authentication check endpoint
