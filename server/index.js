@@ -212,11 +212,45 @@ mongoose.connect(atlasUri)
     // Use MenuItem model for menu endpoints
     const MenuItem = require('./menu-item.model');
     const Section = require('./section.model');
+    const Topping = require('./topping.model');
+    // Master Toppings endpoints
+    app.get('/api/toppings', async (req, res) => {
+      try {
+        const toppings = await Topping.find({});
+        res.json({ toppings });
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch toppings', details: err.message });
+      }
+    });
+
+    app.post('/api/toppings', async (req, res) => {
+      try {
+        const { name } = req.body;
+        if (!name) return res.status(400).json({ error: 'Topping name required' });
+        let topping = await Topping.findOne({ name });
+        if (!topping) {
+          topping = new Topping({ name });
+          await topping.save();
+        }
+        res.json({ success: true, topping });
+      } catch (err) {
+        res.status(400).json({ error: 'Failed to add topping', details: err.message });
+      }
+    });
+
+    app.delete('/api/toppings/:id', async (req, res) => {
+      try {
+        await Topping.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+      } catch (err) {
+        res.status(400).json({ error: 'Failed to delete topping', details: err.message });
+      }
+    });
 
     // Section endpoints
     app.get('/api/sections', async (req, res) => {
       try {
-        const sections = await Section.find({}).sort({ order: 1 });
+        const sections = await Section.find({}).sort({ order: 1 }).populate('toppings');
         res.json({ sections });
       } catch (err) {
         console.error('[GET /api/sections] Error:', err);
@@ -226,17 +260,32 @@ mongoose.connect(atlasUri)
 
     app.post('/api/sections', async (req, res) => {
       try {
-        const { name } = req.body;
+        const { name, toppings } = req.body;
         const existing = await Section.findOne({ name });
         if (existing) {
           return res.status(409).json({ error: 'Section already exists' });
         }
-        const section = new Section({ name });
+        const section = new Section({ name, toppings });
         await section.save();
+        await section.populate('toppings');
         res.json({ success: true, section });
       } catch (err) {
         console.error('[POST /api/sections] Error:', err);
         res.status(400).json({ error: 'Failed to add section', details: err.message });
+      }
+    });
+    // Update section toppings
+    app.put('/api/sections/:id', async (req, res) => {
+      try {
+        const { toppings } = req.body;
+        const section = await Section.findByIdAndUpdate(
+          req.params.id,
+          { $set: { toppings } },
+          { new: true }
+        ).populate('toppings');
+        res.json({ success: true, section });
+      } catch (err) {
+        res.status(400).json({ error: 'Failed to update section toppings', details: err.message });
       }
     });
 
