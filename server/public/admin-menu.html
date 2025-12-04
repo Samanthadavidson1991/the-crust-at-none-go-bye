@@ -189,6 +189,11 @@
                     alert('Failed to add topping: ' + err.message);
                   }
                 });
+
+                // Ensure master toppings are loaded on page load
+                window.addEventListener('DOMContentLoaded', () => {
+                  loadToppings();
+                });
           // Flexible menu item creator logic
           const menuItemForm = document.getElementById('menuItemForm');
           const itemNameInput = document.getElementById('itemNameInput');
