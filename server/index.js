@@ -225,15 +225,23 @@ mongoose.connect(atlasUri)
 
     app.post('/api/toppings', async (req, res) => {
       try {
+        console.log('[POST /api/toppings] Body:', req.body);
         const { name } = req.body;
-        if (!name) return res.status(400).json({ error: 'Topping name required' });
+        if (!name) {
+          console.warn('[POST /api/toppings] No name provided');
+          return res.status(400).json({ error: 'Topping name required' });
+        }
         let topping = await Topping.findOne({ name });
         if (!topping) {
           topping = new Topping({ name });
           await topping.save();
+          console.log('[POST /api/toppings] New topping saved:', topping);
+        } else {
+          console.log('[POST /api/toppings] Topping already exists:', topping);
         }
         res.json({ success: true, topping });
       } catch (err) {
+        console.error('[POST /api/toppings] Error:', err);
         res.status(400).json({ error: 'Failed to add topping', details: err.message });
       }
     });
