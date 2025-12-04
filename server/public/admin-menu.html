@@ -23,6 +23,14 @@
   </header>
   <main>
     <section>
+      <h2>Master Toppings</h2>
+      <form id="toppingCreatorForm">
+        <input type="text" id="toppingNameInput" placeholder="Topping name" required>
+        <button type="submit">Add Topping</button>
+      </form>
+      <div id="toppingsContainer"></div>
+    </section>
+    <section>
       <h2>Add Section</h2>
       <form id="sectionCreatorForm">
         <input type="text" id="sectionNameInput" placeholder="Section name" required>
@@ -60,6 +68,78 @@
           </form>
         </section>
         <script>
+                // --- MASTER TOPPINGS LOGIC ---
+                const toppingForm = document.getElementById('toppingCreatorForm');
+                const toppingInput = document.getElementById('toppingNameInput');
+                const toppingsContainer = document.getElementById('toppingsContainer');
+                let toppings = [];
+
+                async function loadToppings() {
+                  try {
+                    const res = await fetch(API_BASE_URL + '/api/toppings', { credentials: 'include' });
+                    const data = await res.json();
+                    toppings = data.toppings || [];
+                    renderToppings();
+                  } catch (err) {
+                    toppingsContainer.innerHTML = '<em>Error loading toppings.</em>';
+                  }
+                }
+
+                function renderToppings() {
+                  toppingsContainer.innerHTML = '';
+                  if (!toppings || toppings.length === 0) {
+                    toppingsContainer.innerHTML = '<em>No toppings yet. Add one above.</em>';
+                    return;
+                  }
+                  toppings.forEach(topping => {
+                    const div = document.createElement('div');
+                    div.className = 'topping-row';
+                    div.innerHTML = `<span>${topping.name}</span> <button type='button' data-id='${topping._id}' class='delete-topping-btn'>Delete</button>`;
+                    toppingsContainer.appendChild(div);
+                  });
+                  Array.from(document.getElementsByClassName('delete-topping-btn')).forEach(btn => {
+                    btn.onclick = async function() {
+                      const id = this.getAttribute('data-id');
+                      if (!confirm('Delete this topping?')) return;
+                      try {
+                        const res = await fetch(API_BASE_URL + '/api/toppings/' + id, {
+                          method: 'DELETE',
+                          credentials: 'include'
+                        });
+                        if (res.ok) {
+                          loadToppings();
+                        } else {
+                          alert('Failed to delete topping');
+                        }
+                      } catch (err) {
+                        alert('Failed to delete topping: ' + err.message);
+                      }
+                    };
+                  });
+                }
+
+                toppingForm.addEventListener('submit', async function(e) {
+                  e.preventDefault();
+                  const name = toppingInput.value.trim();
+                  if (!name) return;
+                  try {
+                    const res = await fetch(API_BASE_URL + '/api/toppings', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ name })
+                    });
+                    if (res.ok) {
+                      toppingInput.value = '';
+                      loadToppings();
+                    } else {
+                      const err = await res.json();
+                      alert('Error: ' + (err.error || 'Failed to add topping'));
+                    }
+                  } catch (err) {
+                    alert('Failed to add topping: ' + err.message);
+                  }
+                });
           // Flexible menu item creator logic
           const menuItemForm = document.getElementById('menuItemForm');
           const itemNameInput = document.getElementById('itemNameInput');
