@@ -430,6 +430,45 @@
             } else if (item.price) {
               itemDiv.innerHTML += `<span>Price: \u00a3${item.price.toFixed(2)}</span>`;
             }
+            // --- Toppings UI ---
+            if (item.toppings && item.toppings.length > 0) {
+              itemDiv.innerHTML += `<div><b>Toppings:</b> `;
+              item.toppings.forEach(topping => {
+                const span = document.createElement('span');
+                span.textContent = topping + ' ';
+                // Remove button for each topping
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'x';
+                removeBtn.style.marginLeft = '2px';
+                removeBtn.style.fontSize = '0.9em';
+                removeBtn.onclick = async function() {
+                  if (!confirm('Remove this topping from item?')) return;
+                  const newToppings = item.toppings.filter(t => t !== topping);
+                  await updateMenuItemToppings(item._id, newToppings);
+                };
+                span.appendChild(removeBtn);
+                itemDiv.appendChild(span);
+              });
+              itemDiv.innerHTML += '</div>';
+            }
+            // Add master toppings UI
+            if (window.toppings && window.toppings.length > 0) {
+              const addDiv = document.createElement('div');
+              addDiv.innerHTML = '<b>Add topping:</b> ';
+              window.toppings.forEach(mt => {
+                if (!item.toppings || !item.toppings.includes(mt.name)) {
+                  const addBtn = document.createElement('button');
+                  addBtn.textContent = mt.name;
+                  addBtn.style.marginRight = '4px';
+                  addBtn.onclick = async function() {
+                    const newToppings = (item.toppings || []).concat(mt.name);
+                    await updateMenuItemToppings(item._id, newToppings);
+                  };
+                  addDiv.appendChild(addBtn);
+                }
+              });
+              itemDiv.appendChild(addDiv);
+            }
             // Add delete button
             const delBtn = document.createElement('button');
             delBtn.textContent = 'Delete';
@@ -456,6 +495,25 @@
           });
           preview.appendChild(secDiv);
         });
+
+        // Helper to update toppings for a menu item
+        async function updateMenuItemToppings(itemId, newToppings) {
+          try {
+            const res = await fetch(API_BASE_URL + '/api/menu/' + itemId, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ toppings: newToppings })
+            });
+            if (res.ok) {
+              loadMenuPreview();
+            } else {
+              alert('Failed to update toppings');
+            }
+          } catch (err) {
+            alert('Failed to update toppings: ' + err.message);
+          }
+        }
       }
 
       loadMenuPreview();
