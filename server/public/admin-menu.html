@@ -26,6 +26,13 @@
       <h2>Master Toppings</h2>
       <form id="toppingCreatorForm">
         <input type="text" id="toppingNameInput" placeholder="Topping name" required>
+        <select id="toppingCategoryInput" required>
+          <option value="" disabled selected>Select category</option>
+          <option value="Meat">Meat</option>
+          <option value="Veg">Veg</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="number" id="toppingPriceInput" placeholder="Price (£)" step="0.01" min="0" required>
         <button type="submit">Add Topping</button>
       </form>
       <div id="toppingsContainer"></div>
@@ -167,19 +174,25 @@
                   });
                 }
 
+                const toppingCategoryInput = document.getElementById('toppingCategoryInput');
+                const toppingPriceInput = document.getElementById('toppingPriceInput');
                 toppingForm.addEventListener('submit', async function(e) {
                   e.preventDefault();
                   const name = toppingInput.value.trim();
-                  if (!name) return;
+                  const category = toppingCategoryInput.value;
+                  const price = parseFloat(toppingPriceInput.value);
+                  if (!name || !category || isNaN(price)) return;
                   try {
                     const res = await fetch(API_BASE_URL + '/api/toppings', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       credentials: 'include',
-                      body: JSON.stringify({ name })
+                      body: JSON.stringify({ name, category, price })
                     });
                     if (res.ok) {
                       toppingInput.value = '';
+                      toppingCategoryInput.selectedIndex = 0;
+                      toppingPriceInput.value = '';
                       loadToppings();
                     } else {
                       const err = await res.json();
