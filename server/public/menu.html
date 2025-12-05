@@ -166,27 +166,21 @@
               html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
                 <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
                   <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                    <span class="menu-size-label">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
                 </button>
               </li>`;
             });
             html += '</ul>';
           }
-          // Only show toppings UI if item has toppings AND showsToppings is true
-          if (item.showsToppings && item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+          // Show toppings UI if showsToppings is true
+          if (item.showsToppings) {
             html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Remove Toppings:</b></small><br>`;
-            item.toppings.forEach(topping => {
-              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
-            });
-            // Add Extra Toppings: all master toppings (not already on pizza)
-            html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
+            html += `<small><b>Toppings:</b></small><br>`;
+            // Show all master toppings as checkboxes
             (masterToppings.toppings || []).forEach(mt => {
               let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-              // Show all master toppings, but disable if already on pizza
-              const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
-              html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
-              html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
+              const isOnItem = item.toppings && item.toppings.includes(mt.name);
+              html += `<label style='margin-right:8px'><input type='checkbox' class='menu-topping-checkbox' value='${mt.name}' data-price='${price}'` + (isOnItem ? ' checked' : '') + `> ${mt.name}`;
+              html += ` <span style='font-size:0.9em;color:#888'>(${mt.category || 'Other'} • £${price})</span>`;
               html += `</label>`;
             });
             html += `</form>`;

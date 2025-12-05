@@ -226,14 +226,22 @@ mongoose.connect(atlasUri)
     app.post('/api/toppings', async (req, res) => {
       try {
         console.log('[POST /api/toppings] Body:', req.body);
-        const { name } = req.body;
+        const { name, category, price } = req.body;
         if (!name) {
           console.warn('[POST /api/toppings] No name provided');
           return res.status(400).json({ error: 'Topping name required' });
         }
+        if (!category || !['Meat','Veg','Other'].includes(category)) {
+          console.warn('[POST /api/toppings] Invalid or missing category:', category);
+          return res.status(400).json({ error: 'Topping category required (Meat, Veg, Other)' });
+        }
+        if (price === undefined || isNaN(price)) {
+          console.warn('[POST /api/toppings] Invalid or missing price:', price);
+          return res.status(400).json({ error: 'Topping price required and must be a number' });
+        }
         let topping = await Topping.findOne({ name });
         if (!topping) {
-          topping = new Topping({ name });
+          topping = new Topping({ name, category, price });
           await topping.save();
           console.log('[POST /api/toppings] New topping saved:', topping);
         } else {
