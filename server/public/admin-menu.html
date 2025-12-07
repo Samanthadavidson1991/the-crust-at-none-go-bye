@@ -81,7 +81,7 @@
         <script>
                       // --- ITEM TOPPINGS LOGIC ---
                       const itemToppingsButtons = document.getElementById('itemToppingsButtons');
-                      let selectedToppingIds = [];
+                      let selectedToppingNames = [];
 
                       function populateItemToppingsButtons() {
                         itemToppingsButtons.innerHTML = '';
@@ -98,14 +98,14 @@
                           btn.style.border = '1px solid #ccc';
                           btn.style.borderRadius = '4px';
                           btn.style.padding = '4px 10px';
-                          btn.style.background = selectedToppingIds.includes(topping._id) ? '#ffe066' : '#f9f9f9';
+                          btn.style.background = selectedToppingNames.includes(topping.name) ? '#ffe066' : '#f9f9f9';
                           btn.style.cursor = 'pointer';
                           btn.onclick = function() {
-                            const id = topping._id;
-                            if (selectedToppingIds.includes(id)) {
-                              selectedToppingIds = selectedToppingIds.filter(tid => tid !== id);
+                            const name = topping.name;
+                            if (selectedToppingNames.includes(name)) {
+                              selectedToppingNames = selectedToppingNames.filter(tn => tn !== name);
                             } else {
-                              selectedToppingIds.push(id);
+                              selectedToppingNames.push(name);
                             }
                             populateItemToppingsButtons();
                           };
@@ -115,6 +115,7 @@
 
                       // Call this after toppings are loaded
                       function onToppingsLoadedForItems() {
+                        selectedToppingNames = [];
                         populateItemToppingsButtons();
                       }
 
@@ -272,7 +273,7 @@
             const description = itemDescInput.value.trim();
             const section = sectionDropdown.value;
             const showsToppings = showsToppingsInput.checked;
-              let item = { name, toppings: selectedToppingIds };
+            let item = { name, toppings: selectedToppingNames };
             if (description) item.description = description;
             item.showsToppings = showsToppings;
             if (sizes.length > 0) {
@@ -296,7 +297,9 @@
                 alert('Menu item added!');
                 menuItemForm.reset();
                 sizes = [];
+                selectedToppingNames = [];
                 renderSizes();
+                populateItemToppingsButtons();
                 loadMenuPreview();
               } else {
                 const err = await res.json();
