@@ -515,11 +515,22 @@
         // Helper to update toppings for a menu item
         async function updateMenuItemToppings(itemId, newToppings) {
           try {
+            // Find the menu item card and get the current showsToppings value
+            let showsToppings = true;
+            // Try to get from DOM if available
+            const itemCard = document.querySelector(`[data-id='${itemId}']`);
+            if (itemCard) {
+              const checkbox = itemCard.querySelector('.shows-toppings-checkbox');
+              if (checkbox) showsToppings = checkbox.checked;
+            } else {
+              // Fallback: try to get from preview or default to true
+              showsToppings = true;
+            }
             const res = await fetch(API_BASE_URL + '/api/menu/' + itemId, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
-              body: JSON.stringify({ toppings: newToppings })
+              body: JSON.stringify({ toppings: newToppings, showsToppings })
             });
             if (res.ok) {
               loadMenuPreview();
