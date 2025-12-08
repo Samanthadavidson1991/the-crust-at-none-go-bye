@@ -132,6 +132,9 @@
     console.log('DEBUG: renderMenu received menu:', menu);
     console.log('DEBUG: renderMenu received masterToppings:', masterToppings);
     console.log('DEBUG: renderMenu received sections:', arguments[2]);
+    // Expose for debugging
+    window._debugMasterToppings = masterToppings;
+    window._debugMenuData = menu;
     const content = document.getElementById('menu-content');
     if (!menu || !Array.isArray(menu) || menu.length === 0) {
       content.innerHTML = '<em>No menu items found.</em>';
