@@ -273,7 +273,12 @@
             const description = itemDescInput.value.trim();
             const section = sectionDropdown.value;
             const showsToppings = showsToppingsInput.checked;
-            let item = { name, toppings: selectedToppingNames };
+            // Always use all master toppings for new items
+            let allMasterToppings = [];
+            if (window.toppings && Array.isArray(window.toppings)) {
+              allMasterToppings = window.toppings.map(t => t.name);
+            }
+            let item = { name, toppings: allMasterToppings };
             if (description) item.description = description;
             item.showsToppings = showsToppings;
             if (sizes.length > 0) {
