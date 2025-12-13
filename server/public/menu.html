@@ -223,23 +223,30 @@
           }
           // Toppings UI
           html += `<form class='toppings-form' data-name='${item.name}'>`;
-          // Always show menu item toppings as removable checkboxes
+          // Always show menu item toppings as removable checkboxes, with category and price
           if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
             html += `<small><b>Remove Toppings:</b></small><br>`;
             item.toppings.forEach(topping => {
-              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
+              // Find topping details from masterToppings
+              const mt = (masterToppings.toppings || []).find(t => t.name === topping);
+              let cat = mt ? (mt.category || mt.type || 'Other') : 'Other';
+              let price = mt && mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
+              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}`;
+              html += ` <span style='font-size:0.9em;color:#888'>(${cat} • £${price})</span>`;
+              html += `</label>`;
             });
           }
-          // Show all master toppings as addable checkboxes (even if already present)
+          // Show all master toppings as addable checkboxes (even if already present), with category and price
           html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
           (masterToppings.toppings || []).forEach(mt => {
             let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
+            let cat = mt.category || mt.type || 'Other';
             html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'`;
             // If already on pizza, show as checked and disabled
             const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
             if (alreadyOnPizza) html += ' checked disabled';
             html += `> ${mt.name}`;
-            html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
+            html += ` <span style='font-size:0.9em;color:#888'>(${cat} • £${price})</span>`;
             html += `</label>`;
           });
           html += `</form>`;
