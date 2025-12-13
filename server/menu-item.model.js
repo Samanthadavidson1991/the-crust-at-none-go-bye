@@ -10,7 +10,8 @@ const menuItemSchema = new mongoose.Schema({
   sizes: Array,
   sideOptions: Array,
   glutenFree: Boolean,
-  stock: Number
+  stock: Number,
+  showsToppings: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('MenuItem', menuItemSchema);

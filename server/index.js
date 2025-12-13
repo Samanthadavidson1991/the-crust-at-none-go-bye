@@ -319,15 +319,33 @@ mongoose.connect(atlasUri)
     // Serve menu for both admin and main site
     app.get('/api/menu', async (req, res) => {
         res.set('Cache-Control', 'no-store');
-      try {
-        const items = await MenuItem.find({});
-        console.log('[GET /api/menu] Returned items:', items);
-        res.json({ items });
-      } catch (err) {
-        console.error('[GET /api/menu] Error:', err);
-        res.status(500).json({ error: 'Failed to fetch menu items', details: err.message });
-      }
-    });
+        try {
+          const items = await MenuItem.find({});
+          // Get all master toppings
+          const allToppings = await require('./topping.model').find({});
+          // Map topping ObjectId to name
+          const toppingMap = {};
+          allToppings.forEach(t => {
+            toppingMap[t._id.toString()] = t.name;
+            toppingMap[t.name] = t.name; // allow name lookup too
+          });
+          // Replace toppings array with names if needed
+          const itemsWithToppingNames = items.map(item => {
+            if (Array.isArray(item.toppings)) {
+              return {
+                ...item.toObject(),
+                toppings: item.toppings.map(top => toppingMap[top] || top)
+              };
+            }
+            return item;
+          });
+          console.log('[GET /api/menu] Returned items:', itemsWithToppingNames);
+          res.json({ items: itemsWithToppingNames });
+        } catch (err) {
+          console.error('[GET /api/menu] Error:', err);
+          res.status(500).json({ error: 'Failed to fetch menu items', details: err.message });
+        }
+      });
 
     app.post('/api/menu', async (req, res) => {
       try {
