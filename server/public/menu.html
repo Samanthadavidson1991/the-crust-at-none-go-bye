@@ -174,20 +174,7 @@
             });
             html += '</ul>';
           }
-          // Show toppings UI if showsToppings is true
-          if (item.showsToppings) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Toppings:</b></small><br>`;
-            // Show all master toppings as checkboxes
-            (masterToppings.toppings || []).forEach(mt => {
-              let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-              const isOnItem = item.toppings && item.toppings.includes(mt.name);
-              html += `<label style='margin-right:8px'><input type='checkbox' class='menu-topping-checkbox' value='${mt.name}' data-price='${price}'` + (isOnItem ? ' checked' : '') + `> ${mt.name}`;
-              html += ` <span style='font-size:0.9em;color:#888'>(${mt.category || 'Other'} • £${price})</span>`;
-              html += `</label>`;
-            });
-            html += `</form>`;
-          }
+          // Toppings UI removed
           if (outOfStock) {
             html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
               html += `<div class='out-of-stock-label'>Out of stock</div>`;
