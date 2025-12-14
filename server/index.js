@@ -212,8 +212,9 @@ mongoose.connect(atlasUri)
     // Use MenuItem model for menu endpoints
     const MenuItem = require('./menu-item.model');
     const Section = require('./section.model');
-    // Section-based Master Toppings endpoints
-    app.use('/api/section-toppings', require('./section-toppings'));
+    // Master Toppings and Section Assignments endpoints
+    app.use('/api/master-toppings', require('./master-toppings'));
+    app.use('/api/section-topping-assignments', require('./section-topping-assignments'));
 
     // Section endpoints
     app.get('/api/sections', async (req, res) => {
