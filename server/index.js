@@ -212,56 +212,8 @@ mongoose.connect(atlasUri)
     // Use MenuItem model for menu endpoints
     const MenuItem = require('./menu-item.model');
     const Section = require('./section.model');
-    const Topping = require('./topping.model');
-    // Master Toppings endpoints
-    app.get('/api/toppings', async (req, res) => {
-      try {
-        const toppings = await Topping.find({});
-        res.json({ toppings });
-      } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch toppings', details: err.message });
-      }
-    });
-
-    app.post('/api/toppings', async (req, res) => {
-      try {
-        console.log('[POST /api/toppings] Body:', req.body);
-        const { name, category, price } = req.body;
-        if (!name) {
-          console.warn('[POST /api/toppings] No name provided');
-          return res.status(400).json({ error: 'Topping name required' });
-        }
-        if (!category || !['Meat','Veg','Other'].includes(category)) {
-          console.warn('[POST /api/toppings] Invalid or missing category:', category);
-          return res.status(400).json({ error: 'Topping category required (Meat, Veg, Other)' });
-        }
-        if (price === undefined || isNaN(price)) {
-          console.warn('[POST /api/toppings] Invalid or missing price:', price);
-          return res.status(400).json({ error: 'Topping price required and must be a number' });
-        }
-        let topping = await Topping.findOne({ name });
-        if (!topping) {
-          topping = new Topping({ name, category, price });
-          await topping.save();
-          console.log('[POST /api/toppings] New topping saved:', topping);
-        } else {
-          console.log('[POST /api/toppings] Topping already exists:', topping);
-        }
-        res.json({ success: true, topping });
-      } catch (err) {
-        console.error('[POST /api/toppings] Error:', err);
-        res.status(400).json({ error: 'Failed to add topping', details: err.message });
-      }
-    });
-
-    app.delete('/api/toppings/:id', async (req, res) => {
-      try {
-        await Topping.findByIdAndDelete(req.params.id);
-        res.json({ success: true });
-      } catch (err) {
-        res.status(400).json({ error: 'Failed to delete topping', details: err.message });
-      }
-    });
+    // Section-based Master Toppings endpoints
+    app.use('/api/section-toppings', require('./section-toppings'));
 
     // Section endpoints
     app.get('/api/sections', async (req, res) => {
