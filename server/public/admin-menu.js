@@ -65,17 +65,33 @@ document.getElementById('toppingCreatorForm').addEventListener('submit', async f
   e.preventDefault();
   const name = document.getElementById('toppingNameInput').value.trim();
   const category = document.getElementById('toppingCategoryInput').value;
-  let price = parseFloat(document.getElementById('toppingPriceInput').value);
+  let price = document.getElementById('toppingPriceInput').value;
   if (!name || !category) return;
-  if (category === 'Meat' || category === 'Veg') price = undefined;
-  await fetch('/api/master-toppings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, category, price })
-  });
-  document.getElementById('toppingCreatorForm').reset();
-  await fetchMasterToppings();
-  await fetchSectionAssignments();
+  let body = { name, category };
+  if (category === 'Other') {
+    price = parseFloat(price);
+    if (isNaN(price)) {
+      alert('Please enter a valid price for Other toppings.');
+      return;
+    }
+    body.price = price;
+  }
+  try {
+    const res = await fetch('/api/master-toppings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+    document.getElementById('toppingCreatorForm').reset();
+    await fetchMasterToppings();
+    await fetchSectionAssignments();
+  } catch (err) {
+    alert('Failed to add topping: ' + (err.message || err));
+  }
 });
 
 document.getElementById('saveMasterPricesBtn').addEventListener('click', saveMasterPrices);
