@@ -458,8 +458,12 @@
             if (item.toppings && item.toppings.length > 0) {
               itemDiv.innerHTML += `<div><b>Toppings:</b> `;
               item.toppings.forEach(topping => {
+                // Find topping details from window.toppings
+                const mt = (window.toppings || []).find(t => t.name === topping);
+                let cat = mt ? (mt.category || 'Other') : 'Other';
+                let price = mt && mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
                 const span = document.createElement('span');
-                span.textContent = topping + ' ';
+                span.textContent = `${topping} (${cat} • £${price}) `;
                 // Remove button for each topping
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = 'x';
@@ -481,8 +485,10 @@
               addDiv.innerHTML = '<b>Add topping:</b> ';
               window.toppings.forEach(mt => {
                 if (!item.toppings || !item.toppings.includes(mt.name)) {
+                  let cat = mt.category || 'Other';
+                  let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
                   const addBtn = document.createElement('button');
-                  addBtn.textContent = mt.name;
+                  addBtn.textContent = `${mt.name} (${cat} • £${price})`;
                   addBtn.style.marginRight = '4px';
                   addBtn.onclick = async function() {
                     const newToppings = (item.toppings || []).concat(mt.name);
