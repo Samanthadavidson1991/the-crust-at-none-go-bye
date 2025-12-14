@@ -92,7 +92,10 @@
                         toppings.forEach(topping => {
                           const btn = document.createElement('button');
                           btn.type = 'button';
-                          btn.textContent = topping.name;
+                          // Show name, category, and price
+                          let cat = topping.category || 'Other';
+                          let price = topping.price !== undefined ? parseFloat(topping.price).toFixed(2) : '0.00';
+                          btn.textContent = `${topping.name} (${cat} • £${price})`;
                           btn.className = 'topping-btn';
                           btn.setAttribute('data-id', topping._id);
                           btn.style.border = '1px solid #ccc';
