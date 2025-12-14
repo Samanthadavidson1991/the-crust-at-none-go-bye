@@ -1,14 +1,103 @@
-// Simple section creator logic
-const sections = [];
+
+// --- Master Toppings Admin Logic ---
+let masterToppings = [];
+let masterMeatPrice = 0;
+let masterVegPrice = 0;
+let sections = [];
+let sectionAssignments = {};
+
+// Fetch all master toppings and settings
+async function fetchMasterToppings() {
+  const res = await fetch('/api/master-toppings');
+  const data = await res.json();
+  masterToppings = data.toppings || [];
+  masterMeatPrice = data.settings?.masterMeatPrice || 0;
+  masterVegPrice = data.settings?.masterVegPrice || 0;
+  renderMasterPrices();
+  renderToppings();
+}
+
+function renderMasterPrices() {
+  document.getElementById('masterMeatPriceInput').value = masterMeatPrice;
+  document.getElementById('masterVegPriceInput').value = masterVegPrice;
+}
+
+async function saveMasterPrices() {
+  const meat = parseFloat(document.getElementById('masterMeatPriceInput').value) || 0;
+  const veg = parseFloat(document.getElementById('masterVegPriceInput').value) || 0;
+  await fetch('/api/master-toppings/settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ masterMeatPrice: meat, masterVegPrice: veg })
+  });
+  await fetchMasterToppings();
+}
+
+function renderToppings() {
+  const container = document.getElementById('toppingsContainer');
+  container.innerHTML = '';
+  masterToppings.forEach(topping => {
+    const div = document.createElement('div');
+    div.className = 'topping-row';
+    div.innerHTML = `
+      <b>${topping.name}</b> (${topping.category})
+      <span>Price: £${
+        topping.category === 'Meat' ? masterMeatPrice.toFixed(2) :
+        topping.category === 'Veg' ? masterVegPrice.toFixed(2) :
+        (topping.price ? topping.price.toFixed(2) : '0.00')
+      }</span>
+      <button data-id="${topping._id}" class="delete-topping-btn">Delete</button>
+    `;
+    container.appendChild(div);
+  });
+  // Attach delete listeners
+  container.querySelectorAll('.delete-topping-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = btn.getAttribute('data-id');
+      await fetch(`/api/master-toppings/${id}`, { method: 'DELETE' });
+      await fetchMasterToppings();
+      await fetchSectionAssignments();
+    });
+  });
+}
+
+document.getElementById('toppingCreatorForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('toppingNameInput').value.trim();
+  const category = document.getElementById('toppingCategoryInput').value;
+  let price = parseFloat(document.getElementById('toppingPriceInput').value);
+  if (!name || !category) return;
+  if (category === 'Meat' || category === 'Veg') price = undefined;
+  await fetch('/api/master-toppings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, category, price })
+  });
+  document.getElementById('toppingCreatorForm').reset();
+  await fetchMasterToppings();
+  await fetchSectionAssignments();
+});
+
+document.getElementById('saveMasterPricesBtn').addEventListener('click', saveMasterPrices);
+
+// --- Section Management ---
+async function fetchSections() {
+  // For now, store in localStorage for demo; replace with API if needed
+  const stored = localStorage.getItem('sections');
+  sections = stored ? JSON.parse(stored) : [];
+  renderSections();
+  renderSectionDropdown();
+  await fetchSectionAssignments();
+}
 
 function renderSections() {
   const container = document.getElementById('sectionsContainer');
   container.innerHTML = '';
   sections.forEach(section => {
-    const card = document.createElement('div');
-    card.className = 'section-card';
-    card.textContent = section;
-    container.appendChild(card);
+    const div = document.createElement('div');
+    div.className = 'section-card';
+    div.innerHTML = `<b>${section}</b>`;
+    container.appendChild(div);
   });
 }
 
@@ -18,42 +107,73 @@ document.getElementById('sectionCreatorForm').addEventListener('submit', functio
   const name = input.value.trim();
   if (!name || sections.includes(name)) return;
   sections.push(name);
+  localStorage.setItem('sections', JSON.stringify(sections));
   input.value = '';
   renderSections();
+  renderSectionDropdown();
+  fetchSectionAssignments();
 });
 
-// Initial render
-renderSections();
-// Minimal admin menu logic
-let sections = [];
+function renderSectionDropdown() {
+  const dropdown = document.getElementById('sectionToppingDropdown');
+  dropdown.innerHTML = '';
+  sections.forEach(section => {
+    const opt = document.createElement('option');
+    opt.value = section;
+    opt.textContent = section;
+    dropdown.appendChild(opt);
+  });
+  renderSectionToppingAssignment();
+}
 
-function renderSections() {
-  const container = document.getElementById('sectionsContainer');
+// --- Section-to-Topping Assignment ---
+async function fetchSectionAssignments() {
+  const res = await fetch('/api/section-topping-assignments');
+  const data = await res.json();
+  sectionAssignments = data.assignments || {};
+  renderSectionToppingAssignment();
+}
+
+function renderSectionToppingAssignment() {
+  const dropdown = document.getElementById('sectionToppingDropdown');
+  const section = dropdown.value || (sections.length > 0 ? sections[0] : null);
+  const container = document.getElementById('sectionToppingAssignment');
+  if (!section) {
+    container.innerHTML = '<i>No section selected</i>';
+    return;
+  }
+  // List all master toppings with checkboxes
   container.innerHTML = '';
-  sections.forEach((section, idx) => {
-    const div = document.createElement('div');
-    div.className = 'section-card';
-    div.innerHTML = `<b>${section}</b>`;
-    container.appendChild(div);
+  masterToppings.forEach(topping => {
+    const id = topping._id;
+    const assigned = (sectionAssignments[section] || []).includes(id);
+    const label = document.createElement('label');
+    label.style.display = 'block';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = assigned;
+    cb.addEventListener('change', async () => {
+      await updateSectionAssignment(section, id, cb.checked);
+    });
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(` ${topping.name} (${topping.category})`));
+    container.appendChild(label);
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const addSectionBtn = document.getElementById('addSectionBtn');
-  const newSectionInput = document.getElementById('newSectionInput');
-  addSectionBtn.addEventListener('click', () => {
-    const name = newSectionInput.value.trim();
-    if (!name) {
-      alert('Enter a section name');
-      return;
-    }
-    if (sections.includes(name)) {
-      alert('Section already exists');
-      return;
-    }
-    sections.push(name);
-    newSectionInput.value = '';
-    renderSections();
+async function updateSectionAssignment(section, toppingId, assign) {
+  await fetch('/api/section-topping-assignments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section, toppingId, assign })
   });
-  renderSections();
+  await fetchSectionAssignments();
+}
+
+document.getElementById('sectionToppingDropdown').addEventListener('change', renderSectionToppingAssignment);
+
+// --- Init ---
+document.addEventListener('DOMContentLoaded', async () => {
+  await fetchMasterToppings();
+  await fetchSections();
 });

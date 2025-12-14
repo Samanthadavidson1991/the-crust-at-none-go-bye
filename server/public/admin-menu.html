@@ -24,6 +24,11 @@
   <main>
     <section>
       <h2>Master Toppings</h2>
+      <div style="margin-bottom: 1em;">
+        <label>Meat Master Price (£): <input type="number" id="masterMeatPriceInput" step="0.01" min="0"></label>
+        <label style="margin-left: 1em;">Veg Master Price (£): <input type="number" id="masterVegPriceInput" step="0.01" min="0"></label>
+        <button id="saveMasterPricesBtn" type="button">Save Master Prices</button>
+      </div>
       <form id="toppingCreatorForm">
         <input type="text" id="toppingNameInput" placeholder="Topping name" required>
         <select id="toppingCategoryInput" required>
@@ -32,10 +37,15 @@
           <option value="Veg">Veg</option>
           <option value="Other">Other</option>
         </select>
-        <input type="number" id="toppingPriceInput" placeholder="Price (£)" step="0.01" min="0" required>
+        <input type="number" id="toppingPriceInput" placeholder="Price (£)" step="0.01" min="0">
         <button type="submit">Add Topping</button>
       </form>
       <div id="toppingsContainer"></div>
+      <div style="margin-top:2em;">
+        <label for="sectionToppingDropdown"><b>Assign Toppings to Section:</b></label>
+        <select id="sectionToppingDropdown"></select>
+        <div id="sectionToppingAssignment"></div>
+      </div>
     </section>
     <section>
       <h2>Add Section</h2>
