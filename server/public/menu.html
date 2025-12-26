@@ -100,48 +100,49 @@
     banner.innerHTML = '';
   }
 
-  async function fetchMenu() {
-    // Fetch menu, sections, toppings, and dough stocks in parallel
-    fetchSpecialOffers();
-    try {
-      const [menuRes, sectionsRes, toppingsRes] = await Promise.all([
-        fetch('https://the-crust-at-none-go-bye.onrender.com/api/menu'),
-        fetch('https://the-crust-at-none-go-bye.onrender.com/api/sections'),
-        fetch('https://the-crust-at-none-go-bye.onrender.com/api/pizza-topping-stock')
-      ]);
-      if (!menuRes.ok) throw new Error('Menu fetch failed');
-      if (!sectionsRes.ok) throw new Error('Sections fetch failed');
-      if (!toppingsRes.ok) throw new Error('Toppings fetch failed');
-      const menuData = await menuRes.json();
-      const sectionsData = await sectionsRes.json();
-      const masterToppings = await toppingsRes.json();
-      console.log('DEBUG: menuData', menuData);
-      console.log('DEBUG: sectionsData', sectionsData);
-      console.log('DEBUG: masterToppings', masterToppings);
-      await fetchDoughStocks();
-      renderMenu(menuData.items, masterToppings, sectionsData.sections);
-    } catch (err) {
-      console.error('DEBUG: fetchMenu error', err);
-      const content = document.getElementById('menu-content');
-      content.style.display = 'block';
-      content.innerHTML = '<em style="color:red">Failed to load menu, sections, or toppings. Please try again later.</em>';
-    }
-  }
+      async function fetchMenu() {
+        // Fetch menu, sections, master toppings, and section assignments in parallel
+        fetchSpecialOffers();
+        try {
+          const [menuRes, sectionsRes, masterToppingsRes, sectionAssignRes] = await Promise.all([
+            fetch('https://the-crust-at-none-go-bye.onrender.com/api/menu'),
+            fetch('https://the-crust-at-none-go-bye.onrender.com/api/sections'),
+            fetch('https://the-crust-at-none-go-bye.onrender.com/api/master-toppings'),
+            fetch('https://the-crust-at-none-go-bye.onrender.com/api/section-topping-assignments')
+          ]);
+          if (!menuRes.ok) throw new Error('Menu fetch failed');
+          if (!sectionsRes.ok) throw new Error('Sections fetch failed');
+          if (!masterToppingsRes.ok) throw new Error('Master toppings fetch failed');
+          if (!sectionAssignRes.ok) throw new Error('Section assignments fetch failed');
+          const menuData = await menuRes.json();
+          const sectionsData = await sectionsRes.json();
+          const masterToppingsData = await masterToppingsRes.json();
+          const sectionAssignmentsData = await sectionAssignRes.json();
+          console.log('DEBUG: menuData', menuData);
+          console.log('DEBUG: sectionsData', sectionsData);
+          console.log('DEBUG: masterToppingsData', masterToppingsData);
+          console.log('DEBUG: sectionAssignmentsData', sectionAssignmentsData);
+          await fetchDoughStocks();
+          renderMenu(menuData.items, masterToppingsData, sectionsData.sections, sectionAssignmentsData.assignments, masterToppingsData.settings);
+        } catch (err) {
+          console.error('DEBUG: fetchMenu error', err);
+          const content = document.getElementById('menu-content');
+          content.style.display = 'block';
+          content.innerHTML = '<em style="color:red">Failed to load menu, sections, or toppings. Please try again later.</em>';
+        }
+      }
 
-  function renderMenu(menu, masterToppings) {
-    console.log('DEBUG: renderMenu received menu:', menu);
-    console.log('DEBUG: renderMenu received masterToppings:', masterToppings);
-    console.log('DEBUG: renderMenu received sections:', arguments[2]);
-    // Expose for debugging
-    window._debugMasterToppings = masterToppings;
-    window._debugMenuData = menu;
+  function renderMenu(menu, masterToppingsData, dbSections, sectionAssignments, masterToppingSettings) {
+    // masterToppingsData: { toppings: [...], settings: {...} }
+    // sectionAssignments: { [sectionName]: [toppingId, ...] }
+    // masterToppingSettings: { masterMeatPrice, masterVegPrice }
+    const masterToppings = masterToppingsData.toppings || [];
     const content = document.getElementById('menu-content');
     if (!menu || !Array.isArray(menu) || menu.length === 0) {
       content.innerHTML = '<em>No menu items found.</em>';
       return;
     }
     content.style.display = 'block';
-    const dbSections = arguments[2] || [];
     // Group items by section name
     const sectionMap = {};
     menu.forEach(item => {
@@ -156,7 +157,6 @@
       if (sectionMap[sectionName]) {
         html += `<h2>${sectionName}</h2><ul class='menu-card-list'>`;
         sectionMap[sectionName].forEach(item => {
-          // ...existing item rendering code...
           const isDoughTracked = !!item.doughTracked;
           const isGFDoughTracked = !!item.gfDoughTracked;
           let outOfStock = false;
@@ -174,7 +174,24 @@
             });
             html += '</ul>';
           }
-          // Toppings UI removed
+          // --- Toppings UI ---
+          // Section-based toppings assignment
+          const assignedToppingIds = (sectionAssignments && sectionAssignments[sectionName]) || [];
+          const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
+          if (assignedToppings.length > 0) {
+            html += `<form class='toppings-form' data-name='${item.name}'>`;
+            html += `<small><b>Add Toppings:</b></small><br>`;
+            assignedToppings.forEach(mt => {
+              let price = '0.00';
+              if (mt.category === 'Meat') price = masterToppingSettings.masterMeatPrice?.toFixed(2) || '0.00';
+              else if (mt.category === 'Veg') price = masterToppingSettings.masterVegPrice?.toFixed(2) || '0.00';
+              else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+              html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
+              html += ` <span style='font-size:0.9em;color:#888'>(${mt.category} • £${price})</span>`;
+              html += `</label>`;
+            });
+            html += `</form>`;
+          }
           if (outOfStock) {
             html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
               html += `<div class='out-of-stock-label'>Out of stock</div>`;
@@ -189,7 +206,6 @@
       if (!dbSections.find(sec => sec.name === section)) {
         html += `<h2>${section}</h2><ul class='menu-card-list'>`;
         sectionMap[section].forEach(item => {
-          // ...existing item rendering code...
           const isDoughTracked = !!item.doughTracked;
           const isGFDoughTracked = !!item.gfDoughTracked;
           let outOfStock = false;
@@ -208,35 +224,23 @@
             });
             html += '</ul>';
           }
-          // Toppings UI
-          html += `<form class='toppings-form' data-name='${item.name}'>`;
-          // Always show menu item toppings as removable checkboxes, with category and price
-          if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-            html += `<small><b>Remove Toppings:</b></small><br>`;
-            item.toppings.forEach(topping => {
-              // Find topping details from masterToppings
-              const mt = (masterToppings.toppings || []).find(t => t.name === topping);
-              let cat = mt ? (mt.category || mt.type || 'Other') : 'Other';
-              let price = mt && mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}`;
-              html += ` <span style='font-size:0.9em;color:#888'>(${cat} • £${price})</span>`;
+          // Section-based toppings assignment for fallback sections
+          const assignedToppingIds = (sectionAssignments && sectionAssignments[section]) || [];
+          const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
+          if (assignedToppings.length > 0) {
+            html += `<form class='toppings-form' data-name='${item.name}'>`;
+            html += `<small><b>Add Toppings:</b></small><br>`;
+            assignedToppings.forEach(mt => {
+              let price = '0.00';
+              if (mt.category === 'Meat') price = masterToppingSettings.masterMeatPrice?.toFixed(2) || '0.00';
+              else if (mt.category === 'Veg') price = masterToppingSettings.masterVegPrice?.toFixed(2) || '0.00';
+              else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+              html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
+              html += ` <span style='font-size:0.9em;color:#888'>(${mt.category} • £${price})</span>`;
               html += `</label>`;
             });
+            html += `</form>`;
           }
-          // Show all master toppings as addable checkboxes (even if already present), with category and price
-          html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
-          (masterToppings.toppings || []).forEach(mt => {
-            let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-            let cat = mt.category || mt.type || 'Other';
-            html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'`;
-            // If already on pizza, show as checked and disabled
-            const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
-            if (alreadyOnPizza) html += ' checked disabled';
-            html += `> ${mt.name}`;
-            html += ` <span style='font-size:0.9em;color:#888'>(${cat} • £${price})</span>`;
-            html += `</label>`;
-          });
-          html += `</form>`;
           if (outOfStock) {
             html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
               html += `<div class='out-of-stock-label'>Out of stock</div>`;
@@ -254,23 +258,15 @@
     document.querySelectorAll('.menu-size-option').forEach(opt => {
       if (opt.style.pointerEvents === 'none') return;
       opt.addEventListener('click', function(e) {
-        console.log('DEBUG: .menu-size-option clicked', opt);
         const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
         const size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
-        console.log('DEBUG: Parsed item:', item);
-        console.log('DEBUG: Parsed size:', size);
         // Find the toppings form for this item
-        let removed = [];
         let extraToppings = [];
         let extraToppingPrices = [];
-        // Find the toppings form by traversing up to the .menu-item-card
         let menuItemCard = opt.closest('.menu-item-card');
         const form = menuItemCard ? menuItemCard.querySelector('.toppings-form') : null;
         if (form) {
           const addToppingCbs = Array.from(form.querySelectorAll('.add-topping'));
-          // Removed: unchecked remove-topping
-          removed = Array.from(form.querySelectorAll('.remove-topping')).filter(cb => !cb.checked).map(cb => cb.value);
-          // Added: checked add-topping (all master toppings)
           addToppingCbs.forEach(cb => {
             if (cb.checked && !cb.disabled) {
               extraToppings.push(cb.value);
@@ -278,24 +274,13 @@
             }
           });
         }
-        // Combine default toppings (minus removed) and extra toppings
-        let baseToppings = Array.isArray(item.toppings) ? item.toppings.filter(t => !removed.includes(t)) : [];
-        let allToppings = baseToppings.concat(extraToppings);
-        // If no default toppings, still allow extras
-        if (!Array.isArray(item.toppings) || item.toppings.length === 0) {
-          allToppings = extraToppings;
-        }
         // Calculate total price (size + extra toppings)
         let totalPrice = parseFloat(size.price) || 0;
         extraToppingPrices.forEach(p => { totalPrice += p; });
-        const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: allToppings, removed };
-        console.log('DEBUG: Calling addToOrder with:', orderObj);
+        const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: extraToppings };
         addToOrder(orderObj);
-        // Reset the toppings form after adding to order
+        // Reset add-topping checkboxes to unchecked
         if (form) {
-          // Reset remove-topping checkboxes to checked
-          Array.from(form.querySelectorAll('.remove-topping')).forEach(cb => { cb.checked = true; });
-          // Reset add-topping checkboxes to unchecked
           Array.from(form.querySelectorAll('.add-topping')).forEach(cb => { cb.checked = false; });
         }
         opt.style.background = '#e9ece5';
@@ -316,7 +301,6 @@
     });
     // Make all other menu-item-cards clickable (desserts, drinks, etc.)
     document.querySelectorAll('.menu-item-card').forEach(card => {
-      // Only add click if not already handled by size/side options
       if (card.querySelector('.menu-size-option') || card.querySelector('.menu-side-option')) return;
       if (card.classList.contains('out-of-stock')) return;
       card.style.cursor = 'pointer';
