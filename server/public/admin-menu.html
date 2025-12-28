@@ -518,5 +518,55 @@
 
       loadMenuPreview();
     </script>
+    <!-- Dynamic Menu Sections -->
+    <section class="admin-section">
+      <h2>Menu Sections</h2>
+      <button id="addSectionBtn" type="button">Add Section</button>
+      <div id="sectionsContainer"></div>
+    </section>
+
+    <script>
+    // --- Dynamic Menu Sections Logic ---
+    document.addEventListener('DOMContentLoaded', function() {
+      const sectionsContainer = document.getElementById('sectionsContainer');
+      const addSectionBtn = document.getElementById('addSectionBtn');
+      let sectionCount = 0;
+
+      addSectionBtn.addEventListener('click', function() {
+        sectionCount++;
+        const sectionId = `menu-section-${sectionCount}`;
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'menu-section';
+        sectionDiv.innerHTML = `
+          <h3 contenteditable="true">New Section</h3>
+          <button type="button" class="remove-section-btn">Remove Section</button>
+          <ul class="section-items"></ul>
+          <input type="text" class="new-item-input" placeholder="Menu item name">
+          <button type="button" class="add-item-btn">Add Item</button>
+        `;
+        // Add item logic
+        const itemsList = sectionDiv.querySelector('.section-items');
+        const addItemBtn = sectionDiv.querySelector('.add-item-btn');
+        const newItemInput = sectionDiv.querySelector('.new-item-input');
+        addItemBtn.addEventListener('click', function() {
+          const val = newItemInput.value.trim();
+          if (val) {
+            const li = document.createElement('li');
+            li.textContent = val;
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove';
+            removeBtn.type = 'button';
+            removeBtn.onclick = () => li.remove();
+            li.appendChild(removeBtn);
+            itemsList.appendChild(li);
+            newItemInput.value = '';
+          }
+        });
+        // Remove section logic
+        sectionDiv.querySelector('.remove-section-btn').onclick = () => sectionDiv.remove();
+        sectionsContainer.appendChild(sectionDiv);
+      });
+    });
+    </script>
   </main>
   <script src="/admin-menu.js"></script>
