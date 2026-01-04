@@ -383,6 +383,26 @@ async function updateSectionAssignment(section, toppingId, assign) {
 
 document.getElementById('sectionToppingDropdown').addEventListener('change', renderSectionToppingAssignment);
 
+// --- Add Size/Price for Pizza ---
+const addSizeBtn = document.getElementById('add-size-price-btn');
+if (addSizeBtn) {
+  addSizeBtn.addEventListener('click', function() {
+    const nameInput = document.getElementById('new-size-name');
+    const priceInput = document.getElementById('new-size-price');
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+    if (!name || isNaN(price)) return alert('Enter size and price');
+    const list = document.getElementById('pizza-sizes-list');
+    const row = document.createElement('div');
+    row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
+    list.appendChild(row);
+    // Remove handler
+    row.querySelector('.remove-size-btn').onclick = () => row.remove();
+    nameInput.value = '';
+    priceInput.value = '';
+  });
+}
+
 // --- Init ---
 document.addEventListener('DOMContentLoaded', async () => {
   await fetchMasterToppings();
