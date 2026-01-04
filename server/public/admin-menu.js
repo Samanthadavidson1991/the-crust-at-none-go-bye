@@ -34,93 +34,97 @@ document.addEventListener('DOMContentLoaded', () => {
   const pizzaSection = document.getElementById('pizza-sizes-section');
   if (pizzaSection) pizzaSection.classList.remove('hidden');
 });
-// --- Add Size/Price for Create Your Own Pizza ---
-const addCustomSizeBtn = document.getElementById('add-custom-size-price-btn');
-if (addCustomSizeBtn) {
-  addCustomSizeBtn.addEventListener('click', function() {
-    const nameInput = document.getElementById('custom-size-name');
-    const priceInput = document.getElementById('custom-size-price');
-    const name = nameInput.value.trim();
-    const price = parseFloat(priceInput.value);
-    if (!name || isNaN(price)) return alert('Enter size and price');
-    const list = document.getElementById('custom-pizza-sizes-list');
-    const row = document.createElement('div');
-    row.innerHTML = `<span class='custom-size-name'>${name}</span> - £<span class='custom-size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-custom-size-btn' style='margin-left:8px;'>Remove</button>`;
-    list.appendChild(row);
-    row.querySelector('.remove-custom-size-btn').onclick = () => row.remove();
-    nameInput.value = '';
-    priceInput.value = '';
-  });
-}
-// --- Add Topping for Pizza ---
-const addToppingBtn = document.getElementById('add-topping-btn');
-if (addToppingBtn) {
-  addToppingBtn.addEventListener('click', function() {
-    const nameInput = document.getElementById('new-topping-name');
-    const name = nameInput.value.trim();
-    if (!name) return alert('Enter topping name');
-    const list = document.getElementById('pizza-toppings-list');
-    const row = document.createElement('div');
-    row.innerHTML = `<span class='topping-name'>${name}</span> <button type='button' class='remove-topping-btn' style='margin-left:8px;'>Remove</button>`;
-    list.appendChild(row);
-    row.querySelector('.remove-topping-btn').onclick = () => row.remove();
-    nameInput.value = '';
-  });
-}
 
-// --- Add Ingredient for Salad ---
-const addIngredientBtn = document.getElementById('add-ingredient-btn');
-if (addIngredientBtn) {
-  addIngredientBtn.addEventListener('click', function() {
-    const nameInput = document.getElementById('new-ingredient-name');
-    const name = nameInput.value.trim();
-    if (!name) return alert('Enter ingredient name');
-    const list = document.getElementById('salad-ingredients-list');
-    const row = document.createElement('div');
-    row.innerHTML = `<span class='ingredient-name'>${name}</span> <button type='button' class='remove-ingredient-btn' style='margin-left:8px;'>Remove</button>`;
-    list.appendChild(row);
-    row.querySelector('.remove-ingredient-btn').onclick = () => row.remove();
-    nameInput.value = '';
-  });
-}
+document.addEventListener('DOMContentLoaded', function() {
+  // --- Add Size/Price for Create Your Own Pizza ---
+  const addCustomSizeBtn = document.getElementById('add-custom-size-price-btn');
+  if (addCustomSizeBtn) {
+    addCustomSizeBtn.addEventListener('click', function() {
+      const nameInput = document.getElementById('custom-size-name');
+      const priceInput = document.getElementById('custom-size-price');
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      if (!name || isNaN(price)) return alert('Enter size and price');
+      const list = document.getElementById('custom-pizza-sizes-list');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='custom-size-name'>${name}</span> - £<span class='custom-size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-custom-size-btn' style='margin-left:8px;'>Remove</button>`;
+      list.appendChild(row);
+      row.querySelector('.remove-custom-size-btn').onclick = () => row.remove();
+      nameInput.value = '';
+      priceInput.value = '';
+    });
+  }
 
-// --- Add Side Type ---
-const addSideTypeBtn = document.getElementById('add-side-type-btn');
-if (addSideTypeBtn) {
-  addSideTypeBtn.addEventListener('click', function() {
-    const nameInput = document.getElementById('new-side-type-name');
-    const priceInput = document.getElementById('new-side-type-price');
-    const name = nameInput.value.trim();
-    const price = parseFloat(priceInput.value);
-    if (!name || isNaN(price)) return alert('Enter type and price');
-    const list = document.getElementById('side-types-list');
-    const row = document.createElement('div');
-    row.innerHTML = `<span class='side-type-name'>${name}</span> - £<span class='side-type-price'>${price.toFixed(2)}</span> <button type='button' class='remove-side-type-btn' style='margin-left:8px;'>Remove</button>`;
-    list.appendChild(row);
-    row.querySelector('.remove-side-type-btn').onclick = () => row.remove();
-    nameInput.value = '';
-    priceInput.value = '';
-  });
-}
+  // --- Add Topping for Pizza ---
+  const addToppingBtn = document.getElementById('add-topping-btn');
+  if (addToppingBtn) {
+    addToppingBtn.addEventListener('click', function() {
+      const nameInput = document.getElementById('new-topping-name');
+      const name = nameInput.value.trim();
+      if (!name) return alert('Enter topping name');
+      const list = document.getElementById('pizza-toppings-list');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='topping-name'>${name}</span> <button type='button' class='remove-topping-btn' style='margin-left:8px;'>Remove</button>`;
+      list.appendChild(row);
+      row.querySelector('.remove-topping-btn').onclick = () => row.remove();
+      nameInput.value = '';
+    });
+  }
 
-// --- Add Size/Price for Chicken ---
-const addChickenSizeBtn = document.getElementById('add-chicken-size-price-btn');
-if (addChickenSizeBtn) {
-  addChickenSizeBtn.addEventListener('click', function() {
-    const nameInput = document.getElementById('new-chicken-size-name');
-    const priceInput = document.getElementById('new-chicken-size-price');
-    const name = nameInput.value.trim();
-    const price = parseFloat(priceInput.value);
-    if (!name || isNaN(price)) return alert('Enter size and price');
-    const list = document.getElementById('chicken-sizes-list');
-    const row = document.createElement('div');
-    row.innerHTML = `<span class='chicken-size-name'>${name}</span> - £<span class='chicken-size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-chicken-size-btn' style='margin-left:8px;'>Remove</button>`;
-    list.appendChild(row);
-    row.querySelector('.remove-chicken-size-btn').onclick = () => row.remove();
-    nameInput.value = '';
-    priceInput.value = '';
-  });
-}
+  // --- Add Ingredient for Salad ---
+  const addIngredientBtn = document.getElementById('add-ingredient-btn');
+  if (addIngredientBtn) {
+    addIngredientBtn.addEventListener('click', function() {
+      const nameInput = document.getElementById('new-ingredient-name');
+      const name = nameInput.value.trim();
+      if (!name) return alert('Enter ingredient name');
+      const list = document.getElementById('salad-ingredients-list');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='ingredient-name'>${name}</span> <button type='button' class='remove-ingredient-btn' style='margin-left:8px;'>Remove</button>`;
+      list.appendChild(row);
+      row.querySelector('.remove-ingredient-btn').onclick = () => row.remove();
+      nameInput.value = '';
+    });
+  }
+
+  // --- Add Side Type ---
+  const addSideTypeBtn = document.getElementById('add-side-type-btn');
+  if (addSideTypeBtn) {
+    addSideTypeBtn.addEventListener('click', function() {
+      const nameInput = document.getElementById('new-side-type-name');
+      const priceInput = document.getElementById('new-side-type-price');
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      if (!name || isNaN(price)) return alert('Enter type and price');
+      const list = document.getElementById('side-types-list');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='side-type-name'>${name}</span> - £<span class='side-type-price'>${price.toFixed(2)}</span> <button type='button' class='remove-side-type-btn' style='margin-left:8px;'>Remove</button>`;
+      list.appendChild(row);
+      row.querySelector('.remove-side-type-btn').onclick = () => row.remove();
+      nameInput.value = '';
+      priceInput.value = '';
+    });
+  }
+
+  // --- Add Size/Price for Chicken ---
+  const addChickenSizeBtn = document.getElementById('add-chicken-size-price-btn');
+  if (addChickenSizeBtn) {
+    addChickenSizeBtn.addEventListener('click', function() {
+      const nameInput = document.getElementById('new-chicken-size-name');
+      const priceInput = document.getElementById('new-chicken-size-price');
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      if (!name || isNaN(price)) return alert('Enter size and price');
+      const list = document.getElementById('chicken-sizes-list');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='chicken-size-name'>${name}</span> - £<span class='chicken-size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-chicken-size-btn' style='margin-left:8px;'>Remove</button>`;
+      list.appendChild(row);
+      row.querySelector('.remove-chicken-size-btn').onclick = () => row.remove();
+      nameInput.value = '';
+      priceInput.value = '';
+    });
+  }
+});
 // --- Menu Items Backend Sync ---
 let menuItems = [];
 
