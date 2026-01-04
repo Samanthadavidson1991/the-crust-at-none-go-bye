@@ -1,3 +1,17 @@
+/* Option preview styling for admin menu editor */
+.option-preview-list {
+    border: 1px solid #d0d0d0;
+    background: #fafbfc;
+    border-radius: 6px;
+    margin: 8px 0 12px 0;
+    padding: 8px 12px;
+}
+.option-preview-heading {
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 4px;
+    font-size: 0.98em;
+}
 .admin-announcement {
     display: none;
     background: #fffbe6;
