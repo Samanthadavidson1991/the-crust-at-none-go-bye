@@ -1,3 +1,100 @@
+// --- Menu Items Backend Sync ---
+let menuItems = [];
+
+async function fetchMenuItems() {
+  const res = await fetch('/api/menu');
+  const data = await res.json();
+  menuItems = data.items || [];
+  renderMenuItems();
+}
+
+async function addMenuItem(item) {
+  const res = await fetch('/api/menu', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    alert('Failed to add menu item: ' + text);
+    return;
+  }
+  await fetchMenuItems();
+}
+
+async function updateMenuItem(item) {
+  const res = await fetch('/api/menu', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    alert('Failed to update menu item: ' + text);
+    return;
+  }
+  await fetchMenuItems();
+}
+
+async function deleteMenuItem(id) {
+  const res = await fetch(`/api/menu/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const text = await res.text();
+    alert('Failed to delete menu item: ' + text);
+    return;
+  }
+  await fetchMenuItems();
+}
+
+function renderMenuItems() {
+  const list = document.getElementById('menu-items-list');
+  if (!list) return;
+  if (!menuItems.length) {
+    list.innerHTML = '<li style="text-align:center;color:#888;">No menu items found.</li>';
+    return;
+  }
+  list.innerHTML = '';
+  menuItems.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'menu-item-card';
+    li.innerHTML = `
+      <b>${item.name}</b>
+      <div>Section: ${item.section || ''}</div>
+      <div>${item.description ? item.description : ''}</div>
+      <div>${item.sizes && item.sizes.length ? 'Sizes: ' + item.sizes.map(s => `${s.name} (£${parseFloat(s.price).toFixed(2)})`).join(', ') : ''}</div>
+      <button class="edit-menu-item-btn">Edit</button>
+      <button class="delete-menu-item-btn" style="background:#b9472e;">Delete</button>
+    `;
+    // Edit button (for now, just alert JSON)
+    li.querySelector('.edit-menu-item-btn').onclick = () => {
+      alert('Edit not yet implemented.\n' + JSON.stringify(item, null, 2));
+      // TODO: Populate form for editing, then call updateMenuItem
+    };
+    // Delete button
+    li.querySelector('.delete-menu-item-btn').onclick = async () => {
+      if (confirm('Delete this menu item?')) {
+        await deleteMenuItem(item._id);
+      }
+    };
+    list.appendChild(li);
+  });
+}
+
+// Add item form handler
+const addItemForm = document.getElementById('add-item-form');
+if (addItemForm) {
+  addItemForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('new-item-name').value.trim();
+    // For demo: only name and section (extend as needed)
+    const section = document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') || '';
+    if (!name || !section) return alert('Name and section required');
+    // TODO: Gather sizes, toppings, etc.
+    const item = { name, section };
+    await addMenuItem(item);
+    addItemForm.reset();
+  });
+}
 
 // --- Master Toppings Admin Logic ---
 let masterToppings = [];
@@ -192,4 +289,6 @@ document.getElementById('sectionToppingDropdown').addEventListener('change', ren
 document.addEventListener('DOMContentLoaded', async () => {
   await fetchMasterToppings();
   await fetchSections();
+  // Call fetchMenuItems on page load
+  fetchMenuItems();
 });
