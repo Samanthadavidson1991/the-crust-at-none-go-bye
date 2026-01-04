@@ -42,8 +42,8 @@ categoryButtons.forEach(btn => {
     }
   });
 });
-// Show pizzas section by default
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async function() {
+  // Show pizzas section by default
   Object.values(sectionsMap).forEach(id => {
     if (!id) return;
     const el = document.getElementById(id);
@@ -51,9 +51,129 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   const pizzaSection = document.getElementById('pizza-sizes-section');
   if (pizzaSection) pizzaSection.classList.remove('hidden');
-});
 
-document.addEventListener('DOMContentLoaded', function() {
+  // --- Live Preview for Add Item Form ---
+  function renderLiveItemPreview() {
+    const name = document.getElementById('new-item-name')?.value.trim() || '';
+    let html = '';
+    if (name) html += `<b>${name}</b><br>`;
+    // Sizes
+    const sizeList = document.getElementById('pizza-sizes-list');
+    if (sizeList && sizeList.children.length) {
+      html += '<div><b>Sizes:</b> ' + Array.from(sizeList.children).map(row => row.textContent.trim()).join(', ') + '</div>';
+    }
+    // Toppings
+    const toppingList = document.getElementById('pizza-toppings-list');
+    if (toppingList && toppingList.children.length) {
+      html += '<div><b>Toppings:</b> ' + Array.from(toppingList.children).map(row => row.textContent.trim()).join(', ') + '</div>';
+    }
+    // Ingredients
+    const saladList = document.getElementById('salad-ingredients-list');
+    if (saladList && saladList.children.length) {
+      html += '<div><b>Ingredients:</b> ' + Array.from(saladList.children).map(row => row.textContent.trim()).join(', ') + '</div>';
+    }
+    // Types
+    const sideList = document.getElementById('side-types-list');
+    if (sideList && sideList.children.length) {
+      html += '<div><b>Types:</b> ' + Array.from(sideList.children).map(row => row.textContent.trim()).join(', ') + '</div>';
+    }
+    // Chicken sizes
+    const chickenList = document.getElementById('chicken-sizes-list');
+    if (chickenList && chickenList.children.length) {
+      html += '<div><b>Chicken Sizes:</b> ' + Array.from(chickenList.children).map(row => row.textContent.trim()).join(', ') + '</div>';
+    }
+    document.getElementById('live-preview-content').innerHTML = html || '<i>No options added yet.</i>';
+  }
+
+  // Attach live preview updates to all relevant inputs/buttons
+  const previewInputs = [
+    'new-item-name', 'new-size-name', 'new-size-price', 'add-size-price-btn',
+    'new-topping-name', 'add-topping-btn',
+    'new-ingredient-name', 'add-ingredient-btn',
+    'new-side-type-name', 'new-side-type-price', 'add-side-type-btn',
+    'new-chicken-size-name', 'new-chicken-size-price', 'add-chicken-size-price-btn'
+  ];
+  previewInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (el.tagName === 'BUTTON') {
+        el.addEventListener('click', renderLiveItemPreview);
+      } else {
+        el.addEventListener('input', renderLiveItemPreview);
+      }
+    }
+  });
+  // Also update preview when removing any option
+  document.getElementById('add-item-form').addEventListener('click', function(e) {
+    if (e.target && e.target.tagName === 'BUTTON' && e.target.textContent === 'Remove') {
+      setTimeout(renderLiveItemPreview, 10);
+    }
+  });
+  // Initial render
+  renderLiveItemPreview();
+
+  // --- Add Size/Price for Pizza ---
+  const addSizeBtn = document.getElementById('add-size-price-btn');
+  if (addSizeBtn) {
+    addSizeBtn.addEventListener('click', function() {
+      console.log('Add Size/Price button clicked');
+      const nameInput = document.getElementById('new-size-name');
+      const priceInput = document.getElementById('new-size-price');
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      if (!name || isNaN(price)) return alert('Enter size and price');
+      const list = document.getElementById('pizza-sizes-list');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
+      list.appendChild(row);
+      row.querySelector('.remove-size-btn').onclick = () => row.remove();
+      nameInput.value = '';
+      priceInput.value = '';
+    });
+  }
+
+  // --- Add Size/Price for Create Your Own Pizza ---
+  const addCustomSizeBtn = document.getElementById('add-custom-size-price-btn');
+  if (addCustomSizeBtn) {
+    addCustomSizeBtn.addEventListener('click', function() {
+      const nameInput = document.getElementById('custom-size-name');
+      const priceInput = document.getElementById('custom-size-price');
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      if (!name || isNaN(price)) return alert('Enter size and price');
+      const list = document.getElementById('custom-pizza-sizes-list');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
+      list.appendChild(row);
+      row.querySelector('.remove-size-btn').onclick = () => row.remove();
+      nameInput.value = '';
+      priceInput.value = '';
+    });
+  }
+
+  // --- Section Switching Logic ---
+  categoryButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      categoryButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      Object.values(sectionsMap).forEach(id => {
+        if (!id) return;
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      const activeId = sectionsMap[btn.getAttribute('data-category')];
+      if (activeId) {
+        const activeSection = document.getElementById(activeId);
+        if (activeSection) activeSection.classList.remove('hidden');
+      }
+    });
+  });
+
+  // --- Backend Data Fetching ---
+  await fetchMasterToppings();
+  await fetchSections();
+  fetchMenuItems();
+});
   // --- Live Preview for Add Item Form ---
   function renderLiveItemPreview() {
     const name = document.getElementById('new-item-name')?.value.trim() || '';
