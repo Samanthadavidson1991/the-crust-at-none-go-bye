@@ -157,13 +157,20 @@ async function saveSubheading(cat, text) {
 		body: JSON.stringify({ text })
 	});
 }
+const pizzaSection = document.getElementById('pizza-sizes-section');
+function updatePizzaSectionVisibility(cat) {
+	if (pizzaSection) {
+		pizzaSection.style.display = (cat === 'PIZZAS') ? '' : 'none';
+	}
+}
 async function showSubheadingEditBox(cat) {
-	currentCat = cat;
-	subheadingEditBox.style.display = 'block';
-	await fetchSubheadings();
-	subheadingInput.value = sectionSubheadings[cat] || '';
-	savedMsg.style.display = 'none';
-	updateChickenSectionVisibility(cat);
+		currentCat = cat;
+		subheadingEditBox.style.display = 'block';
+		await fetchSubheadings();
+		subheadingInput.value = sectionSubheadings[cat] || '';
+		savedMsg.style.display = 'none';
+		updateChickenSectionVisibility(cat);
+		updatePizzaSectionVisibility(cat);
 }
 document.querySelectorAll('.menu-category-btn').forEach(btn => {
 	btn.addEventListener('click', function() {
