@@ -1,3 +1,57 @@
+// --- Section Switching Logic ---
+const categoryButtons = document.querySelectorAll('.menu-category-btn');
+const sectionsMap = {
+  'PIZZAS': 'pizza-sizes-section',
+  'SALADS': 'salad-ingredients-section',
+  'SIDES': 'side-types-section',
+  'CHICKEN': 'chicken-sizes-section',
+  'DRINKS': null,
+  'DESSERTS': null
+};
+categoryButtons.forEach(btn => {
+  btn.addEventListener('click', function() {
+    categoryButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.values(sectionsMap).forEach(id => {
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
+    const activeId = sectionsMap[btn.getAttribute('data-category')];
+    if (activeId) {
+      const activeSection = document.getElementById(activeId);
+      if (activeSection) activeSection.classList.remove('hidden');
+    }
+  });
+});
+// Show pizzas section by default
+document.addEventListener('DOMContentLoaded', () => {
+  Object.values(sectionsMap).forEach(id => {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+  const pizzaSection = document.getElementById('pizza-sizes-section');
+  if (pizzaSection) pizzaSection.classList.remove('hidden');
+});
+// --- Add Size/Price for Create Your Own Pizza ---
+const addCustomSizeBtn = document.getElementById('add-custom-size-price-btn');
+if (addCustomSizeBtn) {
+  addCustomSizeBtn.addEventListener('click', function() {
+    const nameInput = document.getElementById('custom-size-name');
+    const priceInput = document.getElementById('custom-size-price');
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+    if (!name || isNaN(price)) return alert('Enter size and price');
+    const list = document.getElementById('custom-pizza-sizes-list');
+    const row = document.createElement('div');
+    row.innerHTML = `<span class='custom-size-name'>${name}</span> - £<span class='custom-size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-custom-size-btn' style='margin-left:8px;'>Remove</button>`;
+    list.appendChild(row);
+    row.querySelector('.remove-custom-size-btn').onclick = () => row.remove();
+    nameInput.value = '';
+    priceInput.value = '';
+  });
+}
 // --- Add Topping for Pizza ---
 const addToppingBtn = document.getElementById('add-topping-btn');
 if (addToppingBtn) {
