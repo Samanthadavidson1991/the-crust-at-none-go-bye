@@ -437,15 +437,21 @@ function renderSections() {
 
 document.getElementById('sectionCreatorForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  const input = document.getElementById('sectionNameInput');
-  const name = input.value.trim();
-  if (!name || sections.includes(name)) return;
-  sections.push(name);
-  localStorage.setItem('sections', JSON.stringify(sections));
-  input.value = '';
-  renderSections();
-  renderSectionDropdown();
-  fetchSectionAssignments();
+const sectionCreatorForm = document.getElementById('sectionCreatorForm');
+if (sectionCreatorForm) {
+  sectionCreatorForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const input = document.getElementById('sectionNameInput');
+    const name = input.value.trim();
+    if (!name || sections.includes(name)) return;
+    sections.push(name);
+    localStorage.setItem('sections', JSON.stringify(sections));
+    input.value = '';
+    renderSections();
+    renderSectionDropdown();
+    fetchSectionAssignments();
+  });
+}
 });
 
 function renderSectionDropdown() {
@@ -505,6 +511,10 @@ async function updateSectionAssignment(section, toppingId, assign) {
 }
 
 document.getElementById('sectionToppingDropdown').addEventListener('change', renderSectionToppingAssignment);
+const sectionToppingDropdown = document.getElementById('sectionToppingDropdown');
+if (sectionToppingDropdown) {
+  sectionToppingDropdown.addEventListener('change', renderSectionToppingAssignment);
+}
 
 // --- Add Size/Price for Pizza ---
 const addSizeBtn = document.getElementById('add-size-price-btn');
