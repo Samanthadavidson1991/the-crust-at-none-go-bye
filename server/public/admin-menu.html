@@ -7,36 +7,41 @@
 	<link rel="stylesheet" href="admin-dashboard.css">
 	<script src="admin-menu-auth.js"></script>
 </head>
-<body>
-	<div class="container">
-		<div id="section-subheading" class="section-subheading">
-			Welcome to the menu admin! Select a section above to manage pizzas, salads, sides, drinks, desserts, or chicken. Each section has its own options and tips.
-		</div>
-		<div class="admin-header-bar">
-			<a href="admin-dashboard.html" class="admin-menu-link">Order Management</a>
-			<a href="admin-menu.html" class="admin-menu-link">Menu Management</a>
-			<a href="admin-sales.html" class="admin-menu-link">Sales Dashboard</a>
-			<a href="admin-monthly-sales.html" class="admin-menu-link">Monthly Breakdown</a>
-			<a href="admin-running-orders.html" class="admin-menu-link">Running Orders</a>
-		</div>
-		<h1>Menu Management</h1>
-		<div class="menu-category-bar">
-			<button class="menu-category-btn active" data-category="PIZZAS">PIZZAS</button>
-			<button class="menu-category-btn" data-category="SALADS">SALADS</button>
-			<button class="menu-category-btn" data-category="SIDES">SIDES</button>
-			<button class="menu-category-btn" data-category="CHICKEN">CHICKEN</button>
-			<button class="menu-category-btn" data-category="DRINKS">DRINKS</button>
-			<button class="menu-category-btn" data-category="DESSERTS">DESSERTS</button>
-		</div>
-		<div id="section-subheading-edit-box" class="section-subheading-edit-box">
-			<label for="section-subheading-input" class="bold-label">Section Subheading (optional):</label>
-			<textarea id="section-subheading-input" rows="2" class="section-subheading-input"></textarea>
-			<button id="save-subheading-btn" class="save-subheading-btn">Save Subheading</button>
-			<span id="subheading-saved-msg" class="subheading-saved-msg">Saved!</span>
-		</div>
-	</div>
-	<div class="menu-items-section">
-		<form id="add-item-form" class="add-item-form">
+<body class="admin-page">
+	<a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
+	<header>
+		<h1 class="main-heading underline">Admin – Menu Management</h1>
+		<nav class="admin-nav" role="navigation" aria-label="Admin navigation">
+			<a href="admin-menu.html" class="active">Menu Editor</a>
+			<a href="stock-management.html">Stock Management</a>
+			<a href="timeslots.html">Time Slots</a>
+			<a href="orders.html">Orders</a>
+			<a href="running-orders.html">Running Orders</a>
+			<a href="takings.html">Takings</a>
+			<a href="pos.html">POS Manual Order</a>
+			<a href="offers.html">Special Offers</a>
+		</nav>
+	</header>
+	<main id="main-content">
+		<section class="admin-section">
+			<div id="section-subheading" class="section-subheading">
+				Welcome to the menu admin! Select a section above to manage pizzas, salads, sides, drinks, desserts, or chicken. Each section has its own options and tips.
+			</div>
+			<div class="menu-category-bar">
+				<button class="menu-category-btn active" data-category="PIZZAS">PIZZAS</button>
+				<button class="menu-category-btn" data-category="SALADS">SALADS</button>
+				<button class="menu-category-btn" data-category="SIDES">SIDES</button>
+				<button class="menu-category-btn" data-category="CHICKEN">CHICKEN</button>
+				<button class="menu-category-btn" data-category="DRINKS">DRINKS</button>
+				<button class="menu-category-btn" data-category="DESSERTS">DESSERTS</button>
+			</div>
+			<div id="section-subheading-edit-box" class="section-subheading-edit-box">
+				<label for="section-subheading-input" class="bold-label">Section Subheading (optional):</label>
+				<textarea id="section-subheading-input" rows="2" class="section-subheading-input"></textarea>
+				<button id="save-subheading-btn" class="save-subheading-btn">Save Subheading</button>
+				<span id="subheading-saved-msg" class="subheading-saved-msg">Saved!</span>
+			</div>
+			<form id="add-item-form" class="add-item-form">
 			<input type="text" id="new-item-name" placeholder="Item name" required>
 			<div id="pizza-sizes-section">
 				<label class="bold-label">Add size and price options for this pizza:</label>
@@ -90,34 +95,37 @@
 			<button type="submit">Add New Item</button>
 		</form>
 		<ul id="menu-items-list" class="menu-items-list"></ul>
-	</div>
-	<div id="create-your-own-section">
-		<h2 class="section-margin-large">Create Your Own Pizza Section</h2>
-		<form id="create-your-own-form" class="add-item-form">
-			<input type="text" id="custom-pizza-name" value="Create Your Own Pizza" readonly class="bold-label" placeholder="Custom pizza section name">
-			<div id="custom-pizza-sizes-section">
-				<label class="bold-label">Add size and price options for this pizza:</label>
-				<div id="custom-pizza-sizes-list"></div>
-				<div class="pizza-sizes-flex">
-					<input type="text" id="custom-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
-					<input type="number" id="custom-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-					<button type="button" id="add-custom-size-price-btn">Add Size/Price</button>
-				</div>
-				<small class="soft-text">Add as many size/price options as you need, then click 'Add Custom Pizza' to save.</small>
-				<div id="custom-pizza-toppings-section" class="section-margin">
-					<label class="bold-label">Toppings (type, set price, and press Add):</label>
-					<div class="pizza-toppings-flex">
-						<input type="text" id="custom-topping-name" placeholder="Topping name" autocomplete="off">
-						<input type="number" id="custom-topping-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-						<button type="button" id="add-custom-topping-btn">Add Topping</button>
-					</div>
-					<div id="custom-pizza-toppings-list"></div>
-					<small class="soft-text">All toppings will show on the live site and can be removed by customers. Set price to 0 for free toppings.</small>
-				</div>
-			</div>
-			<button type="submit">Add Custom Pizza</button>
 		</form>
-	</div>
+		<div id="create-your-own-section">
+			<h2 class="section-margin-large">Create Your Own Pizza Section</h2>
+			<form id="create-your-own-form" class="add-item-form">
+				<input type="text" id="custom-pizza-name" value="Create Your Own Pizza" readonly class="bold-label" placeholder="Custom pizza section name">
+				<div id="custom-pizza-sizes-section">
+					<label class="bold-label">Add size and price options for this pizza:</label>
+					<div id="custom-pizza-sizes-list"></div>
+					<div class="pizza-sizes-flex">
+						<input type="text" id="custom-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
+						<input type="number" id="custom-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+						<button type="button" id="add-custom-size-price-btn">Add Size/Price</button>
+					</div>
+					<small class="soft-text">Add as many size/price options as you need, then click 'Add Custom Pizza' to save.</small>
+					<div id="custom-pizza-toppings-section" class="section-margin">
+						<label class="bold-label">Toppings (type, set price, and press Add):</label>
+						<div class="pizza-toppings-flex">
+							<input type="text" id="custom-topping-name" placeholder="Topping name" autocomplete="off">
+							<input type="number" id="custom-topping-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+							<button type="button" id="add-custom-topping-btn">Add Topping</button>
+						</div>
+						<div id="custom-pizza-toppings-list"></div>
+						<small class="soft-text">All toppings will show on the live site and can be removed by customers. Set price to 0 for free toppings.</small>
+					</div>
+				</div>
+				<button type="submit">Add Custom Pizza</button>
+			</form>
+		</div>
+		<ul id="menu-items-list" class="menu-items-list"></ul>
+		</section>
+	</main>
 	<script src="admin-menu.js"></script>
 	<script>
 const subheadingEditBox = document.getElementById('section-subheading-edit-box');
