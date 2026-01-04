@@ -136,6 +136,12 @@ const saveSubheadingBtn = document.getElementById('save-subheading-btn');
 const savedMsg = document.getElementById('subheading-saved-msg');
 let sectionSubheadings = {};
 let currentCat = 'PIZZAS';
+const chickenSection = document.getElementById('chicken-sizes-section');
+function updateChickenSectionVisibility(cat) {
+  if (chickenSection) {
+	chickenSection.style.display = (cat === 'CHICKEN') ? '' : 'none';
+  }
+}
 async function fetchSubheadings() {
 	try {
 		const res = await fetch('/menu-section-subheadings');
@@ -157,6 +163,7 @@ async function showSubheadingEditBox(cat) {
 	await fetchSubheadings();
 	subheadingInput.value = sectionSubheadings[cat] || '';
 	savedMsg.style.display = 'none';
+	updateChickenSectionVisibility(cat);
 }
 document.querySelectorAll('.menu-category-btn').forEach(btn => {
 	btn.addEventListener('click', function() {
