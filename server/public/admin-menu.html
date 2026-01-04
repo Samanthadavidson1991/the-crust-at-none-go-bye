@@ -1,572 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Menu Editor</title>
-  <link rel="stylesheet" href="/styles.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Menu Management</title>
+	<link rel="stylesheet" href="admin-dashboard.css">
+	<script src="admin-menu-auth.js"></script>
 </head>
 <body>
-  <header>
-    <h1 class="main-heading underline">Menu Editor</h1>
-    <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
-      <a href="admin-menu.html">Menu Editor</a>
-      <a href="stock-management.html">Stock Management</a>
-      <a href="timeslots.html">Time Slots</a>
-      <a href="orders.html">Orders</a>
-      <a href="running-orders.html">Running Orders</a>
-
-      <a href="takings.html">Takings</a>
-      <a href="pos.html">POS Manual Order</a>
-      <a href="offers.html">Offers</a>
-    </nav>
-  </header>
-  <main>
-    <section>
-      <h2>Master Toppings</h2>
-      <div style="margin-bottom: 1em;">
-        <label>Meat Master Price (£): <input type="number" id="masterMeatPriceInput" step="0.01" min="0"></label>
-        <label style="margin-left: 1em;">Veg Master Price (£): <input type="number" id="masterVegPriceInput" step="0.01" min="0"></label>
-        <button id="saveMasterPricesBtn" type="button">Save Master Prices</button>
-      </div>
-      <form id="toppingCreatorForm">
-        <input type="text" id="toppingNameInput" placeholder="Topping name" required>
-        <select id="toppingCategoryInput" required>
-          <option value="" disabled selected>Select category</option>
-          <option value="Meat">Meat</option>
-          <option value="Veg">Veg</option>
-          <option value="Other">Other</option>
-        </select>
-        <input type="number" id="toppingPriceInput" placeholder="Price (£)" step="0.01" min="0">
-        <button type="submit">Add Topping</button>
-      </form>
-      <div id="toppingsContainer"></div>
-      <div style="margin-top:2em;">
-        <label for="sectionToppingDropdown"><b>Assign Toppings to Section:</b></label>
-        <select id="sectionToppingDropdown"></select>
-        <div id="sectionToppingAssignment"></div>
-      </div>
-    </section>
-    <section>
-      <h2>Add Section</h2>
-      <form id="sectionCreatorForm">
-        <input type="text" id="sectionNameInput" placeholder="Section name" required>
-        <button type="submit">Add Section</button>
-      </form>
-    </section>
-    <section>
-      <h2>Sections</h2>
-      <div id="sectionsContainer"></div>
-        <section>
-          <h2>Add Menu Item</h2>
-          <form id="menuItemForm">
-            <label>Item Name<br>
-              <input type="text" id="itemNameInput" required placeholder="Menu item name">
-            </label><br>
-            <label>Description (optional)<br>
-              <textarea id="itemDescInput" placeholder="Description"></textarea>
-            </label><br>
-            <label><input type="checkbox" id="showsToppingsInput"> Shows toppings</label><br>
-            <label>Section<br>
-              <select id="sectionDropdown" required style="min-width: 200px;"></select>
-            </label><br>
-            <div id="sizesArea">
-              <label>Add Size/Type & Price</label><br>
-              <input type="text" id="sizeNameInput" placeholder="Size/Type (e.g. 12in, Large)">
-              <input type="number" id="sizePriceInput" placeholder="Price (\u00a3)" step="0.01" min="0">
-              <button type="button" id="addSizeBtn">Add Size/Type</button>
-              <ul id="sizesList"></ul>
-            </div>
-            <div id="singlePriceArea">
-              <label>Single Price (if no sizes/types)</label><br>
-              <input type="number" id="singlePriceInput" placeholder="Price (\u00a3)" step="0.01" min="0">
-            </div>
-            <!-- Toppings UI removed -->
-            <button type="submit">Add Menu Item</button>
-          </form>
-        </section>
-        <script>
-                      // Toppings logic removed
-                // --- MASTER TOPPINGS LOGIC ---
-                const toppingForm = document.getElementById('toppingCreatorForm');
-                const toppingInput = document.getElementById('toppingNameInput');
-                const toppingsContainer = document.getElementById('toppingsContainer');
-                let toppings = [];
-
-                async function loadToppings() {
-                  try {
-                    const res = await fetch(API_BASE_URL + '/api/toppings', { credentials: 'include' });
-                    const data = await res.json();
-                    toppings = data.toppings || [];
-                    renderToppings();
-                  } catch (err) {
-                    toppingsContainer.innerHTML = '<em>Error loading toppings.</em>';
-                  }
-                }
-
-                function renderToppings() {
-                  toppingsContainer.innerHTML = '';
-                  if (!toppings || toppings.length === 0) {
-                    toppingsContainer.innerHTML = '<em>No toppings yet. Add one above.</em>';
-                    return;
-                  }
-                  toppings.forEach(topping => {
-                    const div = document.createElement('div');
-                    div.className = 'topping-row';
-                    div.innerHTML = `<span>${topping.name}</span> <button type='button' data-id='${topping._id}' class='delete-topping-btn'>Delete</button>`;
-                    toppingsContainer.appendChild(div);
-                  });
-                  Array.from(document.getElementsByClassName('delete-topping-btn')).forEach(btn => {
-                    btn.onclick = async function() {
-                      const id = this.getAttribute('data-id');
-                      if (!confirm('Delete this topping?')) return;
-                      try {
-                        const res = await fetch(API_BASE_URL + '/api/toppings/' + id, {
-                          method: 'DELETE',
-                          credentials: 'include'
-                        });
-                        if (res.ok) {
-                          loadToppings();
-                        } else {
-                          alert('Failed to delete topping');
-                        }
-                      } catch (err) {
-                        alert('Failed to delete topping: ' + err.message);
-                      }
-                    };
-                  });
-                }
-
-                const toppingCategoryInput = document.getElementById('toppingCategoryInput');
-                const toppingPriceInput = document.getElementById('toppingPriceInput');
-                toppingForm.addEventListener('submit', async function(e) {
-                  e.preventDefault();
-                  const name = toppingInput.value.trim();
-                  const category = toppingCategoryInput.value;
-                  const price = parseFloat(toppingPriceInput.value);
-                  if (!name || !category || isNaN(price)) return;
-                  try {
-                    const res = await fetch(API_BASE_URL + '/api/toppings', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      credentials: 'include',
-                      body: JSON.stringify({ name, category, price })
-                    });
-                    if (res.ok) {
-                      toppingInput.value = '';
-                      toppingCategoryInput.selectedIndex = 0;
-                      toppingPriceInput.value = '';
-                      loadToppings();
-                    } else {
-                      const err = await res.json();
-                      alert('Error: ' + (err.error || 'Failed to add topping'));
-                    }
-                  } catch (err) {
-                    alert('Failed to add topping: ' + err.message);
-                  }
-                });
-
-                // Ensure master toppings are loaded on page load
-                window.addEventListener('DOMContentLoaded', () => {
-                  loadToppings();
-                });
-          // Flexible menu item creator logic
-          const menuItemForm = document.getElementById('menuItemForm');
-          const itemNameInput = document.getElementById('itemNameInput');
-          const itemDescInput = document.getElementById('itemDescInput');
-          const showsToppingsInput = document.getElementById('showsToppingsInput');
-          const sectionDropdown = document.getElementById('sectionDropdown');
-          const sizeNameInput = document.getElementById('sizeNameInput');
-          const sizePriceInput = document.getElementById('sizePriceInput');
-          const addSizeBtn = document.getElementById('addSizeBtn');
-          const sizesList = document.getElementById('sizesList');
-          const singlePriceInput = document.getElementById('singlePriceInput');
-          let sizes = [];
-          // let sections = []; // Remove duplicate declaration if already declared above
-
-          addSizeBtn.onclick = function() {
-            const name = sizeNameInput.value.trim();
-            const price = sizePriceInput.value.trim();
-            if (name && price && !isNaN(price)) {
-              sizes.push({ name, price: parseFloat(price) });
-              sizeNameInput.value = '';
-              sizePriceInput.value = '';
-              renderSizes();
-            }
-          };
-
-          function renderSizes() {
-            sizesList.innerHTML = '';
-            sizes.forEach((s, i) => {
-              const li = document.createElement('li');
-              li.textContent = `${s.name} - \u00a3${s.price.toFixed(2)}`;
-              const removeBtn = document.createElement('button');
-              removeBtn.textContent = 'x';
-              removeBtn.type = 'button';
-              removeBtn.onclick = () => { sizes.splice(i, 1); renderSizes(); };
-              li.appendChild(removeBtn);
-              sizesList.appendChild(li);
-            });
-            // Show/hide single price input
-            document.getElementById('singlePriceArea').style.display = sizes.length === 0 ? '' : 'none';
-          }
-          renderSizes();
-
-          function renderSectionDropdown() {
-            sectionDropdown.innerHTML = '';
-            if (!sections || sections.length === 0) {
-              sectionDropdown.innerHTML = '<option value="" disabled selected>No sections available</option>';
-              sectionDropdown.disabled = true;
-            } else {
-              sectionDropdown.disabled = false;
-              sectionDropdown.innerHTML = '<option value="" disabled selected>Select section</option>';
-              sections.forEach(section => {
-                const opt = document.createElement('option');
-                opt.value = section.name;
-                opt.textContent = section.name;
-                sectionDropdown.appendChild(opt);
-              });
-            }
-          }
-
-          menuItemForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = itemNameInput.value.trim();
-            const description = itemDescInput.value.trim();
-            const section = sectionDropdown.value;
-            const showsToppings = showsToppingsInput.checked;
-            // Always use all master toppings for new items
-            let allMasterToppings = [];
-            if (window.toppings && Array.isArray(window.toppings)) {
-              allMasterToppings = window.toppings.map(t => t.name);
-            }
-            let item = { name, toppings: allMasterToppings };
-            if (description) item.description = description;
-            item.showsToppings = showsToppings;
-            if (sizes.length > 0) {
-              item.sizes = sizes;
-            } else {
-              const price = singlePriceInput.value.trim();
-              if (price && !isNaN(price)) {
-                item.price = parseFloat(price);
-              }
-            }
-            if (section) item.section = section;
-            // Save to backend
-            try {
-              const res = await fetch(API_BASE_URL + '/api/menu', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(item)
-              });
-              if (res.ok) {
-                alert('Menu item added!');
-                menuItemForm.reset();
-                sizes = [];
-                selectedToppingNames = [];
-                renderSizes();
-                populateItemToppingsButtons();
-                loadMenuPreview();
-              } else {
-                const err = await res.json();
-                alert('Error: ' + (err.error || 'Failed to add item'));
-              }
-            } catch (err) {
-              alert('Failed to add item: ' + err.message);
-            }
-          });
-        </script>
-    </section>
-    <script>
-      // Section creator logic with MongoDB backend
-      const sectionForm = document.getElementById('sectionCreatorForm');
-      const sectionInput = document.getElementById('sectionNameInput');
-      const sectionsContainer = document.getElementById('sectionsContainer');
-      const API_BASE_URL = window.location.hostname === 'localhost' ? '' : 'https://the-crust-at-none-go-bye-admin.onrender.com';
-
-      // Load sections from backend on page load
-      async function loadSections() {
-        try {
-          const res = await fetch(API_BASE_URL + '/api/sections', { credentials: 'include' });
-          const data = await res.json();
-          sections = data.sections || [];
-          renderSections(sections);
-          renderSectionDropdown();
-        } catch (err) {
-          console.error('Failed to load sections:', err);
-          sectionsContainer.innerHTML = '<em>Error loading sections.</em>';
-        }
-      }
-
-      // Add section to backend
-      sectionForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const name = sectionInput.value.trim();
-        if (!name) return;
-
-        try {
-          const res = await fetch(API_BASE_URL + '/api/sections', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ name })
-          });
-
-          if (res.ok) {
-            sectionInput.value = '';
-            loadSections(); // Reload sections from backend
-          } else {
-            const err = await res.json();
-            alert('Error: ' + (err.error || 'Failed to add section'));
-          }
-        } catch (err) {
-          alert('Failed to add section: ' + err.message);
-        }
-      });
-
-      // Delete section from backend
-      async function deleteSection(id) {
-        if (!confirm('Delete this section?')) return;
-
-        try {
-          const res = await fetch(API_BASE_URL + '/api/sections/' + id, {
-            method: 'DELETE',
-            credentials: 'include'
-          });
-
-          if (res.ok) {
-            loadSections(); // Reload sections from backend
-          } else {
-            alert('Failed to delete section');
-          }
-        } catch (err) {
-          alert('Failed to delete section: ' + err.message);
-        }
-      }
-
-      // Render sections in UI
-      function renderSections(sections) {
-        sectionsContainer.innerHTML = '';
-        if (!sections || sections.length === 0) {
-          sectionsContainer.innerHTML = '<em>No sections yet. Add one above.</em>';
-          return;
-        }
-
-        sections.forEach((section) => {
-          const div = document.createElement('div');
-          div.className = 'section-row';
-          div.innerHTML = `<span>${section.name}</span> <button type='button' data-id='${section._id}' class='delete-section-btn'>Delete</button>`;
-          sectionsContainer.appendChild(div);
-        });
-
-        // Add delete logic
-        Array.from(document.getElementsByClassName('delete-section-btn')).forEach(btn => {
-          btn.onclick = function() {
-            const id = this.getAttribute('data-id');
-            deleteSection(id);
-          };
-        });
-      }
-
-      // Initial load
-      loadSections();
-
-      // --- MENU PREVIEW ---
-      const menuPreviewContainer = document.createElement('section');
-      menuPreviewContainer.innerHTML = '<h2>Menu Preview</h2><div id="menuPreview"></div>';
-      document.querySelector('main').appendChild(menuPreviewContainer);
-
-      async function loadMenuPreview() {
-        try {
-          const res = await fetch(API_BASE_URL + '/api/menu', { credentials: 'include' });
-          const data = await res.json();
-          renderMenuPreview(data.items || []);
-        } catch (err) {
-          document.getElementById('menuPreview').innerHTML = '<em>Error loading menu preview.</em>';
-        }
-      }
-
-      function renderMenuPreview(menuItems) {
-        const preview = document.getElementById('menuPreview');
-        preview.innerHTML = '';
-        if (!menuItems || menuItems.length === 0) {
-          preview.innerHTML = '<em>No menu items yet.</em>';
-          return;
-        }
-        // Group by section
-        const grouped = {};
-        menuItems.forEach(item => {
-          if (!grouped[item.section]) grouped[item.section] = [];
-          grouped[item.section].push(item);
-        });
-        Object.keys(grouped).forEach(section => {
-          const secDiv = document.createElement('div');
-          secDiv.className = 'menu-preview-section';
-          secDiv.innerHTML = `<h3>${section}</h3>`;
-          grouped[section].forEach(item => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'menu-preview-item';
-            itemDiv.innerHTML = `<strong>${item.name}</strong> - ${item.description ? item.description : ''}<br>`;
-            if (item.sizes && item.sizes.length > 0) {
-              itemDiv.innerHTML += '<ul>' + item.sizes.map(s => `<li>${s.name}: \u00a3${s.price.toFixed(2)}</li>`).join('') + '</ul>';
-            } else if (item.price) {
-              itemDiv.innerHTML += `<span>Price: \u00a3${item.price.toFixed(2)}</span>`;
-            }
-            // --- Toppings UI ---
-            if (item.toppings && item.toppings.length > 0) {
-              itemDiv.innerHTML += `<div><b>Toppings:</b> `;
-              item.toppings.forEach(topping => {
-                // Find topping details from window.toppings
-                const mt = (window.toppings || []).find(t => t.name === topping);
-                let cat = mt ? (mt.category || 'Other') : 'Other';
-                let price = mt && mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-                const span = document.createElement('span');
-                span.textContent = `${topping} (${cat} • £${price}) `;
-                // Remove button for each topping
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = 'x';
-                removeBtn.style.marginLeft = '2px';
-                removeBtn.style.fontSize = '0.9em';
-                removeBtn.onclick = async function() {
-                  if (!confirm('Remove this topping from item?')) return;
-                  const newToppings = item.toppings.filter(t => t !== topping);
-                  await updateMenuItemToppings(item._id, newToppings);
-                };
-                span.appendChild(removeBtn);
-                itemDiv.appendChild(span);
-              });
-              itemDiv.innerHTML += '</div>';
-            }
-            // Add master toppings UI
-            if (window.toppings && window.toppings.length > 0) {
-              const addDiv = document.createElement('div');
-              addDiv.innerHTML = '<b>Add topping:</b> ';
-              window.toppings.forEach(mt => {
-                if (!item.toppings || !item.toppings.includes(mt.name)) {
-                  let cat = mt.category || 'Other';
-                  let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-                  const addBtn = document.createElement('button');
-                  addBtn.textContent = `${mt.name} (${cat} • £${price})`;
-                  addBtn.style.marginRight = '4px';
-                  addBtn.onclick = async function() {
-                    const newToppings = (item.toppings || []).concat(mt.name);
-                    await updateMenuItemToppings(item._id, newToppings);
-                  };
-                  addDiv.appendChild(addBtn);
-                }
-              });
-              itemDiv.appendChild(addDiv);
-            }
-            // Add delete button
-            const delBtn = document.createElement('button');
-            delBtn.textContent = 'Delete';
-            delBtn.className = 'delete-menu-item-btn';
-            delBtn.style.marginLeft = '10px';
-            delBtn.onclick = async function() {
-              if (!confirm('Delete this menu item?')) return;
-              try {
-                const res = await fetch(API_BASE_URL + '/api/menu/' + item._id, {
-                  method: 'DELETE',
-                  credentials: 'include'
-                });
-                if (res.ok) {
-                  loadMenuPreview();
-                } else {
-                  alert('Failed to delete menu item');
-                }
-              } catch (err) {
-                alert('Failed to delete menu item: ' + err.message);
-              }
-            };
-            itemDiv.appendChild(delBtn);
-            secDiv.appendChild(itemDiv);
-          });
-          preview.appendChild(secDiv);
-        });
-
-        // Helper to update toppings for a menu item
-        async function updateMenuItemToppings(itemId, newToppings) {
-          try {
-            // Find the menu item card and get the current showsToppings value
-            let showsToppings = true;
-            // Try to get from DOM if available
-            const itemCard = document.querySelector(`[data-id='${itemId}']`);
-            if (itemCard) {
-              const checkbox = itemCard.querySelector('.shows-toppings-checkbox');
-              if (checkbox) showsToppings = checkbox.checked;
-            } else {
-              // Fallback: try to get from preview or default to true
-              showsToppings = true;
-            }
-            const res = await fetch(API_BASE_URL + '/api/menu/' + itemId, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ toppings: newToppings, showsToppings })
-            });
-            if (res.ok) {
-              loadMenuPreview();
-            } else {
-              alert('Failed to update toppings');
-            }
-          } catch (err) {
-            alert('Failed to update toppings: ' + err.message);
-          }
-        }
-      }
-
-      loadMenuPreview();
-    </script>
-    <!-- Dynamic Menu Sections -->
-    <section class="admin-section">
-      <h2>Menu Sections</h2>
-      <button id="addSectionBtn" type="button">Add Section</button>
-      <div id="sectionsContainer"></div>
-    </section>
-
-    <script>
-    // --- Dynamic Menu Sections Logic ---
-    document.addEventListener('DOMContentLoaded', function() {
-      const sectionsContainer = document.getElementById('sectionsContainer');
-      const addSectionBtn = document.getElementById('addSectionBtn');
-      let sectionCount = 0;
-
-      addSectionBtn.addEventListener('click', function() {
-        sectionCount++;
-        const sectionId = `menu-section-${sectionCount}`;
-        const sectionDiv = document.createElement('div');
-        sectionDiv.className = 'menu-section';
-        sectionDiv.innerHTML = `
-          <h3 contenteditable="true">New Section</h3>
-          <button type="button" class="remove-section-btn">Remove Section</button>
-          <ul class="section-items"></ul>
-          <input type="text" class="new-item-input" placeholder="Menu item name">
-          <button type="button" class="add-item-btn">Add Item</button>
-        `;
-        // Add item logic
-        const itemsList = sectionDiv.querySelector('.section-items');
-        const addItemBtn = sectionDiv.querySelector('.add-item-btn');
-        const newItemInput = sectionDiv.querySelector('.new-item-input');
-        addItemBtn.addEventListener('click', function() {
-          const val = newItemInput.value.trim();
-          if (val) {
-            const li = document.createElement('li');
-            li.textContent = val;
-            const removeBtn = document.createElement('button');
-            removeBtn.textContent = 'Remove';
-            removeBtn.type = 'button';
-            removeBtn.onclick = () => li.remove();
-            li.appendChild(removeBtn);
-            itemsList.appendChild(li);
-            newItemInput.value = '';
-          }
-        });
-        // Remove section logic
-        sectionDiv.querySelector('.remove-section-btn').onclick = () => sectionDiv.remove();
-        sectionsContainer.appendChild(sectionDiv);
-      });
-    });
-    </script>
-  </main>
-  <script src="/admin-menu.js"></script>
+	<div class="container">
+		<div id="section-subheading" class="section-subheading">
+			Welcome to the menu admin! Select a section above to manage pizzas, salads, sides, drinks, desserts, or chicken. Each section has its own options and tips.
+		</div>
+		<div class="admin-header-bar">
+			<a href="admin-dashboard.html" class="admin-menu-link">Order Management</a>
+			<a href="admin-menu.html" class="admin-menu-link">Menu Management</a>
+			<a href="admin-sales.html" class="admin-menu-link">Sales Dashboard</a>
+			<a href="admin-monthly-sales.html" class="admin-menu-link">Monthly Breakdown</a>
+			<a href="admin-running-orders.html" class="admin-menu-link">Running Orders</a>
+		</div>
+		<h1>Menu Management</h1>
+		<div class="menu-category-bar">
+			<button class="menu-category-btn active" data-category="PIZZAS">PIZZAS</button>
+			<button class="menu-category-btn" data-category="SALADS">SALADS</button>
+			<button class="menu-category-btn" data-category="SIDES">SIDES</button>
+			<button class="menu-category-btn" data-category="CHICKEN">CHICKEN</button>
+			<button class="menu-category-btn" data-category="DRINKS">DRINKS</button>
+			<button class="menu-category-btn" data-category="DESSERTS">DESSERTS</button>
+		</div>
+		<div id="section-subheading-edit-box" class="section-subheading-edit-box">
+			<label for="section-subheading-input" class="bold-label">Section Subheading (optional):</label>
+			<textarea id="section-subheading-input" rows="2" class="section-subheading-input"></textarea>
+			<button id="save-subheading-btn" class="save-subheading-btn">Save Subheading</button>
+			<span id="subheading-saved-msg" class="subheading-saved-msg">Saved!</span>
+		</div>
+	</div>
+	<div class="menu-items-section">
+		<form id="add-item-form" class="add-item-form">
+			<input type="text" id="new-item-name" placeholder="Item name" required>
+			<div id="pizza-sizes-section">
+				<label class="bold-label">Add size and price options for this pizza:</label>
+				<div id="pizza-sizes-list"></div>
+				<div class="pizza-sizes-flex">
+					<input type="text" id="new-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
+					<input type="number" id="new-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+					<button type="button" id="add-size-price-btn">Add Size/Price</button>
+				</div>
+				<small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save the pizza.</small>
+				<div id="pizza-toppings-section" class="section-margin">
+					<label class="bold-label">Toppings (type and press Add):</label>
+					<div class="pizza-toppings-flex">
+						<input type="text" id="new-topping-name" placeholder="Topping name" autocomplete="off">
+						<button type="button" id="add-topping-btn">Add Topping</button>
+					</div>
+					<div id="pizza-toppings-list"></div>
+					<small class="soft-text">All toppings will show on the live site and can be removed by customers.</small>
+				</div>
+			</div>
+			<div id="salad-ingredients-section" class="section-margin hidden">
+				<label class="bold-label">Ingredients (type and press Add):</label>
+				<div class="pizza-toppings-flex">
+					<input type="text" id="new-ingredient-name" placeholder="Ingredient name" autocomplete="off">
+					<button type="button" id="add-ingredient-btn">Add Ingredient</button>
+				</div>
+				<div id="salad-ingredients-list"></div>
+				<small class="soft-text">All ingredients will show on the live site and can be removed by customers.</small>
+			</div>
+			<div id="side-types-section" class="section-margin hidden">
+				<label class="bold-label">Types (add type and price):</label>
+				<div class="pizza-toppings-flex">
+					<input type="text" id="new-side-type-name" placeholder="Type name" autocomplete="off">
+					<input type="number" id="new-side-type-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+					<button type="button" id="add-side-type-btn">Add Type</button>
+				</div>
+				<div id="side-types-list"></div>
+				<small class="soft-text">Add as many types as you need, each with its own price.</small>
+			</div>
+			<div id="chicken-sizes-section" class="section-margin hidden">
+				<label class="bold-label">Add size and price options for this chicken item:</label>
+				<div id="chicken-sizes-list"></div>
+				<div class="pizza-sizes-flex">
+					<input type="text" id="new-chicken-size-name" placeholder="Size (e.g. 6 pieces)" autocomplete="off">
+					<input type="number" id="new-chicken-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+					<button type="button" id="add-chicken-size-price-btn">Add Size/Price</button>
+				</div>
+				<small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save.</small>
+			</div>
+			<input type="number" id="new-item-price" placeholder="Price (£)" step="0.01" min="0" class="hide-price">
+			<button type="submit">Add New Item</button>
+		</form>
+		<ul id="menu-items-list" class="menu-items-list"></ul>
+	</div>
+	<div id="create-your-own-section">
+		<h2 class="section-margin-large">Create Your Own Pizza Section</h2>
+		<form id="create-your-own-form" class="add-item-form">
+			<input type="text" id="custom-pizza-name" value="Create Your Own Pizza" readonly class="bold-label" placeholder="Custom pizza section name">
+			<div id="custom-pizza-sizes-section">
+				<label class="bold-label">Add size and price options for this pizza:</label>
+				<div id="custom-pizza-sizes-list"></div>
+				<div class="pizza-sizes-flex">
+					<input type="text" id="custom-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
+					<input type="number" id="custom-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+					<button type="button" id="add-custom-size-price-btn">Add Size/Price</button>
+				</div>
+				<small class="soft-text">Add as many size/price options as you need, then click 'Add Custom Pizza' to save.</small>
+				<div id="custom-pizza-toppings-section" class="section-margin">
+					<label class="bold-label">Toppings (type, set price, and press Add):</label>
+					<div class="pizza-toppings-flex">
+						<input type="text" id="custom-topping-name" placeholder="Topping name" autocomplete="off">
+						<input type="number" id="custom-topping-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+						<button type="button" id="add-custom-topping-btn">Add Topping</button>
+					</div>
+					<div id="custom-pizza-toppings-list"></div>
+					<small class="soft-text">All toppings will show on the live site and can be removed by customers. Set price to 0 for free toppings.</small>
+				</div>
+			</div>
+			<button type="submit">Add Custom Pizza</button>
+		</form>
+	</div>
+	<script src="admin-menu.js"></script>
+	<script>
+const subheadingEditBox = document.getElementById('section-subheading-edit-box');
+const subheadingInput = document.getElementById('section-subheading-input');
+const saveSubheadingBtn = document.getElementById('save-subheading-btn');
+const savedMsg = document.getElementById('subheading-saved-msg');
+let sectionSubheadings = {};
+let currentCat = 'PIZZAS';
+async function fetchSubheadings() {
+	try {
+		const res = await fetch('/menu-section-subheadings');
+		sectionSubheadings = await res.json();
+	} catch (e) {
+		sectionSubheadings = {};
+	}
+}
+async function saveSubheading(cat, text) {
+	await fetch(`/menu-section-subheadings/${encodeURIComponent(cat)}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ text })
+	});
+}
+async function showSubheadingEditBox(cat) {
+	currentCat = cat;
+	subheadingEditBox.style.display = 'block';
+	await fetchSubheadings();
+	subheadingInput.value = sectionSubheadings[cat] || '';
+	savedMsg.style.display = 'none';
+}
+document.querySelectorAll('.menu-category-btn').forEach(btn => {
+	btn.addEventListener('click', function() {
+		const cat = btn.getAttribute('data-category');
+		showSubheadingEditBox(cat);
+	});
+});
+saveSubheadingBtn.onclick = async function() {
+	const text = subheadingInput.value.trim();
+	await saveSubheading(currentCat, text);
+	await fetchSubheadings();
+	savedMsg.style.display = 'inline';
+	setTimeout(()=>{savedMsg.style.display='none';}, 1200);
+};
+// Show for initial category
+showSubheadingEditBox('PIZZAS');
+</script>
+<script>
+// Subheading text for each section
+const sectionDescriptions = {
+	PIZZAS: 'PIZZAS: Add, edit, and organize all pizza menu items. Each pizza can have multiple sizes and toppings.',
+	SALADS: 'SALADS: Manage salad items and their ingredients. List all components for each salad.',
+	SIDES: 'SIDES: Add sides like fries, doughballs, garlic bread, etc. Each side can have multiple types and prices.',
+	DRINKS: 'DRINKS: Add and edit all drink options available to customers.',
+	DESSERTS: 'DESSERTS: Manage dessert items and their prices.',
+	CHICKEN: 'CHICKEN: Add chicken menu items with size and price options.'
+};
+const subheadingBox = document.getElementById('section-subheading');
+document.querySelectorAll('.menu-category-btn').forEach(btn => {
+	btn.addEventListener('click', function() {
+		const cat = btn.getAttribute('data-category');
+		if (sectionDescriptions[cat]) {
+			subheadingBox.textContent = sectionDescriptions[cat];
+		} else {
+			subheadingBox.textContent = 'Select a section to manage menu items.';
+		}
+	});
+});
+</script>
+<script src="debug-menu.js"></script>
+</body>
+</html>

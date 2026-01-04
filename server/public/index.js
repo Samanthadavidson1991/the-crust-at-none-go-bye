@@ -221,9 +221,6 @@ mongoose.connect(atlasUri)
       });
     });
 
-    // All route definitions are now inside mongoose.connect .then()
-
-    // Start server after all middleware and routes are set up
     app.listen(PORT, '0.0.0.0', err => {
       if (err) {
         process.exit(1);
@@ -231,14 +228,8 @@ mongoose.connect(atlasUri)
         console.log(`Server running on port ${PORT}`);
       }
     });
-  }) // <-- Add this closing brace to end .then()
+  })
   .catch(err => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
-// (Removed duplicate admin login/logout routes)
-
-
-
-// --- DELIVERY DISTANCE CONFIG SCHEMA ---
-
