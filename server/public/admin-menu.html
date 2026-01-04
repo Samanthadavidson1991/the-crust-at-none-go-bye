@@ -42,90 +42,88 @@
 				<span id="subheading-saved-msg" class="subheading-saved-msg">Saved!</span>
 			</div>
 			<form id="add-item-form" class="add-item-form" style="margin-bottom:24px;">
-			<input type="text" id="new-item-name" placeholder="Item name" required>
-			<div id="pizza-sizes-section">
-				<label class="bold-label">Add size and price options for this pizza:</label>
-				<div id="pizza-sizes-list"></div>
-				<div class="pizza-sizes-flex">
-					<input type="text" id="new-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
-					<input type="number" id="new-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-					<button type="button" id="add-size-price-btn">Add Size/Price</button>
-				</div>
-				<small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save the pizza.</small>
-				<div id="pizza-toppings-section" class="section-margin">
-					<label class="bold-label">Toppings (type and press Add):</label>
-					<div class="pizza-toppings-flex">
-						<input type="text" id="new-topping-name" placeholder="Topping name" autocomplete="off">
-						<button type="button" id="add-topping-btn">Add Topping</button>
-					</div>
-					<div id="pizza-toppings-list"></div>
-					<small class="soft-text">All toppings will show on the live site and can be removed by customers.</small>
-				</div>
-			</div>
-			<div id="salad-ingredients-section" class="section-margin hidden">
-				<label class="bold-label">Ingredients (type and press Add):</label>
-				<div class="pizza-toppings-flex">
-					<input type="text" id="new-ingredient-name" placeholder="Ingredient name" autocomplete="off">
-					<button type="button" id="add-ingredient-btn">Add Ingredient</button>
-				</div>
-				<div id="salad-ingredients-list"></div>
-				<small class="soft-text">All ingredients will show on the live site and can be removed by customers.</small>
-			</div>
-			<div id="side-types-section" class="section-margin hidden">
-				<label class="bold-label">Types (add type and price):</label>
-				<div class="pizza-toppings-flex">
-					<input type="text" id="new-side-type-name" placeholder="Type name" autocomplete="off">
-					<input type="number" id="new-side-type-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-					<button type="button" id="add-side-type-btn">Add Type</button>
-				</div>
-				<div id="side-types-list"></div>
-				<small class="soft-text">Add as many types as you need, each with its own price.</small>
-			</div>
-			<div id="chicken-sizes-section" class="section-margin hidden">
-				<label class="bold-label">Add size and price options for this chicken item:</label>
-				<div id="chicken-sizes-list"></div>
-				<div class="pizza-sizes-flex">
-					<input type="text" id="new-chicken-size-name" placeholder="Size (e.g. 6 pieces)" autocomplete="off">
-					<input type="number" id="new-chicken-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-					<button type="button" id="add-chicken-size-price-btn">Add Size/Price</button>
-				</div>
-				<small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save.</small>
-			</div>
-			<input type="number" id="new-item-price" placeholder="Price (£)" step="0.01" min="0" class="hide-price">
-			<button type="submit">Add New Item</button>
-		</form>
-		<ul id="menu-items-list" class="menu-items-list">
-			<!-- Menu items will be rendered as cards by JS -->
-		</ul>
-		</form>
-		<div id="create-your-own-section" style="margin-top:32px;">
-			<h2 class="section-margin-large">Create Your Own Pizza Section</h2>
-			<form id="create-your-own-form" class="add-item-form">
-				<input type="text" id="custom-pizza-name" value="Create Your Own Pizza" readonly class="bold-label" placeholder="Custom pizza section name">
-				<div id="custom-pizza-sizes-section">
+				<input type="text" id="new-item-name" placeholder="Item name" required>
+				<div id="pizza-sizes-section">
 					<label class="bold-label">Add size and price options for this pizza:</label>
-					<div id="custom-pizza-sizes-list"></div>
+					<div id="pizza-sizes-list"></div>
 					<div class="pizza-sizes-flex">
-						<input type="text" id="custom-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
-						<input type="number" id="custom-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-						<button type="button" id="add-custom-size-price-btn">Add Size/Price</button>
+						<input type="text" id="new-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
+						<input type="number" id="new-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+						<button type="button" id="add-size-price-btn">Add Size/Price</button>
 					</div>
-					<small class="soft-text">Add as many size/price options as you need, then click 'Add Custom Pizza' to save.</small>
-					<div id="custom-pizza-toppings-section" class="section-margin">
-						<label class="bold-label">Toppings (type, set price, and press Add):</label>
+					<small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save the pizza.</small>
+					<div id="pizza-toppings-section" class="section-margin">
+						<label class="bold-label">Toppings (type and press Add):</label>
 						<div class="pizza-toppings-flex">
-							<input type="text" id="custom-topping-name" placeholder="Topping name" autocomplete="off">
-							<input type="number" id="custom-topping-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-							<button type="button" id="add-custom-topping-btn">Add Topping</button>
+							<input type="text" id="new-topping-name" placeholder="Topping name" autocomplete="off">
+							<button type="button" id="add-topping-btn">Add Topping</button>
 						</div>
-						<div id="custom-pizza-toppings-list"></div>
-						<small class="soft-text">All toppings will show on the live site and can be removed by customers. Set price to 0 for free toppings.</small>
+						<div id="pizza-toppings-list"></div>
+						<small class="soft-text">All toppings will show on the live site and can be removed by customers.</small>
 					</div>
 				</div>
-				<button type="submit">Add Custom Pizza</button>
+				<div id="salad-ingredients-section" class="section-margin hidden">
+					<label class="bold-label">Ingredients (type and press Add):</label>
+					<div class="pizza-toppings-flex">
+						<input type="text" id="new-ingredient-name" placeholder="Ingredient name" autocomplete="off">
+						<button type="button" id="add-ingredient-btn">Add Ingredient</button>
+					</div>
+					<div id="salad-ingredients-list"></div>
+					<small class="soft-text">All ingredients will show on the live site and can be removed by customers.</small>
+				</div>
+				<div id="side-types-section" class="section-margin hidden">
+					<label class="bold-label">Types (add type and price):</label>
+					<div class="pizza-toppings-flex">
+						<input type="text" id="new-side-type-name" placeholder="Type name" autocomplete="off">
+						<input type="number" id="new-side-type-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+						<button type="button" id="add-side-type-btn">Add Type</button>
+					</div>
+					<div id="side-types-list"></div>
+					<small class="soft-text">Add as many types as you need, each with its own price.</small>
+				</div>
+				<div id="chicken-sizes-section" class="section-margin hidden">
+					<label class="bold-label">Add size and price options for this chicken item:</label>
+					<div id="chicken-sizes-list"></div>
+					<div class="pizza-sizes-flex">
+						<input type="text" id="new-chicken-size-name" placeholder="Size (e.g. 6 pieces)" autocomplete="off">
+						<input type="number" id="new-chicken-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+						<button type="button" id="add-chicken-size-price-btn">Add Size/Price</button>
+					</div>
+					<small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save.</small>
+				</div>
+				<input type="number" id="new-item-price" placeholder="Price (£)" step="0.01" min="0" class="hide-price">
+				<button type="submit">Add New Item</button>
 			</form>
-		</div>
-		<ul id="menu-items-list" class="menu-items-list"></ul>
+			<ul id="menu-items-list" class="menu-items-list">
+				<!-- Menu items will be rendered as cards by JS -->
+			</ul>
+			<div id="create-your-own-section" style="margin-top:32px;">
+				<h2 class="section-margin-large">Create Your Own Pizza Section</h2>
+				<form id="create-your-own-form" class="add-item-form">
+					<input type="text" id="custom-pizza-name" value="Create Your Own Pizza" readonly class="bold-label" placeholder="Custom pizza section name">
+					<div id="custom-pizza-sizes-section">
+						<label class="bold-label">Add size and price options for this pizza:</label>
+						<div id="custom-pizza-sizes-list"></div>
+						<div class="pizza-sizes-flex">
+							<input type="text" id="custom-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
+							<input type="number" id="custom-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+							<button type="button" id="add-custom-size-price-btn">Add Size/Price</button>
+						</div>
+						<small class="soft-text">Add as many size/price options as you need, then click 'Add Custom Pizza' to save.</small>
+						<div id="custom-pizza-toppings-section" class="section-margin">
+							<label class="bold-label">Toppings (type, set price, and press Add):</label>
+							<div class="pizza-toppings-flex">
+								<input type="text" id="custom-topping-name" placeholder="Topping name" autocomplete="off">
+								<input type="number" id="custom-topping-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+								<button type="button" id="add-custom-topping-btn">Add Topping</button>
+							</div>
+							<div id="custom-pizza-toppings-list"></div>
+							<small class="soft-text">All toppings will show on the live site and can be removed by customers. Set price to 0 for free toppings.</small>
+						</div>
+					</div>
+					<button type="submit">Add Custom Pizza</button>
+				</form>
+			</div>
 		</section>
 	</main>
 	<script src="admin-menu.js"></script>
@@ -158,9 +156,13 @@ async function saveSubheading(cat, text) {
 	});
 }
 const pizzaSection = document.getElementById('pizza-sizes-section');
+const createYourOwnSection = document.getElementById('create-your-own-section');
 function updatePizzaSectionVisibility(cat) {
 	if (pizzaSection) {
 		pizzaSection.style.display = (cat === 'PIZZAS') ? '' : 'none';
+	}
+	if (createYourOwnSection) {
+		createYourOwnSection.style.display = (cat === 'PIZZAS') ? '' : 'none';
 	}
 }
 async function showSubheadingEditBox(cat) {
