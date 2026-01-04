@@ -11,7 +11,7 @@
 }
 /* Solid background for admin pages */
 .admin-page {
-  background: #e9ece5;
+    background: #f3f7ef;
   min-height: 100vh;
 }
 /* Highlight selected payment button */
@@ -171,7 +171,7 @@
 
 /* Restore menu item card box styling */
 .menu-item-card {
-    /* background removed to allow section-based pastel backgrounds to show */
+    background: #fff;
     border-radius: 16px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     overflow: hidden;
@@ -557,12 +557,32 @@ p {
   margin-top: 8px;
 }
 .admin-section {
-  max-width: 700px;
-  margin: 40px auto;
-  background: #f3f7ef;
-  border-radius: 16px;
-  padding: 32px 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    max-width: 700px;
+    margin: 40px auto;
+    background: #f3f7ef;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+/* Menu category bar and buttons for admin-menu.html */
+.menu-category-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    justify-content: center;
+}
+.menu-category-btn {
+    background: #fff;
+    border: 1px solid #b2c2a2;
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.15s, border 0.15s;
+}
+.menu-category-btn.active, .menu-category-btn:focus {
+    background: #e0f2c7;
+    border-color: #7fa650;
+}
 }
 .menu-section-controls {
   margin-bottom: 24px;

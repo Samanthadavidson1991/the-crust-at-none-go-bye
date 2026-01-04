@@ -23,11 +23,11 @@
 		</nav>
 	</header>
 	<main id="main-content">
-		<section class="admin-section">
-			<div id="section-subheading" class="section-subheading">
+		<section class="admin-section" style="background:#f3f7ef; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.07); max-width:700px; margin:32px auto; padding:1.5rem 1rem;">
+			<div id="section-subheading" class="section-subheading" style="margin-bottom:18px;">
 				Welcome to the menu admin! Select a section above to manage pizzas, salads, sides, drinks, desserts, or chicken. Each section has its own options and tips.
 			</div>
-			<div class="menu-category-bar">
+			<div class="menu-category-bar" style="margin-bottom:18px;">
 				<button class="menu-category-btn active" data-category="PIZZAS">PIZZAS</button>
 				<button class="menu-category-btn" data-category="SALADS">SALADS</button>
 				<button class="menu-category-btn" data-category="SIDES">SIDES</button>
@@ -35,13 +35,13 @@
 				<button class="menu-category-btn" data-category="DRINKS">DRINKS</button>
 				<button class="menu-category-btn" data-category="DESSERTS">DESSERTS</button>
 			</div>
-			<div id="section-subheading-edit-box" class="section-subheading-edit-box">
+			<div id="section-subheading-edit-box" class="section-subheading-edit-box" style="margin-bottom:18px;">
 				<label for="section-subheading-input" class="bold-label">Section Subheading (optional):</label>
 				<textarea id="section-subheading-input" rows="2" class="section-subheading-input"></textarea>
 				<button id="save-subheading-btn" class="save-subheading-btn">Save Subheading</button>
 				<span id="subheading-saved-msg" class="subheading-saved-msg">Saved!</span>
 			</div>
-			<form id="add-item-form" class="add-item-form">
+			<form id="add-item-form" class="add-item-form" style="margin-bottom:24px;">
 			<input type="text" id="new-item-name" placeholder="Item name" required>
 			<div id="pizza-sizes-section">
 				<label class="bold-label">Add size and price options for this pizza:</label>
@@ -94,9 +94,11 @@
 			<input type="number" id="new-item-price" placeholder="Price (£)" step="0.01" min="0" class="hide-price">
 			<button type="submit">Add New Item</button>
 		</form>
-		<ul id="menu-items-list" class="menu-items-list"></ul>
+		<ul id="menu-items-list" class="menu-items-list">
+			<!-- Menu items will be rendered as cards by JS -->
+		</ul>
 		</form>
-		<div id="create-your-own-section">
+		<div id="create-your-own-section" style="margin-top:32px;">
 			<h2 class="section-margin-large">Create Your Own Pizza Section</h2>
 			<form id="create-your-own-form" class="add-item-form">
 				<input type="text" id="custom-pizza-name" value="Create Your Own Pizza" readonly class="bold-label" placeholder="Custom pizza section name">
