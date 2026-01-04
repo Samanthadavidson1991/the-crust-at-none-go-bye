@@ -80,17 +80,115 @@ function renderMenuItems() {
   });
 }
 
+// --- Helper: Gather all fields from the add item form ---
+function getMenuItemFromForm() {
+  const name = document.getElementById('new-item-name').value.trim();
+  const section = document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') || '';
+  // Gather sizes
+  let sizes = [];
+  const sizeList = document.getElementById('pizza-sizes-list');
+  if (sizeList && sizeList.children.length) {
+    sizes = Array.from(sizeList.children).map(row => {
+      return {
+        name: row.querySelector('.size-name')?.textContent || '',
+        price: parseFloat(row.querySelector('.size-price')?.textContent || '0')
+      };
+    });
+  }
+  // Gather toppings (for pizza)
+  let toppings = [];
+  const toppingList = document.getElementById('pizza-toppings-list');
+  if (toppingList && toppingList.children.length) {
+    toppings = Array.from(toppingList.children).map(row => row.textContent.trim());
+  }
+  // Gather price (for simple items)
+  const priceInput = document.getElementById('new-item-price');
+  let price = priceInput ? parseFloat(priceInput.value) : undefined;
+  if (isNaN(price)) price = undefined;
+  // Gather chicken sizes
+  let chickenSizes = [];
+  const chickenList = document.getElementById('chicken-sizes-list');
+  if (chickenList && chickenList.children.length) {
+    chickenSizes = Array.from(chickenList.children).map(row => {
+      return {
+        name: row.querySelector('.chicken-size-name')?.textContent || '',
+        price: parseFloat(row.querySelector('.chicken-size-price')?.textContent || '0')
+      };
+    });
+  }
+  // Gather side types
+  let sideTypes = [];
+  const sideList = document.getElementById('side-types-list');
+  if (sideList && sideList.children.length) {
+    sideTypes = Array.from(sideList.children).map(row => {
+      return {
+        name: row.querySelector('.side-type-name')?.textContent || '',
+        price: parseFloat(row.querySelector('.side-type-price')?.textContent || '0')
+      };
+    });
+  }
+  // Gather salad ingredients
+  let ingredients = [];
+  const saladList = document.getElementById('salad-ingredients-list');
+  if (saladList && saladList.children.length) {
+    ingredients = Array.from(saladList.children).map(row => row.textContent.trim());
+  }
+  // Compose item object
+  const item = { name, section };
+  if (sizes.length) item.sizes = sizes;
+  if (toppings.length) item.toppings = toppings;
+  if (typeof price === 'number') item.price = price;
+  if (chickenSizes.length) item.sizes = chickenSizes;
+  if (sideTypes.length) item.sizes = sideTypes;
+  if (ingredients.length) item.ingredients = ingredients;
+  return item;
+}
+
+// --- Preview Menu Modal ---
+function showMenuPreview() {
+  const preview = document.createElement('div');
+  preview.className = 'menu-preview-modal';
+  preview.innerHTML = `
+    <div class='menu-preview-content'>
+      <h2>Menu Preview</h2>
+      <button class='close-preview-btn' style='float:right;'>Close</button>
+      <div id='menu-preview-list'></div>
+    </div>
+  `;
+  document.body.appendChild(preview);
+  const closeBtn = preview.querySelector('.close-preview-btn');
+  closeBtn.onclick = () => preview.remove();
+  // Render menu items
+  const list = preview.querySelector('#menu-preview-list');
+  list.innerHTML = menuItems.map(item => `
+    <div class='menu-item-card' style='margin-bottom:16px;'>
+      <b>${item.name}</b> <span style='color:#888;'>(${item.section})</span><br>
+      ${item.sizes ? 'Sizes: ' + item.sizes.map(s => `${s.name} (£${parseFloat(s.price).toFixed(2)})`).join(', ') + '<br>' : ''}
+      ${item.toppings ? 'Toppings: ' + item.toppings.join(', ') + '<br>' : ''}
+      ${item.ingredients ? 'Ingredients: ' + item.ingredients.join(', ') + '<br>' : ''}
+      ${typeof item.price === 'number' ? 'Price: £' + item.price.toFixed(2) : ''}
+    </div>
+  `).join('');
+}
+
+// Add preview button to admin UI
+if (!document.getElementById('menu-preview-btn')) {
+  const btn = document.createElement('button');
+  btn.id = 'menu-preview-btn';
+  btn.textContent = 'Preview Menu';
+  btn.style = 'margin: 16px 0 24px 0; float:right;';
+  btn.onclick = showMenuPreview;
+  const section = document.querySelector('.admin-section');
+  if (section) section.insertBefore(btn, section.firstChild.nextSibling);
+}
+
 // Add item form handler
 const addItemForm = document.getElementById('add-item-form');
 if (addItemForm) {
   addItemForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-    const name = document.getElementById('new-item-name').value.trim();
-    // For demo: only name and section (extend as needed)
-    const section = document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') || '';
-    if (!name || !section) return alert('Name and section required');
-    // TODO: Gather sizes, toppings, etc.
-    const item = { name, section };
+    const item = getMenuItemFromForm();
+    if (!item.name || !item.section) return alert('Name and section required');
     await addMenuItem(item);
     addItemForm.reset();
   });
