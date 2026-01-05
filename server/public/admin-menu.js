@@ -1,21 +1,3 @@
-  // --- Add Size/Price for Pizza ---
-  const addSizeBtn = document.getElementById('add-size-price-btn');
-  if (addSizeBtn) {
-    addSizeBtn.addEventListener('click', function() {
-      const nameInput = document.getElementById('new-size-name');
-      const priceInput = document.getElementById('new-size-price');
-      const name = nameInput.value.trim();
-      const price = parseFloat(priceInput.value);
-      if (!name || isNaN(price)) return alert('Enter size and price');
-      const list = document.getElementById('pizza-sizes-list');
-      const row = document.createElement('div');
-      row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
-      list.appendChild(row);
-      row.querySelector('.remove-size-btn').onclick = () => row.remove();
-      nameInput.value = '';
-      priceInput.value = '';
-    });
-  }
 // --- Section Switching Logic ---
 const categoryButtons = document.querySelectorAll('.menu-category-btn');
 const sectionsMap = {
@@ -43,6 +25,7 @@ categoryButtons.forEach(btn => {
   });
 });
 document.addEventListener('DOMContentLoaded', async function() {
+  document.addEventListener('DOMContentLoaded', async function() {
   // Show pizzas section by default
   Object.values(sectionsMap).forEach(id => {
     if (!id) return;
@@ -109,67 +92,200 @@ document.addEventListener('DOMContentLoaded', async function() {
       setTimeout(renderLiveItemPreview, 10);
     }
   });
-  // Initial render
-  renderLiveItemPreview();
+  // --- Edit Modal Logic ---
+  const editModalBg = document.getElementById('edit-modal-bg');
+  const editModalClose = document.getElementById('edit-modal-close');
+  const editItemForm = document.getElementById('edit-item-form');
+  const editItemId = document.getElementById('edit-item-id');
+  const editItemSection = document.getElementById('edit-item-section');
+  const editItemName = document.getElementById('edit-item-name');
+  const editPizzaSizesList = document.getElementById('edit-pizza-sizes-list');
+  const editSizeName = document.getElementById('edit-size-name');
+  const editSizePrice = document.getElementById('edit-size-price');
+  const editAddSizeBtn = document.getElementById('edit-add-size-price-btn');
+  const editPizzaToppingsList = document.getElementById('edit-pizza-toppings-list');
+  const editToppingName = document.getElementById('edit-topping-name');
+  const editAddToppingBtn = document.getElementById('edit-add-topping-btn');
+  const editChickenSizesList = document.getElementById('edit-chicken-sizes-list');
+  const editChickenSizeName = document.getElementById('edit-chicken-size-name');
+  const editChickenSizePrice = document.getElementById('edit-chicken-size-price');
+  const editAddChickenSizeBtn = document.getElementById('edit-add-chicken-size-price-btn');
+  const editSaladIngredientsList = document.getElementById('edit-salad-ingredients-list');
+  const editIngredientName = document.getElementById('edit-ingredient-name');
+  const editAddIngredientBtn = document.getElementById('edit-add-ingredient-btn');
+  const editSideTypesList = document.getElementById('edit-side-types-list');
+  const editSideTypeName = document.getElementById('edit-side-type-name');
+  const editSideTypePrice = document.getElementById('edit-side-type-price');
+  const editAddSideTypeBtn = document.getElementById('edit-add-side-type-btn');
+  const editItemPrice = document.getElementById('edit-item-price');
 
-  // --- Add Size/Price for Pizza ---
-  const addSizeBtn = document.getElementById('add-size-price-btn');
-  if (addSizeBtn) {
-    addSizeBtn.addEventListener('click', function() {
-      console.log('Add Size/Price button clicked');
-      const nameInput = document.getElementById('new-size-name');
-      const priceInput = document.getElementById('new-size-price');
-      const name = nameInput.value.trim();
-      const price = parseFloat(priceInput.value);
-      if (!name || isNaN(price)) return alert('Enter size and price');
-      const list = document.getElementById('pizza-sizes-list');
-      const row = document.createElement('div');
-      row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
-      list.appendChild(row);
-      row.querySelector('.remove-size-btn').onclick = () => row.remove();
-      nameInput.value = '';
-      priceInput.value = '';
-    });
+  function showEditSection(section) {
+    // Hide all
+    document.querySelectorAll('.edit-section-block').forEach(el => el.style.display = 'none');
+    if (section === 'PIZZAS') {
+      editPizzaSizesList.parentElement.parentElement.style.display = '';
+      editPizzaToppingsList.parentElement.parentElement.style.display = '';
+    } else if (section === 'CHICKEN') {
+      editChickenSizesList.parentElement.parentElement.style.display = '';
+    } else if (section === 'SALADS') {
+      editSaladIngredientsList.parentElement.parentElement.style.display = '';
+    } else if (section === 'SIDES') {
+      editSideTypesList.parentElement.parentElement.style.display = '';
+    } else if (section === 'DRINKS' || section === 'DESSERTS') {
+      document.getElementById('edit-drinks-desserts-section').style.display = '';
+    }
   }
 
-  // --- Add Size/Price for Create Your Own Pizza ---
-  const addCustomSizeBtn = document.getElementById('add-custom-size-price-btn');
-  if (addCustomSizeBtn) {
-    addCustomSizeBtn.addEventListener('click', function() {
-      const nameInput = document.getElementById('custom-size-name');
-      const priceInput = document.getElementById('custom-size-price');
-      const name = nameInput.value.trim();
-      const price = parseFloat(priceInput.value);
-      if (!name || isNaN(price)) return alert('Enter size and price');
-      const list = document.getElementById('custom-pizza-sizes-list');
-      const row = document.createElement('div');
-      row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
-      list.appendChild(row);
-      row.querySelector('.remove-size-btn').onclick = () => row.remove();
-      nameInput.value = '';
-      priceInput.value = '';
-    });
-  }
-
-  // --- Section Switching Logic ---
-  categoryButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
-      categoryButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      Object.values(sectionsMap).forEach(id => {
-        if (!id) return;
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-      });
-      const activeId = sectionsMap[btn.getAttribute('data-category')];
-      if (activeId) {
-        const activeSection = document.getElementById(activeId);
-        if (activeSection) activeSection.classList.remove('hidden');
+  function openEditModal(item) {
+    editModalBg.style.display = 'flex';
+    editItemId.value = item._id || '';
+    editItemSection.value = item.section || '';
+    editItemName.value = item.name || '';
+    // Clear all lists
+    editPizzaSizesList.innerHTML = '';
+    editPizzaToppingsList.innerHTML = '';
+    editChickenSizesList.innerHTML = '';
+    editSaladIngredientsList.innerHTML = '';
+    editSideTypesList.innerHTML = '';
+    // Populate fields by section
+    showEditSection(item.section);
+    if (item.section === 'PIZZAS') {
+      if (item.sizes && Array.isArray(item.sizes)) {
+        item.sizes.forEach(size => {
+          const row = document.createElement('div');
+          row.innerHTML = `<span class='size-name'>${size.name}</span> - £<span class='size-price'>${parseFloat(size.price).toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
+          row.querySelector('.remove-size-btn').onclick = () => row.remove();
+          editPizzaSizesList.appendChild(row);
+        });
       }
-    });
-  });
+      if (item.toppings && Array.isArray(item.toppings)) {
+        item.toppings.forEach(topping => {
+          const row = document.createElement('div');
+          row.innerHTML = `<span class='topping-name'>${topping}</span> <button type='button' class='remove-topping-btn' style='margin-left:8px;'>Remove</button>`;
+          row.querySelector('.remove-topping-btn').onclick = () => row.remove();
+          editPizzaToppingsList.appendChild(row);
+        });
+      }
+    } else if (item.section === 'CHICKEN') {
+      if (item.sizes && Array.isArray(item.sizes)) {
+        item.sizes.forEach(size => {
+          const row = document.createElement('div');
+          row.innerHTML = `<span class='chicken-size-name'>${size.name}</span> - £<span class='chicken-size-price'>${parseFloat(size.price).toFixed(2)}</span> <button type='button' class='remove-chicken-size-btn' style='margin-left:8px;'>Remove</button>`;
+          row.querySelector('.remove-chicken-size-btn').onclick = () => row.remove();
+          editChickenSizesList.appendChild(row);
+        });
+      }
+    } else if (item.section === 'SALADS') {
+      if (item.ingredients && Array.isArray(item.ingredients)) {
+        item.ingredients.forEach(ing => {
+          const row = document.createElement('div');
+          row.innerHTML = `<span class='ingredient-name'>${ing}</span> <button type='button' class='remove-ingredient-btn' style='margin-left:8px;'>Remove</button>`;
+          row.querySelector('.remove-ingredient-btn').onclick = () => row.remove();
+          editSaladIngredientsList.appendChild(row);
+        });
+      }
+    } else if (item.section === 'SIDES') {
+      if (item.sizes && Array.isArray(item.sizes)) {
+        item.sizes.forEach(type => {
+          const row = document.createElement('div');
+          row.innerHTML = `<span class='side-type-name'>${type.name}</span> - £<span class='side-type-price'>${parseFloat(type.price).toFixed(2)}</span> <button type='button' class='remove-side-type-btn' style='margin-left:8px;'>Remove</button>`;
+          row.querySelector('.remove-side-type-btn').onclick = () => row.remove();
+          editSideTypesList.appendChild(row);
+        });
+      }
+    } else if (item.section === 'DRINKS' || item.section === 'DESSERTS') {
+      editItemPrice.value = item.price || '';
+    }
+  }
 
-  // --- Backend Data Fetching ---
+  editModalClose.onclick = function() {
+    editModalBg.style.display = 'none';
+  };
+
+  // Add handlers for all add buttons in modal
+  editAddSizeBtn.onclick = function() {
+    const name = editSizeName.value.trim();
+    const price = parseFloat(editSizePrice.value);
+    if (!name || isNaN(price)) return alert('Enter size and price');
+    const row = document.createElement('div');
+    row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
+    row.querySelector('.remove-size-btn').onclick = () => row.remove();
+    editPizzaSizesList.appendChild(row);
+    editSizeName.value = '';
+    editSizePrice.value = '';
+  };
+  editAddToppingBtn.onclick = function() {
+    const name = editToppingName.value.trim();
+    if (!name) return alert('Enter topping name');
+    const row = document.createElement('div');
+    row.innerHTML = `<span class='topping-name'>${name}</span> <button type='button' class='remove-topping-btn' style='margin-left:8px;'>Remove</button>`;
+    row.querySelector('.remove-topping-btn').onclick = () => row.remove();
+    editPizzaToppingsList.appendChild(row);
+    editToppingName.value = '';
+  };
+  editAddChickenSizeBtn.onclick = function() {
+    const name = editChickenSizeName.value.trim();
+    const price = parseFloat(editChickenSizePrice.value);
+    if (!name || isNaN(price)) return alert('Enter size and price');
+    const row = document.createElement('div');
+    row.innerHTML = `<span class='chicken-size-name'>${name}</span> - £<span class='chicken-size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-chicken-size-btn' style='margin-left:8px;'>Remove</button>`;
+    row.querySelector('.remove-chicken-size-btn').onclick = () => row.remove();
+    editChickenSizesList.appendChild(row);
+    editChickenSizeName.value = '';
+    editChickenSizePrice.value = '';
+  };
+  editAddIngredientBtn.onclick = function() {
+    const name = editIngredientName.value.trim();
+    if (!name) return alert('Enter ingredient name');
+    const row = document.createElement('div');
+    row.innerHTML = `<span class='ingredient-name'>${name}</span> <button type='button' class='remove-ingredient-btn' style='margin-left:8px;'>Remove</button>`;
+    row.querySelector('.remove-ingredient-btn').onclick = () => row.remove();
+    editSaladIngredientsList.appendChild(row);
+    editIngredientName.value = '';
+  };
+  editAddSideTypeBtn.onclick = function() {
+    const name = editSideTypeName.value.trim();
+    const price = parseFloat(editSideTypePrice.value);
+    if (!name || isNaN(price)) return alert('Enter type and price');
+    const row = document.createElement('div');
+    row.innerHTML = `<span class='side-type-name'>${name}</span> - £<span class='side-type-price'>${price.toFixed(2)}</span> <button type='button' class='remove-side-type-btn' style='margin-left:8px;'>Remove</button>`;
+    row.querySelector('.remove-side-type-btn').onclick = () => row.remove();
+    editSideTypesList.appendChild(row);
+    editSideTypeName.value = '';
+    editSideTypePrice.value = '';
+  };
+
+  editItemForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const id = editItemId.value;
+    const section = editItemSection.value;
+    const name = editItemName.value.trim();
+    const item = { _id: id, name, section };
+    if (section === 'PIZZAS') {
+      item.sizes = Array.from(editPizzaSizesList.children).map(row => ({
+        name: row.querySelector('.size-name')?.textContent || '',
+        price: parseFloat(row.querySelector('.size-price')?.textContent || '0')
+      }));
+      item.toppings = Array.from(editPizzaToppingsList.children).map(row => row.querySelector('.topping-name')?.textContent.trim() || '');
+    } else if (section === 'CHICKEN') {
+      item.sizes = Array.from(editChickenSizesList.children).map(row => ({
+        name: row.querySelector('.chicken-size-name')?.textContent || '',
+        price: parseFloat(row.querySelector('.chicken-size-price')?.textContent || '0')
+      }));
+    } else if (section === 'SALADS') {
+      item.ingredients = Array.from(editSaladIngredientsList.children).map(row => row.querySelector('.ingredient-name')?.textContent.trim() || '');
+    } else if (section === 'SIDES') {
+      item.sizes = Array.from(editSideTypesList.children).map(row => ({
+        name: row.querySelector('.side-type-name')?.textContent || '',
+        price: parseFloat(row.querySelector('.side-type-price')?.textContent || '0')
+      }));
+    } else if (section === 'DRINKS' || section === 'DESSERTS') {
+      const price = parseFloat(editItemPrice.value);
+      if (!isNaN(price)) item.price = price;
+    }
+    await updateMenuItem(item);
+    editModalBg.style.display = 'none';
+  };
   await fetchMasterToppings();
   await fetchSections();
   fetchMenuItems();
@@ -391,8 +507,67 @@ function renderMenuItems() {
     `;
     // Edit button (for now, just alert JSON)
     li.querySelector('.edit-menu-item-btn').onclick = () => {
-      alert('Edit not yet implemented.\n' + JSON.stringify(item, null, 2));
-      // TODO: Populate form for editing, then call updateMenuItem
+      openEditModal(item);
+    };
+    // --- Edit Modal Logic ---
+    const editModalBg = document.getElementById('edit-modal-bg');
+    const editModalClose = document.getElementById('edit-modal-close');
+    const editItemForm = document.getElementById('edit-item-form');
+    const editItemId = document.getElementById('edit-item-id');
+    const editItemName = document.getElementById('edit-item-name');
+    const editPizzaSizesList = document.getElementById('edit-pizza-sizes-list');
+    const editSizeName = document.getElementById('edit-size-name');
+    const editSizePrice = document.getElementById('edit-size-price');
+    const editAddSizeBtn = document.getElementById('edit-add-size-price-btn');
+    const editItemPrice = document.getElementById('edit-item-price');
+
+    function openEditModal(item) {
+      editModalBg.style.display = 'flex';
+      editItemId.value = item._id || '';
+      editItemName.value = item.name || '';
+      // Populate sizes
+      editPizzaSizesList.innerHTML = '';
+      if (item.sizes && Array.isArray(item.sizes)) {
+        item.sizes.forEach(size => {
+          const row = document.createElement('div');
+          row.innerHTML = `<span class='size-name'>${size.name}</span> - £<span class='size-price'>${parseFloat(size.price).toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
+          row.querySelector('.remove-size-btn').onclick = () => row.remove();
+          editPizzaSizesList.appendChild(row);
+        });
+      }
+      // Price (for drinks/desserts)
+      editItemPrice.value = item.price || '';
+    }
+
+    editModalClose.onclick = function() {
+      editModalBg.style.display = 'none';
+    };
+
+    editAddSizeBtn.onclick = function() {
+      const name = editSizeName.value.trim();
+      const price = parseFloat(editSizePrice.value);
+      if (!name || isNaN(price)) return alert('Enter size and price');
+      const row = document.createElement('div');
+      row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
+      row.querySelector('.remove-size-btn').onclick = () => row.remove();
+      editPizzaSizesList.appendChild(row);
+      editSizeName.value = '';
+      editSizePrice.value = '';
+    };
+
+    editItemForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const id = editItemId.value;
+      const name = editItemName.value.trim();
+      const sizes = Array.from(editPizzaSizesList.children).map(row => ({
+        name: row.querySelector('.size-name')?.textContent || '',
+        price: parseFloat(row.querySelector('.size-price')?.textContent || '0')
+      }));
+      const price = parseFloat(editItemPrice.value);
+      const item = { _id: id, name, sizes };
+      if (!isNaN(price)) item.price = price;
+      await updateMenuItem(item);
+      editModalBg.style.display = 'none';
     };
     // Delete button
     li.querySelector('.delete-menu-item-btn').onclick = async () => {
@@ -727,25 +902,6 @@ if (sectionToppingDropdown) {
   sectionToppingDropdown.addEventListener('change', renderSectionToppingAssignment);
 }
 
-// --- Add Size/Price for Pizza ---
-const addSizeBtn = document.getElementById('add-size-price-btn');
-if (addSizeBtn) {
-  addSizeBtn.addEventListener('click', function() {
-    const nameInput = document.getElementById('new-size-name');
-    const priceInput = document.getElementById('new-size-price');
-    const name = nameInput.value.trim();
-    const price = parseFloat(priceInput.value);
-    if (!name || isNaN(price)) return alert('Enter size and price');
-    const list = document.getElementById('pizza-sizes-list');
-    const row = document.createElement('div');
-    row.innerHTML = `<span class='size-name'>${name}</span> - £<span class='size-price'>${price.toFixed(2)}</span> <button type='button' class='remove-size-btn' style='margin-left:8px;'>Remove</button>`;
-    list.appendChild(row);
-    // Remove handler
-    row.querySelector('.remove-size-btn').onclick = () => row.remove();
-    nameInput.value = '';
-    priceInput.value = '';
-  });
-}
 
 // --- Init ---
 document.addEventListener('DOMContentLoaded', async () => {

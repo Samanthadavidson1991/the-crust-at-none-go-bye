@@ -23,6 +23,71 @@
 		</nav>
 	</header>
 	<main id="main-content">
+				<!-- Edit Menu Item Modal -->
+				<div id="edit-modal-bg" class="modal-bg">
+					<div class="modal-content modal-large">
+						<button class="modal-close-btn" id="edit-modal-close">&times;</button>
+						<h2>Edit Menu Item</h2>
+						<form id="edit-item-form" class="add-item-form">
+							<input type="hidden" id="edit-item-id">
+							<input type="hidden" id="edit-item-section">
+							<input type="text" id="edit-item-name" placeholder="Item name" required>
+							<!-- Pizza sizes -->
+							<div id="edit-pizza-sizes-section" class="edit-section-block">
+								<label class="bold-label">Add size and price options for this pizza:</label>
+								<div class="option-preview-list"><div class="option-preview-heading">Current Sizes:</div><div id="edit-pizza-sizes-list"></div></div>
+								<div class="pizza-sizes-flex">
+									<input type="text" id="edit-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
+									<input type="number" id="edit-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+									<button type="button" id="edit-add-size-price-btn">Add Size/Price</button>
+								</div>
+							</div>
+							<!-- Pizza toppings -->
+							<div id="edit-pizza-toppings-section" class="edit-section-block">
+								<label class="bold-label">Toppings (type and press Add):</label>
+								<div class="pizza-toppings-flex">
+									<input type="text" id="edit-topping-name" placeholder="Topping name" autocomplete="off">
+									<button type="button" id="edit-add-topping-btn">Add Topping</button>
+								</div>
+								<div class="option-preview-list"><div class="option-preview-heading">Current Toppings:</div><div id="edit-pizza-toppings-list"></div></div>
+							</div>
+							<!-- Chicken sizes -->
+							<div id="edit-chicken-sizes-section" class="edit-section-block">
+								<label class="bold-label">Add size and price options for this chicken item:</label>
+								<div class="option-preview-list"><div class="option-preview-heading">Current Sizes:</div><div id="edit-chicken-sizes-list"></div></div>
+								<div class="pizza-sizes-flex">
+									<input type="text" id="edit-chicken-size-name" placeholder="Size (e.g. 6 pieces)" autocomplete="off">
+									<input type="number" id="edit-chicken-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+									<button type="button" id="edit-add-chicken-size-price-btn">Add Size/Price</button>
+								</div>
+							</div>
+							<!-- Salad ingredients -->
+							<div id="edit-salad-ingredients-section" class="edit-section-block">
+								<label class="bold-label">Ingredients (type and press Add):</label>
+								<div class="pizza-toppings-flex">
+									<input type="text" id="edit-ingredient-name" placeholder="Ingredient name" autocomplete="off">
+									<button type="button" id="edit-add-ingredient-btn">Add Ingredient</button>
+								</div>
+								<div class="option-preview-list"><div class="option-preview-heading">Current Ingredients:</div><div id="edit-salad-ingredients-list"></div></div>
+							</div>
+							<!-- Side types -->
+							<div id="edit-side-types-section" class="edit-section-block">
+								<label class="bold-label">Types (add type and price):</label>
+								<div class="pizza-toppings-flex">
+									<input type="text" id="edit-side-type-name" placeholder="Type name" autocomplete="off">
+									<input type="number" id="edit-side-type-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+									<button type="button" id="edit-add-side-type-btn">Add Type</button>
+								</div>
+								<div class="option-preview-list"><div class="option-preview-heading">Current Types:</div><div id="edit-side-types-list"></div></div>
+							</div>
+							<!-- Drinks/Desserts price -->
+							<div id="edit-drinks-desserts-section" class="edit-section-block">
+								<input type="number" id="edit-item-price" placeholder="Price (£)" step="0.01" min="0">
+							</div>
+							<button type="submit">Save Changes</button>
+						</form>
+					</div>
+				</div>
 		<section class="admin-section">
 			<div id="section-subheading" class="section-subheading" style="margin-bottom:18px;">
 				Welcome to the menu admin! Select a section above to manage pizzas, salads, sides, drinks, desserts, or chicken. Each section has its own options and tips.
@@ -92,7 +157,11 @@
 					   <small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save.</small>
 				</div>
 				<input type="number" id="new-item-price" placeholder="Price (£)" step="0.01" min="0" class="hide-price">
-				<button type="submit">Add New Item</button>
+								<button type="submit">Add New Item</button>
+								<div id="live-item-preview" class="option-preview-list" style="margin-top:18px;">
+									<div class="option-preview-heading">Live Preview of This Item:</div>
+									<div id="live-preview-content"></div>
+								</div>
 			</form>
 			<ul id="menu-items-list" class="menu-items-list">
 				<!-- Menu items will be rendered as cards by JS -->
@@ -127,6 +196,7 @@
 		</section>
 	 </main>
 	<script src="admin-menu.js"></script>
+
 	<script>
 const subheadingEditBox = document.getElementById('section-subheading-edit-box');
 const subheadingInput = document.getElementById('section-subheading-input');
