@@ -1,3 +1,37 @@
+// --- Master Save Button Logic ---
+const masterSaveBtn = document.getElementById('master-save-btn');
+if (masterSaveBtn) {
+  masterSaveBtn.onclick = async function() {
+    await saveAllMenuItems();
+    alert('All menu items saved!');
+    await fetchMenuItems();
+  };
+}
+
+// Also add to edit modal
+const editMasterSaveBtn = document.getElementById('edit-master-save-btn');
+if (editMasterSaveBtn) {
+  editMasterSaveBtn.onclick = async function() {
+    await saveAllMenuItems();
+    alert('All menu items saved!');
+    await fetchMenuItems();
+  };
+}
+
+// Save all menu items to backend (PUT /api/menu)
+async function saveAllMenuItems() {
+  // menuItems is the current in-memory list
+  const res = await fetch('/api/menu', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(menuItems)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    alert('Failed to save all menu items: ' + text);
+    return;
+  }
+}
 // --- Section Switching Logic ---
 const categoryButtons = document.querySelectorAll('.menu-category-btn');
 const sectionsMap = {
