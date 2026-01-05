@@ -503,7 +503,28 @@ if (addItemForm) {
     const item = getMenuItemFromForm();
     if (!item.name || !item.section) return alert('Name and section required');
     await addMenuItem(item);
+    // Only clear the pizza sizes list if in pizza section
+    if (document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') === 'PIZZAS') {
+      const sizeList = document.getElementById('pizza-sizes-list');
+      if (sizeList) sizeList.innerHTML = '';
+      const toppingList = document.getElementById('pizza-toppings-list');
+      if (toppingList) toppingList.innerHTML = '';
+    }
+    // Also clear other lists for other sections
+    if (document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') === 'CHICKEN') {
+      const chickenList = document.getElementById('chicken-sizes-list');
+      if (chickenList) chickenList.innerHTML = '';
+    }
+    if (document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') === 'SIDES') {
+      const sideList = document.getElementById('side-types-list');
+      if (sideList) sideList.innerHTML = '';
+    }
+    if (document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') === 'SALADS') {
+      const saladList = document.getElementById('salad-ingredients-list');
+      if (saladList) saladList.innerHTML = '';
+    }
     addItemForm.reset();
+    renderLiveItemPreview();
   });
 }
 
