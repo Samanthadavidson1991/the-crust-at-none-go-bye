@@ -616,8 +616,10 @@ function renderMenuItems() {
 // --- Helper: Gather all fields from the add item form ---
 function getMenuItemFromForm() {
   const name = document.getElementById('new-item-name').value.trim();
+  const desc = document.getElementById('new-item-desc')?.value.trim() || '';
   const section = document.querySelector('.menu-category-btn.active')?.getAttribute('data-category') || '';
   const item = { name, section };
+  if (desc) item.description = desc;
 
   // Gather fields based on section
   if (section === 'PIZZAS') {
@@ -631,9 +633,14 @@ function getMenuItemFromForm() {
     }
     const toppingList = document.getElementById('pizza-toppings-list');
     if (toppingList && toppingList.children.length) {
-      item.toppings = Array.from(toppingList.children).map(row => row.textContent.trim());
+      item.toppings = Array.from(toppingList.children).map(row => row.querySelector('.topping-name')?.textContent.trim());
     }
   } else if (section === 'CHICKEN') {
+        // Make toppings removable by clicking
+        if (e.target && e.target.classList.contains('topping-name')) {
+          e.target.parentElement.remove();
+          setTimeout(renderLiveItemPreview, 10);
+        }
     // Chicken: sizes only
     const chickenList = document.getElementById('chicken-sizes-list');
     if (chickenList && chickenList.children.length) {

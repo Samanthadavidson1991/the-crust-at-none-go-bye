@@ -109,26 +109,33 @@
 				<span id="subheading-saved-msg" class="subheading-saved-msg">Saved!</span>
 			</div>
 			<form id="add-item-form" class="add-item-form" style="margin-bottom:24px;">
-				<input type="text" id="new-item-name" placeholder="Item name" required>
-				   <div id="pizza-sizes-section">
-					   <label class="bold-label">Add size and price options for this pizza:</label>
-					   <div class="option-preview-list"><div class="option-preview-heading">Current Sizes:</div><div id="pizza-sizes-list"></div></div>
-					   <div class="pizza-sizes-flex">
-						   <input type="text" id="new-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
-						   <input type="number" id="new-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
-						   <button type="button" id="add-size-price-btn">Add Size/Price</button>
-					   </div>
-					   <small class="soft-text">Add as many size/price options as you need, then click 'Add New Item' to save the pizza.</small>
-					   <div id="pizza-toppings-section" class="section-margin">
-						   <label class="bold-label">Toppings (type and press Add):</label>
-						   <div class="pizza-toppings-flex">
-							   <input type="text" id="new-topping-name" placeholder="Topping name" autocomplete="off">
-							   <button type="button" id="add-topping-btn">Add Topping</button>
-						   </div>
-						   <div class="option-preview-list"><div class="option-preview-heading">Current Toppings:</div><div id="pizza-toppings-list"></div></div>
-						   <small class="soft-text">All toppings will show on the live site and can be removed by customers.</small>
-					</div>
-				</div>
+								<div class="pizza-admin-block">
+									<label for="new-item-name" class="bold-label">Pizza Name:</label>
+									<input type="text" id="new-item-name" placeholder="Enter pizza name" required>
+									<label for="new-item-desc" class="bold-label" style="margin-top:8px;">Description:</label>
+									<textarea id="new-item-desc" placeholder="Describe this pizza (ingredients, style, etc.)" rows="2" style="width:100%;margin-bottom:12px;"></textarea>
+									<hr style="margin:18px 0;">
+									<div id="pizza-sizes-section">
+										<label class="bold-label">Step 1: Add Size & Price Options</label>
+										<div class="option-preview-list"><div class="option-preview-heading">Current Sizes:</div><div id="pizza-sizes-list"></div></div>
+										<div class="pizza-sizes-flex">
+											<input type="text" id="new-size-name" placeholder="Size (e.g. 12in)" autocomplete="off">
+											<input type="number" id="new-size-price" placeholder="Price (£)" step="0.01" min="0" autocomplete="off">
+											<button type="button" id="add-size-price-btn" title="Add this size and price">Add Size/Price</button>
+										</div>
+										<small class="soft-text">Add as many size/price options as you need. Example: 12in £10.00, 16in £14.00.</small>
+									</div>
+									<hr style="margin:18px 0;">
+									<div id="pizza-toppings-section" class="section-margin">
+										<label class="bold-label">Step 2: Add Toppings</label>
+										<div class="pizza-toppings-flex">
+											<input type="text" id="new-topping-name" placeholder="Topping name (e.g. Pepperoni)" autocomplete="off">
+											<button type="button" id="add-topping-btn" title="Add this topping">Add Topping</button>
+										</div>
+										<div class="option-preview-list"><div class="option-preview-heading">Current Toppings (click to remove):</div><div id="pizza-toppings-list"></div></div>
+										<small class="soft-text">Toppings can be removed by customers. Click a topping to remove it from this pizza.</small>
+									</div>
+								</div>
 				   <div id="salad-ingredients-section" class="section-margin hidden">
 					   <label class="bold-label">Ingredients (type and press Add):</label>
 					   <div class="pizza-toppings-flex">
