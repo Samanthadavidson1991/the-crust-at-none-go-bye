@@ -64,6 +64,28 @@ categoryButtons.forEach(btn => {
 
 // --- Main App Logic ---
 document.addEventListener('DOMContentLoaded', async function() {
+    // --- Section Subheading and Description Logic ---
+    const sectionDescriptions = {
+      PIZZAS: 'PIZZAS: Add, edit, and organize all pizza menu items. Each pizza can have multiple sizes and toppings.',
+      SALADS: 'SALADS: Manage salad items and their ingredients. List all components for each salad.',
+      SIDES: 'SIDES: Add sides like fries, doughballs, garlic bread, etc. Each side can have multiple types and prices.',
+      DRINKS: 'DRINKS: Add and edit all drink options available to customers.',
+      DESSERTS: 'DESSERTS: Manage dessert items and their prices.',
+      CHICKEN: 'CHICKEN: Add chicken menu items with size and price options.'
+    };
+    const subheadingBox = document.getElementById('section-subheading');
+    document.querySelectorAll('.menu-category-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const cat = btn.getAttribute('data-category');
+        if (sectionDescriptions[cat]) {
+          subheadingBox.textContent = sectionDescriptions[cat];
+        } else {
+          subheadingBox.textContent = 'Select a section to manage menu items.';
+        }
+      });
+    });
+    // Show initial category description
+    if (subheadingBox) subheadingBox.textContent = sectionDescriptions['PIZZAS'];
   // Only one DOMContentLoaded listener needed
   // Show pizzas section by default
   Object.values(sectionsMap).forEach(id => {
