@@ -74,10 +74,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     const name = document.getElementById('new-item-name')?.value.trim() || '';
     let html = '';
     if (name) html += `<b>${name}</b><br>`;
-    // Pizza Sizes
-    const sizeList = document.getElementById('pizza-sizes-list');
-    if (sizeList && sizeList.children.length) {
-      html += '<div><b>Sizes:</b> ' + Array.from(sizeList.children).map(row => row.querySelector('.size-name')?.textContent + ' (£' + row.querySelector('.size-price')?.textContent + ')').join(', ') + '</div>';
+    // Pizza Sizes (table rows)
+    const sizeTable = document.getElementById('pizza-sizes-list');
+    if (sizeTable && sizeTable.children.length) {
+      html += '<div><b>Sizes:</b> ' + Array.from(sizeTable.children).map(row => row.querySelector('.size-name')?.textContent + ' (£' + row.querySelector('.size-price')?.textContent + ')').join(', ') + '</div>';
     }
     // Pizza Toppings
     const toppingList = document.getElementById('pizza-toppings-list');
@@ -98,17 +98,70 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
     }
   });
-  // Also update preview when removing any pizza option
-  const addItemForm = document.getElementById('add-item-form');
-  if (addItemForm) {
-    addItemForm.addEventListener('click', function(e) {
-      if (e.target && (e.target.classList.contains('remove-size-btn') || e.target.classList.contains('remove-topping-btn'))) {
+  // Also update preview when removing any pizza option or size row
+  const pizzaSizesList = document.getElementById('pizza-sizes-list');
+  if (pizzaSizesList) {
+    pizzaSizesList.addEventListener('click', function(e) {
+      if (e.target && e.target.classList.contains('remove-size-btn')) {
         setTimeout(renderPizzaLivePreview, 10);
       }
     });
   }
   // Initial pizza preview render
   renderPizzaLivePreview();
+
+  // --- Enhanced Pizza Size Add UI ---
+  const addSizeBtn = document.getElementById('add-size-price-btn');
+  if (addSizeBtn) {
+    addSizeBtn.onclick = function() {
+      const nameInput = document.getElementById('new-size-name');
+      const priceInput = document.getElementById('new-size-price');
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      if (!name || isNaN(price)) return alert('Enter size and price');
+      const list = document.getElementById('pizza-sizes-list');
+      const row = document.createElement('tr');
+      row.innerHTML = `<td class='size-name'>${name}</td><td class='size-price'>${price.toFixed(2)}</td><td><button type='button' class='remove-size-btn'>Remove</button></td>`;
+      row.querySelector('.remove-size-btn').onclick = () => { row.remove(); renderPizzaLivePreview(); };
+      list.appendChild(row);
+      nameInput.value = '';
+      priceInput.value = '';
+      renderPizzaLivePreview();
+    };
+  }
+
+  // --- Batch Add Sizes Modal Logic ---
+  const batchBtn = document.getElementById('batch-size-entry-btn');
+  const batchModal = document.getElementById('batch-size-modal-bg');
+  const batchTextarea = document.getElementById('batch-size-textarea');
+  const batchAddBtn = document.getElementById('batch-size-add-btn');
+  const batchCancelBtn = document.getElementById('batch-size-cancel-btn');
+  if (batchBtn && batchModal && batchTextarea && batchAddBtn && batchCancelBtn) {
+    batchBtn.onclick = () => { batchModal.style.display = 'flex'; batchTextarea.value = ''; };
+    batchCancelBtn.onclick = () => { batchModal.style.display = 'none'; };
+    batchAddBtn.onclick = () => {
+      const lines = batchTextarea.value.split('\n');
+      const list = document.getElementById('pizza-sizes-list');
+      let added = 0;
+      lines.forEach(line => {
+        const parts = line.split(',');
+        if (parts.length === 2) {
+          const name = parts[0].trim();
+          const price = parseFloat(parts[1]);
+          if (name && !isNaN(price)) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td class='size-name'>${name}</td><td class='size-price'>${price.toFixed(2)}</td><td><button type='button' class='remove-size-btn'>Remove</button></td>`;
+            row.querySelector('.remove-size-btn').onclick = () => { row.remove(); renderPizzaLivePreview(); };
+            list.appendChild(row);
+            added++;
+          }
+        }
+      });
+      batchModal.style.display = 'none';
+      if (!added) alert('No valid sizes found. Use format: Size,Price');
+      renderPizzaLivePreview();
+    };
+  }
 
   // --- Edit Modal Pizza Section Logic ---
   const editModalBg = document.getElementById('edit-modal-bg');
@@ -454,7 +507,7 @@ function getMenuItemFromForm() {
 
   // Gather fields based on section
   if (section === 'PIZZAS') {
-    // Pizza: sizes and toppings
+    // Pizza: sizes and toppings (table rows)
     const sizeList = document.getElementById('pizza-sizes-list');
     if (sizeList && sizeList.children.length) {
       item.sizes = Array.from(sizeList.children).map(row => ({
