@@ -32,6 +32,7 @@ async function saveAllMenuItems() {
     return;
   }
 }
+
 // --- Section Switching Logic ---
 const categoryButtons = document.querySelectorAll('.menu-category-btn');
 const sectionsMap = {
@@ -57,6 +58,9 @@ categoryButtons.forEach(btn => {
       if (activeSection) activeSection.classList.remove('hidden');
     }
   });
+}); // Close categoryButtons.forEach
+
+// --- Main App Logic ---
 document.addEventListener('DOMContentLoaded', async function() {
   // Only one DOMContentLoaded listener needed
   // Show pizzas section by default
@@ -520,11 +524,6 @@ function getMenuItemFromForm() {
       item.toppings = Array.from(toppingList.children).map(row => row.querySelector('.topping-name')?.textContent.trim());
     }
   } else if (section === 'CHICKEN') {
-        // Make toppings removable by clicking
-        if (e.target && e.target.classList.contains('topping-name')) {
-          e.target.parentElement.remove();
-          setTimeout(renderLiveItemPreview, 10);
-        }
     // Chicken: sizes only
     const chickenList = document.getElementById('chicken-sizes-list');
     if (chickenList && chickenList.children.length) {
@@ -547,15 +546,40 @@ function getMenuItemFromForm() {
     const saladList = document.getElementById('salad-ingredients-list');
     if (saladList && saladList.children.length) {
       item.ingredients = Array.from(saladList.children).map(row => row.textContent.trim());
-        await fetchSections();
-        fetchMenuItems();
-  list.innerHTML = menuItems.map(item => `
-    <div class='menu-item-card' style='margin-bottom:16px;'>
-      <b>${item.name}</b> <span style='color:#888;'>(${item.section})</span><br>
-      ${item.sizes ? 'Sizes: ' + item.sizes.map(s => `${s.name} (£${parseFloat(s.price).toFixed(2)})`).join(', ') + '<br>' : ''}
-      ${item.toppings ? 'Toppings: ' + item.toppings.join(', ') + '<br>' : ''}
-      ${item.ingredients ? 'Ingredients: ' + item.ingredients.join(', ') + '<br>' : ''}
-      ${typeof item.price === 'number' ? 'Price: £' + item.price.toFixed(2) : ''}
+    }
+  }
+  return item;
+}
+
+// --- Menu Preview Logic ---
+function showMenuPreview() {
+  const previewWindow = window.open('', '_blank');
+  if (!previewWindow) return alert('Please allow popups for this site');
+  previewWindow.document.write(`
+    <html>
+      <head>
+        <title>Menu Preview</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+          h1 { background: #f4f4f4; padding: 10px; text-align: center; }
+          .menu-item { border-bottom: 1px solid #ddd; padding: 10px; }
+          .menu-item:last-child { border-bottom: none; }
+          .menu-item b { display: block; margin-bottom: 5px; }
+        </style>
+      </head>
+      <body>
+        <h1>Menu Preview</h1>
+        <div id="preview-menu-items"></div>
+      </body>
+    </html>
+  `);
+  const menuItemsContainer = previewWindow.document.getElementById('preview-menu-items');
+  menuItemsContainer.innerHTML = menuItems.map(item => `
+    <div class="menu-item">
+      <b>${item.name}</b>
+      <div>Section: ${item.section || ''}</div>
+      <div>${item.description ? item.description : ''}</div>
+      <div>${item.sizes && item.sizes.length ? 'Sizes: ' + item.sizes.map(s => `${s.name} (£${parseFloat(s.price).toFixed(2)})`).join(', ') : ''}</div>
     </div>
   `).join('');
 }
@@ -697,6 +721,7 @@ document.getElementById('toppingCreatorForm').addEventListener('submit', async f
   } catch (err) {
     alert('Failed to add topping: ' + (err.message || err));
   }
+});
 
 document.getElementById('saveMasterPricesBtn').addEventListener('click', saveMasterPrices);
 
@@ -788,6 +813,7 @@ async function updateSectionAssignment(section, toppingId, assign) {
   await fetch('/api/section-topping-assignments', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+
     body: JSON.stringify({ section, toppingId, assign })
   });
   await fetchSectionAssignments();
@@ -799,11 +825,5 @@ if (sectionToppingDropdown) {
   sectionToppingDropdown.addEventListener('change', renderSectionToppingAssignment);
 }
 
-
 // --- Init ---
-document.addEventListener('DOMContentLoaded', async () => {
-  await fetchMasterToppings();
-  await fetchSections();
-  // Call fetchMenuItems on page load
-  fetchMenuItems();
-});
+
