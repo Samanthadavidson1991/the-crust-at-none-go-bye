@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   const addSizeBtn = document.getElementById('add-size-price-btn');
   if (addSizeBtn) {
     addSizeBtn.onclick = function() {
+      console.log('Add Size button clicked');
       const nameInput = document.getElementById('new-size-name');
       const priceInput = document.getElementById('new-size-price');
       const name = nameInput.value.trim();
@@ -355,6 +356,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   const addToppingBtn = document.getElementById('add-topping-btn');
   if (addToppingBtn) {
     addToppingBtn.addEventListener('click', function() {
+      console.log('Add Topping button clicked');
       const nameInput = document.getElementById('new-topping-name');
       const name = nameInput.value.trim();
       if (!name) return alert('Enter topping name');
@@ -371,6 +373,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   const addIngredientBtn = document.getElementById('add-ingredient-btn');
   if (addIngredientBtn) {
     addIngredientBtn.addEventListener('click', function() {
+      console.log('Add Ingredient button clicked');
       const nameInput = document.getElementById('new-ingredient-name');
       const name = nameInput.value.trim();
       if (!name) return alert('Enter ingredient name');
@@ -387,6 +390,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   const addSideTypeBtn = document.getElementById('add-side-type-btn');
   if (addSideTypeBtn) {
     addSideTypeBtn.addEventListener('click', function() {
+      console.log('Add Side Type button clicked');
       const nameInput = document.getElementById('new-side-type-name');
       const priceInput = document.getElementById('new-side-type-price');
       const name = nameInput.value.trim();
@@ -406,6 +410,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   const addChickenSizeBtn = document.getElementById('add-chicken-size-price-btn');
   if (addChickenSizeBtn) {
     addChickenSizeBtn.addEventListener('click', function() {
+      console.log('Add Chicken Size button clicked');
       const nameInput = document.getElementById('new-chicken-size-name');
       const priceInput = document.getElementById('new-chicken-size-price');
       const name = nameInput.value.trim();
