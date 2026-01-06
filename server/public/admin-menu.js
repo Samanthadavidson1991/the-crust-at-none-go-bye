@@ -1,3 +1,5 @@
+console.log('admin-menu.js loaded');
+
 // --- Master Save Button Logic ---
 const masterSaveBtn = document.getElementById('master-save-btn');
 if (masterSaveBtn) {
