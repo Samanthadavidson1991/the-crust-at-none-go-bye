@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" id="add-topping-btn">Add Topping</button>
         <br><br>
     `;
-    addPizzaForm.insertBefore(toppingsSection, pizzaPreview);
+    addPizzaForm.appendChild(toppingsSection);
 
     function renderToppings() {
         const toppingsList = document.getElementById('toppings-list');
