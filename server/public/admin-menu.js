@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalBg.style.display = 'flex';
         modal.querySelector('#modal-size-input').value = '';
         modal.querySelector('#modal-price-input').value = '';
-        toppings = [];
+        // Do NOT reset toppings here
         renderToppings();
     }
     function hideModal() {
