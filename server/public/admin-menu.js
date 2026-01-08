@@ -1,10 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+        console.log('admin-menu.js loaded and DOMContentLoaded fired');
     // State
     let sizes = [];
     let toppings = [];
 
     // Elements
     const addSizeBtn = document.getElementById('add-size-btn');
+        if (!addSizeBtn) {
+            console.error('Add Size button not found!');
+        } else {
+            console.log('Add Size button found, attaching event');
+        }
     const sizesList = document.getElementById('sizes-list');
     const pizzaPreview = document.getElementById('pizza-preview');
     const addPizzaForm = document.getElementById('add-pizza-form');
@@ -94,7 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modalBg.style.display = 'none';
     }
 
-    addSizeBtn.addEventListener('click', showModal);
+    addSizeBtn.addEventListener('click', () => {
+        console.log('Add Size button clicked');
+        showModal();
+    });
     modal.querySelector('#modal-cancel-btn').onclick = hideModal;
     modal.querySelector('#modal-add-btn').onclick = function() {
         const size = modal.querySelector('#modal-size-input').value.trim();
