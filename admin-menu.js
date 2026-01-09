@@ -2,6 +2,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // State
     let sizes = [];
     let toppings = [];
+    let liveMenu = [];
+
+    // Elements for live menu display
+    const liveMenuList = document.createElement('div');
+    liveMenuList.id = 'live-menu-list';
+    liveMenuList.style.margin = '24px 0';
+    document.body.insertBefore(liveMenuList, document.body.firstChild.nextSibling);
+
+    // Fetch live menu from backend
+    async function fetchLiveMenu() {
+        try {
+            const res = await fetch('/api/menu');
+            if (!res.ok) throw new Error('Failed to fetch menu');
+            liveMenu = await res.json();
+            renderLiveMenu();
+        } catch (err) {
+            liveMenuList.innerHTML = `<span style="color:red">Error loading live menu: ${err.message}</span>`;
+        }
+    }
+
+    function renderLiveMenu() {
+        if (!Array.isArray(liveMenu) || liveMenu.length === 0) {
+            liveMenuList.innerHTML = '<em>No menu items found.</em>';
+            return;
+        }
+        liveMenuList.innerHTML = '<h2>Live Menu</h2>' + liveMenu.map(item => {
+            let sizesText = Array.isArray(item.sizes) ? item.sizes.map(s => `${s.size} (£${s.price.toFixed(2)})`).join(', ') : '';
+            let toppingsText = Array.isArray(item.toppings) && item.toppings.length ? `<br><strong>Toppings:</strong> ${item.toppings.join(', ')}` : '';
+            return `<div style="margin-bottom:12px"><strong>${item.name}</strong> (${sizesText})${toppingsText}</div>`;
+        }).join('');
+    }
+
+    fetchLiveMenu();
 
     // Elements
     const addSizeBtn = document.getElementById('add-size-btn');
@@ -141,16 +174,34 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter a pizza name and at least one size.');
             return;
         }
-        // Here you would send to backend
-        const previewText = sizes.map(obj => `${obj.size} (£${obj.price.toFixed(2)})`).join(', ');
-        let toppingsText = toppings.length ? ` | Toppings: ${toppings.join(', ')}` : '';
-        alert(`Pizza added: ${pizzaNameInput.value} (${previewText})${toppingsText}`);
-        pizzaNameInput.value = '';
-        sizes = [];
-        toppings = [];
-        renderSizes();
-        renderToppings();
-        renderPreview();
+        // Send new pizza to backend
+        const newPizza = {
+            name: pizzaNameInput.value,
+            sizes: sizes,
+            toppings: toppings
+        };
+        fetch('/api/menu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newPizza)
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to add pizza'); });
+            return res.json();
+        })
+        .then(data => {
+            alert('Pizza added to live menu!');
+            fetchLiveMenu();
+            pizzaNameInput.value = '';
+            sizes = [];
+            toppings = [];
+            renderSizes();
+            renderToppings();
+            renderPreview();
+        })
+        .catch(err => {
+            alert('Error adding pizza: ' + err.message);
+        });
     });
 
     // Initial render
