@@ -1,3 +1,12 @@
+// Get all section assignments
+router.get('/', async (req, res) => {
+  try {
+    const docs = await SectionToppingAssignment.find({}).populate('toppings');
+    res.json(docs);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch section assignments', details: err.message });
+  }
+});
 const express = require('express');
 const router = express.Router();
 const SectionToppingAssignment = require('./section-topping-assignments.model');
