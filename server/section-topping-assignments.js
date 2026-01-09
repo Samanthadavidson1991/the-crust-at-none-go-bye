@@ -1,3 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const SectionToppingAssignment = require('./section-topping-assignments.model');
+const { MasterTopping } = require('./master-topping.model');
+
 // Get all section assignments
 router.get('/', async (req, res) => {
   try {
@@ -7,10 +12,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch section assignments', details: err.message });
   }
 });
-const express = require('express');
-const router = express.Router();
-const SectionToppingAssignment = require('./section-topping-assignments.model');
-const { MasterTopping } = require('./master-topping.model');
 
 // Get toppings assigned to a section
 router.get('/:section', async (req, res) => {
