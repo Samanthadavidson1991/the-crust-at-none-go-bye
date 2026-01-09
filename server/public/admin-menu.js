@@ -86,46 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Modal for size/price
-    let modalBg = document.createElement('div');
-    modalBg.style.position = 'fixed';
-    modalBg.style.top = '0';
-    modalBg.style.left = '0';
-    modalBg.style.width = '100vw';
-    modalBg.style.height = '100vh';
-    modalBg.style.background = 'rgba(0,0,0,0.5)';
-    modalBg.style.border = '2px solid red';
-    modalBg.style.display = 'none';
-    modalBg.style.justifyContent = 'center';
-    modalBg.style.alignItems = 'center';
-    modalBg.style.zIndex = '1000';
-    document.body.appendChild(modalBg);
-
-    let modal = document.createElement('div');
-    modal.style.background = '#fff';
-    modal.style.padding = '24px';
-    modal.style.borderRadius = '8px';
-    modal.style.boxShadow = '0 2px 16px rgba(0,0,0,0.2)';
-    modal.style.minWidth = '320px';
-    modal.style.border = '3px solid blue';
-    modalBg.appendChild(modal);
-
-    modal.innerHTML = `
-        <h3>Add Pizza Size</h3>
-        <label>Size:</label><br>
-        <input type="text" id="modal-size-input" placeholder="e.g. Small, Medium, Large"><br><br>
-        <label>Price (£):</label><br>
-        <input type="number" id="modal-price-input" placeholder="e.g. 9.99" step="0.01" min="0"><br><br>
-        <hr>
-        <label>Toppings (type and press Add):</label><br>
-        <div id="toppings-list"></div>
-        <input type="text" id="topping-input" placeholder="e.g. Pepperoni">
-        <button type="button" id="add-topping-btn">Add Topping</button>
-        <br><br>
-        <button id="modal-add-btn">Add</button>
-        <button id="modal-cancel-btn">Cancel</button>
-    `;
-
     function showModal() {
         modalBg.style.display = 'flex';
         modal.querySelector('#modal-size-input').value = '';
