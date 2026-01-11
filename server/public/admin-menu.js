@@ -312,4 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSizes();
     renderToppings();
     renderPreview();
+    // Always load menu preview on page load
+    fetchAndRenderAdminMenuPreview();
 });
