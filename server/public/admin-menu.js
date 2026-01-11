@@ -209,11 +209,58 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (item.sizes && Array.isArray(item.sizes)) {
                             html += ' - Sizes: ' + item.sizes.map(s => `${s.size} (£${parseFloat(s.price).toFixed(2)})`).join(', ');
                         }
+                        // Edit button
+                        html += ` <button data-id="${item._id}" class="edit-menu-item-btn">Edit</button>`;
+                        // Delete button
+                        html += ` <button data-id="${item._id}" class="delete-menu-item-btn" style="color:red;">Delete</button>`;
                         html += '</li>';
                     });
                     html += '</ul>';
                 });
                 previewDiv.innerHTML = html;
+
+                // Attach delete handlers
+                document.querySelectorAll('.delete-menu-item-btn').forEach(btn => {
+                    btn.onclick = async function() {
+                        if (!confirm('Are you sure you want to delete this menu item?')) return;
+                        const id = btn.getAttribute('data-id');
+                        try {
+                            const res = await fetch(`/api/menu/${id}`, { method: 'DELETE' });
+                            if (!res.ok) throw new Error('Failed to delete');
+                            fetchAndRenderAdminMenuPreview();
+                        } catch (err) {
+                            alert('Error deleting item: ' + err.message);
+                        }
+                    };
+                });
+
+                // Attach edit handlers (basic modal)
+                document.querySelectorAll('.edit-menu-item-btn').forEach(btn => {
+                    btn.onclick = async function() {
+                        const id = btn.getAttribute('data-id');
+                        // Fetch item details
+                        try {
+                            const res = await fetch(`/api/menu`);
+                            const data = await res.json();
+                            const item = (data.items || []).find(i => i._id === id);
+                            if (!item) return alert('Menu item not found');
+                            // Show a simple prompt for name edit (can be expanded)
+                            const newName = prompt('Edit pizza name:', item.name);
+                            if (newName && newName !== item.name) {
+                                // Send update
+                                const updateRes = await fetch(`/api/menu`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ...item, name: newName })
+                                });
+                                if (!updateRes.ok) throw new Error('Failed to update');
+                                fetchAndRenderAdminMenuPreview();
+                            }
+                        } catch (err) {
+                            alert('Error editing item: ' + err.message);
+                        }
+                    };
+                });
             } catch (err) {
                 previewDiv.innerHTML = `<span style="color:red;">Error loading menu preview: ${err.message}</span>`;
             }
