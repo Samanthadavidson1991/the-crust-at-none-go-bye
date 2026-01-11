@@ -1,4 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
+            // Section selector
+            const sectionSelect = document.getElementById('pizza-section-select');
+
+            // Fetch sections and populate dropdown
+            async function populateSectionDropdown() {
+                try {
+                    const res = await fetch('/api/sections');
+                    if (!res.ok) throw new Error('Failed to fetch sections');
+                    const data = await res.json();
+                    const sections = data.sections || [];
+                    sectionSelect.innerHTML = '';
+                    sections.forEach(sec => {
+                        const opt = document.createElement('option');
+                        opt.value = sec.name;
+                        opt.textContent = sec.name;
+                        sectionSelect.appendChild(opt);
+                    });
+                } catch (err) {
+                    sectionSelect.innerHTML = '<option value="Other">Other</option>';
+                }
+            }
+            populateSectionDropdown();
         console.log('admin-menu.js loaded and DOMContentLoaded fired');
     // State
     let sizes = [];
@@ -208,7 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const newPizza = {
             name: pizzaNameInput.value,
             sizes: sizes,
-            toppings: toppings
+            toppings: toppings,
+            section: sectionSelect.value || 'Other'
         };
         fetch('/api/menu', {
             method: 'POST',
