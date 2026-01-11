@@ -1,4 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
+                    // Add Section form handler
+                    const addSectionForm = document.getElementById('add-section-form');
+                    const sectionNameInput = document.getElementById('section-name');
+                    addSectionForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const name = sectionNameInput.value.trim();
+                        if (!name) return;
+                        try {
+                            const res = await fetch('/api/sections', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name })
+                            });
+                            if (!res.ok) {
+                                const data = await res.json();
+                                alert(data.error || 'Failed to add section');
+                                return;
+                            }
+                            sectionNameInput.value = '';
+                            await populateSectionDropdown();
+                        } catch (err) {
+                            alert('Error adding section: ' + err.message);
+                        }
+                    });
                 // Refresh Preview button
                 const refreshPreviewBtn = document.getElementById('refresh-menu-preview-btn');
                 if (refreshPreviewBtn) {
