@@ -238,10 +238,25 @@ document.addEventListener('DOMContentLoaded', () => {
             div.textContent = `${obj.size} (£${obj.price.toFixed(2)})`;
             const removeBtn = document.createElement('button');
             removeBtn.textContent = 'Remove';
-            removeBtn.onclick = () => {
+            removeBtn.onclick = async () => {
                 sizes.splice(idx, 1);
                 renderSizes();
                 renderPreview();
+                // If editing an existing menu item and all sizes are removed, delete the item
+                if (window.editingMenuItemId && sizes.length === 0) {
+                    if (confirm('All sizes removed. Delete this menu item?')) {
+                        await fetch(`/api/menu/${window.editingMenuItemId}`, { method: 'DELETE' });
+                        modalBg.style.display = 'none';
+                        fetchLiveMenu();
+                        pizzaNameInput.value = '';
+                        sizes.length = 0;
+                        toppings.length = 0;
+                        renderSizes();
+                        renderToppings();
+                        renderPreview();
+                        window.editingMenuItemId = null;
+                    }
+                }
             };
             div.appendChild(removeBtn);
             sizesList.appendChild(div);
