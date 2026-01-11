@@ -156,6 +156,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 msg.textContent = 'Add Pizza button pressed!';
                 setTimeout(() => { if (msg) msg.textContent = ''; }, 2000);
+
+                // After adding, refresh the admin menu preview
+                setTimeout(fetchAndRenderAdminMenuPreview, 500);
+        // --- Admin Menu Preview ---
+        async function fetchAndRenderAdminMenuPreview() {
+            const previewDiv = document.getElementById('admin-menu-preview');
+            previewDiv.innerHTML = '<em>Loading menu...</em>';
+            try {
+                const res = await fetch('/api/menu');
+                if (!res.ok) throw new Error('Failed to fetch menu');
+                const data = await res.json();
+                const items = data.items || [];
+                if (!items.length) {
+                    previewDiv.innerHTML = '<em>No menu items found.</em>';
+                    return;
+                }
+                // Group by section
+                const sectionMap = {};
+                items.forEach(item => {
+                    const section = item.section || 'Other';
+                    if (!sectionMap[section]) sectionMap[section] = [];
+                    sectionMap[section].push(item);
+                });
+                let html = '';
+                Object.keys(sectionMap).forEach(section => {
+                    html += `<h4>${section}</h4><ul style="margin-bottom:12px;">`;
+                    sectionMap[section].forEach(item => {
+                        html += `<li><b>${item.name}</b>`;
+                        if (item.sizes && Array.isArray(item.sizes)) {
+                            html += ' - Sizes: ' + item.sizes.map(s => `${s.size} (£${parseFloat(s.price).toFixed(2)})`).join(', ');
+                        }
+                        html += '</li>';
+                    });
+                    html += '</ul>';
+                });
+                previewDiv.innerHTML = html;
+            } catch (err) {
+                previewDiv.innerHTML = `<span style="color:red;">Error loading menu preview: ${err.message}</span>`;
+            }
+        }
+
+        // Initial load
+        fetchAndRenderAdminMenuPreview();
         e.preventDefault();
         if (!pizzaNameInput.value || sizes.length === 0) {
             alert('Please enter a pizza name and at least one size.');

@@ -18,6 +18,14 @@
         <a href="offers.html" class="admin-link">Special Offers</a>
     </nav>
     <h1>Admin Menu Editor</h1>
+    <section id="section-management">
+        <h2>Sections</h2>
+        <form id="add-section-form" style="margin-bottom:16px;">
+            <input type="text" id="section-name" placeholder="Section Name" required>
+            <button type="submit">Add Section</button>
+        </form>
+        <div id="sections-list"></div>
+    </section>
     <section id="pizza-section">
         <h2>Pizzas</h2>
         <form id="add-pizza-form">
@@ -27,6 +35,10 @@
             <button type="submit">Add Pizza</button>
         </form>
         <div id="pizza-preview"></div>
+        <div id="pizza-preview"></div>
+        <hr>
+        <h3>Live Menu Preview</h3>
+        <div id="admin-menu-preview" style="margin-top:16px;"></div>
     </section>
     <script src="/admin-menu.js"></script>
 </body>
