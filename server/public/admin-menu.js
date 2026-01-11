@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+                // Refresh Preview button
+                const refreshPreviewBtn = document.getElementById('refresh-menu-preview-btn');
+                if (refreshPreviewBtn) {
+                    refreshPreviewBtn.onclick = fetchAndRenderAdminMenuPreview;
+                }
             // Section selector
             const sectionSelect = document.getElementById('pizza-section-select');
 
