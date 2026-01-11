@@ -1,6 +1,7 @@
-// Place this after app is initialized
+// Ensure all schemas are registered before any model usage
+require('./topping.model');
+require('./section.model');
 // Admin authentication check endpoint
-// (Moved below app initialization)
 const path = require('path');
 require('dotenv').config();
 
@@ -210,6 +211,7 @@ mongoose.connect(atlasUri)
 
     // Mock API endpoints for admin dashboard
     // Use MenuItem model for menu endpoints
+    require('./topping.model');
     const MenuItem = require('./menu-item.model');
     const Section = require('./section.model');
     // Master Toppings and Section Assignments endpoints
