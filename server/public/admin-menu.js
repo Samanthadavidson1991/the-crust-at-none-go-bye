@@ -201,8 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!sectionMap[section]) sectionMap[section] = [];
                     sectionMap[section].push(item);
                 });
-                // Debug: show raw response
-                let html = `<pre style="background:#f8f8f8;color:#333;font-size:12px;padding:6px 8px;">DEBUG: /api/menu response\n${JSON.stringify(data, null, 2)}</pre>`;
+                    let html = '';
                 Object.keys(sectionMap).forEach(section => {
                     html += `<h4>${section}</h4><ul style="margin-bottom:12px;">`;
                     sectionMap[section].forEach(item => {
