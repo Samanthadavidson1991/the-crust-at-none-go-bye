@@ -122,7 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             liveMenuList.innerHTML = `<span style="color:red">Error loading live menu: ${err.message}</span>`;
         }
-        // Fetch sections on load
+        // Do NOT call PUT /api/menu with an empty or partial array here
+        // Only fetch sections
         fetchSections();
     }
 
