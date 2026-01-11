@@ -145,7 +145,17 @@ document.addEventListener('DOMContentLoaded', () => {
     pizzaNameInput.addEventListener('input', renderPreview);
 
     addPizzaForm.addEventListener('submit', (e) => {
-        console.log('Add Pizza form submitted');
+                console.log('Add Pizza form submitted');
+                // Show a visible message when Add Pizza is pressed
+                let msg = document.getElementById('add-pizza-feedback');
+                if (!msg) {
+                    msg = document.createElement('div');
+                    msg.id = 'add-pizza-feedback';
+                    msg.style = 'color: blue; font-weight: bold; margin-top: 10px;';
+                    addPizzaForm.parentNode.insertBefore(msg, addPizzaForm.nextSibling);
+                }
+                msg.textContent = 'Add Pizza button pressed!';
+                setTimeout(() => { if (msg) msg.textContent = ''; }, 2000);
         e.preventDefault();
         if (!pizzaNameInput.value || sizes.length === 0) {
             alert('Please enter a pizza name and at least one size.');
