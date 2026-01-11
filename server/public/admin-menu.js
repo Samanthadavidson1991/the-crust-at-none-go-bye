@@ -145,21 +145,39 @@ document.addEventListener('DOMContentLoaded', () => {
     pizzaNameInput.addEventListener('input', renderPreview);
 
     addPizzaForm.addEventListener('submit', (e) => {
+        console.log('Add Pizza form submitted');
         e.preventDefault();
         if (!pizzaNameInput.value || sizes.length === 0) {
             alert('Please enter a pizza name and at least one size.');
             return;
         }
-        // Here you would send to backend
-        const previewText = sizes.map(obj => `${obj.size} (£${obj.price.toFixed(2)})`).join(', ');
-        let toppingsText = toppings.length ? ` | Toppings: ${toppings.join(', ')}` : '';
-        alert(`Pizza added: ${pizzaNameInput.value} (${previewText})${toppingsText}`);
-        pizzaNameInput.value = '';
-        sizes = [];
-        toppings = [];
-        renderSizes();
-        renderToppings();
-        renderPreview();
+        // Send new pizza to backend
+        const newPizza = {
+            name: pizzaNameInput.value,
+            sizes: sizes,
+            toppings: toppings
+        };
+        fetch('/api/menu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newPizza)
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to add pizza'); });
+            return res.json();
+        })
+        .then(data => {
+            alert('Pizza added to live menu!');
+            pizzaNameInput.value = '';
+            sizes = [];
+            toppings = [];
+            renderSizes();
+            renderToppings();
+            renderPreview();
+        })
+        .catch(err => {
+            alert('Error adding pizza: ' + err.message);
+        });
     });
 
     // Initial render
