@@ -30,9 +30,97 @@ document.addEventListener('DOMContentLoaded', () => {
         liveMenuList.innerHTML = '<h2>Live Menu</h2>' + liveMenu.map(item => {
             let sizesText = Array.isArray(item.sizes) ? item.sizes.map(s => `${s.size} (£${s.price.toFixed(2)})`).join(', ') : '';
             let toppingsText = Array.isArray(item.toppings) && item.toppings.length ? `<br><strong>Toppings:</strong> ${item.toppings.join(', ')}` : '';
-            return `<div style="margin-bottom:12px"><strong>${item.name}</strong> (${sizesText})${toppingsText}</div>`;
+            return `<div style="margin-bottom:12px"><strong>${item.name}</strong> (${sizesText})${toppingsText}
+                <button class="edit-menu-btn" data-id="${item._id}">Edit</button>
+                <button class="remove-menu-btn" data-id="${item._id}">Remove</button>
+            </div>`;
         }).join('');
+
+        // Attach event listeners for edit and remove
+        liveMenuList.querySelectorAll('.edit-menu-btn').forEach(btn => {
+            btn.onclick = function() {
+                const id = btn.getAttribute('data-id');
+                const item = liveMenu.find(i => i._id === id);
+                if (!item) return;
+                openEditModal(item);
+            };
+        });
+        liveMenuList.querySelectorAll('.remove-menu-btn').forEach(btn => {
+            btn.onclick = function() {
+                const id = btn.getAttribute('data-id');
+                if (confirm('Are you sure you want to remove this menu item?')) {
+                    fetch(`/api/menu/${id}`, { method: 'DELETE' })
+                        .then(res => {
+                            if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to delete'); });
+                            fetchLiveMenu();
+                        })
+                        .catch(err => alert('Error deleting: ' + err.message));
+                }
+            };
+        });
     }
+    // Edit modal logic
+    function openEditModal(item) {
+        modalBg.style.display = 'flex';
+        modal.querySelector('#modal-size-input').value = '';
+        modal.querySelector('#modal-price-input').value = '';
+        toppings = Array.isArray(item.toppings) ? [...item.toppings] : [];
+        sizes = Array.isArray(item.sizes) ? item.sizes.map(s => ({...s})) : [];
+        pizzaNameInput.value = item.name;
+        renderToppings();
+        renderSizes();
+        renderPreview();
+
+        // Change Add button to Save
+        const addBtn = modal.querySelector('#modal-add-btn');
+        addBtn.textContent = 'Save';
+        // Remove previous event listeners
+        const newAddBtn = addBtn.cloneNode(true);
+        addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+        newAddBtn.onclick = function() {
+            // Save changes
+            const updated = {
+                _id: item._id,
+                name: pizzaNameInput.value,
+                sizes: sizes,
+                toppings: toppings
+            };
+            fetch('/api/menu', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updated)
+            })
+            .then(res => {
+                if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to update'); });
+                return res.json();
+            })
+            .then(() => {
+                modalBg.style.display = 'none';
+                fetchLiveMenu();
+                pizzaNameInput.value = '';
+                sizes = [];
+                toppings = [];
+                renderSizes();
+                renderToppings();
+                renderPreview();
+            })
+            .catch(err => alert('Error updating: ' + err.message));
+        };
+        // Cancel button resets Add button
+        const cancelBtn = modal.querySelector('#modal-cancel-btn');
+        cancelBtn.onclick = function() {
+            modalBg.style.display = 'none';
+            // Restore Add button
+            const saveBtn = modal.querySelector('#modal-add-btn');
+            const origBtn = saveBtn.cloneNode(true);
+            origBtn.textContent = 'Add';
+            origBtn.onclick = origAddHandler;
+            saveBtn.parentNode.replaceChild(origBtn, saveBtn);
+        };
+    }
+
+    // Save original Add handler for restoring after edit
+    const origAddHandler = modal.querySelector('#modal-add-btn').onclick;
 
     fetchLiveMenu();
 
