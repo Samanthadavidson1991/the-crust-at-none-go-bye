@@ -1,14 +1,116 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     // State
     let sizes = [];
     let toppings = [];
     let liveMenu = [];
+    let sections = [];
+    // Section management elements
+    const addSectionForm = document.getElementById('add-section-form');
+    const sectionNameInput = document.getElementById('section-name');
+    const sectionsList = document.getElementById('sections-list');
+    // Fetch sections from backend
+    async function fetchSections() {
+        try {
+            const res = await fetch('/api/sections');
+            if (!res.ok) throw new Error('Failed to fetch sections');
+            const data = await res.json();
+            sections = data.sections || [];
+            renderSections();
+        } catch (err) {
+            sectionsList.innerHTML = `<span style="color:red">Error loading sections: ${err.message}</span>`;
+        }
+    }
+
+    // Render sections list
+    function renderSections() {
+        if (!Array.isArray(sections) || sections.length === 0) {
+            sectionsList.innerHTML = '<em>No sections found.</em>';
+            return;
+        }
+        sectionsList.innerHTML = '<ul>' + sections.map(sec =>
+            `<li>${sec.name} <button class="remove-section-btn" data-id="${sec._id}">Remove</button></li>`
+        ).join('') + '</ul>';
+        // Attach remove listeners
+        sectionsList.querySelectorAll('.remove-section-btn').forEach(btn => {
+            btn.onclick = async function() {
+                const id = btn.getAttribute('data-id');
+                if (confirm('Remove this section?')) {
+                    try {
+                        const res = await fetch(`/api/sections/${id}`, { method: 'DELETE' });
+                        if (!res.ok) throw new Error('Failed to delete section');
+                        fetchSections();
+                    } catch (err) {
+                        alert('Error deleting section: ' + err.message);
+                    }
+                }
+            };
+        });
+    }
+
+    // Add section form submit
+    if (addSectionForm) {
+        addSectionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = sectionNameInput.value.trim();
+            if (!name) return;
+            try {
+                const res = await fetch('/api/sections', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || 'Failed to add section');
+                }
+                sectionNameInput.value = '';
+                fetchSections();
+            } catch (err) {
+                alert('Error adding section: ' + err.message);
+            }
+        });
+    }
 
     // Elements for live menu display
     const liveMenuList = document.createElement('div');
     liveMenuList.id = 'live-menu-list';
     liveMenuList.style.margin = '24px 0';
     document.body.insertBefore(liveMenuList, document.body.firstChild.nextSibling);
+
+    // Section select for pizza form
+    const pizzaSectionSelect = document.createElement('select');
+    pizzaSectionSelect.id = 'pizza-section-select';
+    pizzaSectionSelect.required = true;
+    pizzaSectionSelect.style.margin = '0 8px 8px 0';
+    const pizzaSectionLabel = document.createElement('label');
+    pizzaSectionLabel.textContent = 'Section: ';
+    pizzaSectionLabel.htmlFor = 'pizza-section-select';
+    const pizzaForm = document.getElementById('add-pizza-form');
+    if (pizzaForm) {
+        pizzaForm.insertBefore(pizzaSectionLabel, pizzaForm.firstChild.nextSibling);
+        pizzaForm.insertBefore(pizzaSectionSelect, pizzaSectionLabel.nextSibling);
+    }
+
+    // Update section select options
+    function updateSectionSelect() {
+        pizzaSectionSelect.innerHTML = '';
+        if (!sections.length) {
+            pizzaSectionSelect.innerHTML = '<option value="">No sections</option>';
+            pizzaSectionSelect.disabled = true;
+        } else {
+            pizzaSectionSelect.disabled = false;
+            pizzaSectionSelect.innerHTML = '<option value="">Select section</option>' +
+                sections.map(sec => `<option value="${sec.name}">${sec.name}</option>`).join('');
+        }
+    }
+
+    // Call updateSectionSelect after fetching sections
+    const origRenderSections = renderSections;
+    renderSections = function() {
+        origRenderSections();
+        updateSectionSelect();
+    };
 
     // Fetch live menu from backend
     async function fetchLiveMenu() {
@@ -20,6 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             liveMenuList.innerHTML = `<span style="color:red">Error loading live menu: ${err.message}</span>`;
         }
+        // Fetch sections on load
+        fetchSections();
     }
 
     function renderLiveMenu() {
@@ -277,11 +381,17 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter a pizza name and at least one size.');
             return;
         }
+        const section = pizzaSectionSelect.value;
+        if (!section) {
+            alert('Please select a section.');
+            return;
+        }
         // Send new pizza to backend
         const newPizza = {
             name: pizzaNameInput.value,
             sizes: sizes,
-            toppings: toppings
+            toppings: toppings,
+            section: section
         };
         fetch('/api/menu', {
             method: 'POST',
@@ -298,6 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pizzaNameInput.value = '';
             sizes = [];
             toppings = [];
+            pizzaSectionSelect.value = '';
             renderSizes();
             renderToppings();
             renderPreview();
