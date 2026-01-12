@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                         if (item.sizes && Array.isArray(item.sizes)) {
                                             html += ' - Sizes: ' + item.sizes.map(s => `${s.name} (£${parseFloat(s.price).toFixed(2)})`).join(', ');
                                         }
+                                        if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+                                            html += '<br><span style="font-size:0.95em;color:#444;">Toppings: ' + item.toppings.join(', ') + '</span>';
+                                        }
                                         // Edit button
                                         html += ` <button data-id="${item._id}" class="edit-menu-item-btn">Edit</button>`;
                                         // Delete button
