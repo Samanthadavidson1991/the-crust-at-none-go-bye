@@ -1,3 +1,44 @@
+/* User-friendly Stripe card input area */
+.card-element-container {
+    display: none;
+    margin-top: 20px;
+    background: #f3f7ef;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(185,71,46,0.07);
+    padding: 24px 18px 18px 18px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    border: 1.5px solid #b9472e;
+}
+.card-element-container label {
+    font-weight: bold;
+    color: #7c232a;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    display: block;
+}
+#card-element {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 12px 10px;
+    margin-bottom: 10px;
+    min-height: 44px;
+    font-size: 1.1rem;
+}
+#card-errors {
+    color: #b9472e;
+    font-size: 1rem;
+    margin-top: 6px;
+    min-height: 20px;
+}
+/* Stripe card element container */
+.card-element-container {
+    display: none;
+    margin-top: 20px;
+}
 /* Dough/Gluten Free Counters Styling for Orders Page */
 .dough-counters {
     display: flex;
