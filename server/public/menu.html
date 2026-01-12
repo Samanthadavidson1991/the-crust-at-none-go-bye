@@ -175,12 +175,21 @@
             html += '</ul>';
           }
           // --- Toppings UI ---
-          // Section-based toppings assignment
+          // Pizza-specific toppings (from admin)
+          if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+            html += `<form class='toppings-form' data-name='${item.name}'>`;
+            html += `<small><b>Remove Toppings:</b></small><br>`;
+            item.toppings.forEach(topping => {
+              html += `<label style='margin-right:8px'><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
+            });
+            html += `</form>`;
+          }
+          // Section-assigned toppings (future use)
           const assignedToppingIds = (sectionAssignments && sectionAssignments[sectionName]) || [];
           const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
           if (assignedToppings.length > 0) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Add Toppings:</b></small><br>`;
+            html += `<form class='toppings-form' data-name='${item.name}-section'>`;
+            html += `<small><b>Add Section Toppings:</b></small><br>`;
             assignedToppings.forEach(mt => {
               let price = '0.00';
               if (mt.category === 'Meat') price = masterToppingSettings.masterMeatPrice?.toFixed(2) || '0.00';
