@@ -18,7 +18,25 @@
         <a href="offers.html" class="admin-link">Special Offers</a>
     </nav>
     <h1>Admin Menu Editor</h1>
-    <section id="section-management">
+    <section id="master-toppings-management" style="margin-bottom:32px;">
+        <h2>Master Toppings</h2>
+        <form id="add-master-topping-form" style="margin-bottom:12px;">
+            <input type="text" id="master-topping-name" placeholder="Topping Name" required>
+            <select id="master-topping-category" required>
+                <option value="Vegetable">Vegetable</option>
+                <option value="Meat">Meat</option>
+                <option value="Other">Other</option>
+            </select>
+            <button type="submit">Add Topping</button>
+        </form>
+        <div style="margin-bottom:12px;">
+            <label>Vegetable Price: <input type="number" id="master-veg-price" step="0.01" min="0" style="width:80px;"></label>
+            <label style="margin-left:16px;">Meat Price: <input type="number" id="master-meat-price" step="0.01" min="0" style="width:80px;"></label>
+            <label style="margin-left:16px;">Other Price: <input type="number" id="master-other-price" step="0.01" min="0" style="width:80px;"></label>
+            <button type="button" id="save-master-topping-prices" style="margin-left:16px;">Save Prices</button>
+        </div>
+        <div id="master-toppings-list"></div>
+    </section>
         <h2>Sections</h2>
         <form id="add-section-form" style="margin-bottom:16px;">
             <input type="text" id="section-name" placeholder="Section Name" required>
@@ -34,6 +52,9 @@
             <select id="pizza-section-select" required style="margin-bottom:8px;"></select><br>
             <input type="text" id="pizza-name" placeholder="Pizza Name" required><br>
             <textarea id="pizza-description" placeholder="Description (optional)" style="width:100%;margin-top:6px;margin-bottom:8px;" rows="2"></textarea>
+            <label style="display:block;margin:8px 0;">
+                <input type="checkbox" id="include-master-toppings"> Allow customers to add master toppings
+            </label>
             <button type="button" id="add-size-btn">Add Size</button>
             <div id="sizes-list"></div>
             <button type="submit">Add Pizza</button>

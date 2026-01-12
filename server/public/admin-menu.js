@@ -1,3 +1,55 @@
+    // --- Master Toppings Management ---
+    let masterToppings = [];
+    let masterToppingPrices = { Vegetable: 0, Meat: 0, Other: 0 };
+
+    const masterToppingNameInput = document.getElementById('master-topping-name');
+    const masterToppingCategorySelect = document.getElementById('master-topping-category');
+    const addMasterToppingForm = document.getElementById('add-master-topping-form');
+    const masterToppingsListDiv = document.getElementById('master-toppings-list');
+    const masterVegPriceInput = document.getElementById('master-veg-price');
+    const masterMeatPriceInput = document.getElementById('master-meat-price');
+    const masterOtherPriceInput = document.getElementById('master-other-price');
+    const saveMasterToppingPricesBtn = document.getElementById('save-master-topping-prices');
+
+    function renderMasterToppingsList() {
+        let html = '<ul style="list-style:none;padding-left:0;">';
+        masterToppings.forEach((topping, idx) => {
+            html += `<li style="margin-bottom:6px;">`
+                + `<b>${topping.name}</b> <span style='color:#888;'>(${topping.category})</span> `
+                + `<button data-idx="${idx}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
+                + `</li>`;
+        });
+        html += '</ul>';
+        masterToppingsListDiv.innerHTML = html;
+        document.querySelectorAll('.delete-master-topping-btn').forEach(btn => {
+            btn.onclick = function() {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                masterToppings.splice(idx, 1);
+                renderMasterToppingsList();
+            };
+        });
+    }
+
+    addMasterToppingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = masterToppingNameInput.value.trim();
+        const category = masterToppingCategorySelect.value;
+        if (!name || !category) return;
+        masterToppings.push({ name, category });
+        masterToppingNameInput.value = '';
+        masterToppingCategorySelect.value = 'Vegetable';
+        renderMasterToppingsList();
+    });
+
+    saveMasterToppingPricesBtn.onclick = function() {
+        masterToppingPrices.Vegetable = parseFloat(masterVegPriceInput.value) || 0;
+        masterToppingPrices.Meat = parseFloat(masterMeatPriceInput.value) || 0;
+        masterToppingPrices.Other = parseFloat(masterOtherPriceInput.value) || 0;
+        alert('Master topping prices saved!');
+    };
+
+    // Initial render
+    renderMasterToppingsList();
 document.addEventListener('DOMContentLoaded', () => {
                         // --- Admin Menu Preview ---
                         async function fetchAndRenderAdminMenuPreview() {
@@ -154,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addPizzaForm = document.getElementById('add-pizza-form');
     const pizzaNameInput = document.getElementById('pizza-name');
     const pizzaDescriptionInput = document.getElementById('pizza-description');
+    const includeMasterToppingsCheckbox = document.getElementById('include-master-toppings');
 
     // Modal for size/price and toppings
     let modalBg = document.createElement('div');
@@ -356,7 +409,8 @@ document.addEventListener('DOMContentLoaded', () => {
             description: pizzaDescriptionInput.value.trim() || undefined,
             sizes: sizes,
             toppings: toppings,
-            section: sectionSelect.value || 'Other'
+            section: sectionSelect.value || 'Other',
+            allowMasterToppings: !!includeMasterToppingsCheckbox.checked
         };
         fetch('/api/menu', {
             method: 'POST',
@@ -371,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Pizza added to live menu!');
             pizzaNameInput.value = '';
             pizzaDescriptionInput.value = '';
+            includeMasterToppingsCheckbox.checked = false;
             sizes = [];
             toppings = [];
             renderSizes();
