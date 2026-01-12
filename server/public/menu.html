@@ -184,22 +184,22 @@
             });
             html += `</form>`;
           }
-          // Section-assigned toppings (future use)
-          const assignedToppingIds = (sectionAssignments && sectionAssignments[sectionName]) || [];
-          const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
-          if (assignedToppings.length > 0) {
-            html += `<form class='toppings-form' data-name='${item.name}-section'>`;
-            html += `<small><b>Add Section Toppings:</b></small><br>`;
-            assignedToppings.forEach(mt => {
-              let price = '0.00';
-              if (mt.category === 'Meat') price = masterToppingSettings.masterMeatPrice?.toFixed(2) || '0.00';
-              else if (mt.category === 'Veg') price = masterToppingSettings.masterVegPrice?.toFixed(2) || '0.00';
-              else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
-              html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
-              html += ` <span style='font-size:0.9em;color:#888'>(${mt.category} • £${price})</span>`;
-              html += `</label>`;
-            });
-            html += `</form>`;
+          // Master toppings (if allowed for this item)
+          if (item.allowMasterToppings) {
+            if (masterToppings.length > 0) {
+              html += `<form class='toppings-form' data-name='${item.name}-master'>`;
+              html += `<small><b>Add Master Toppings:</b></small><br>`;
+              masterToppings.forEach(mt => {
+                let price = '0.00';
+                if (mt.category === 'Meat') price = masterToppingSettings.masterMeatPrice?.toFixed(2) || '0.00';
+                else if (mt.category === 'Veg') price = masterToppingSettings.masterVegPrice?.toFixed(2) || '0.00';
+                else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+                html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
+                html += ` <span style='font-size:0.9em;color:#888'>(${mt.category} • £${price})</span>`;
+                html += `</label>`;
+              });
+              html += `</form>`;
+            }
           }
           if (outOfStock) {
             html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
