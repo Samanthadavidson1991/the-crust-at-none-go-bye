@@ -65,6 +65,11 @@
           <button type="button" class="pay-card" id="pay-card-btn">Pay with Card</button>
           <button type="button" class="pay-cash" id="pay-cash-btn">Pay with Cash</button>
         </div>
+        <div id="card-element-container" class="card-element-container">
+          <label for="card-element">Card Details:</label>
+          <div id="card-element"></div>
+          <div id="card-errors" class="text-error"></div>
+        </div>
         <button type="submit">Place Order</button>
       </form>
     </section>
@@ -143,8 +148,6 @@
           return;
         }
         let html = '<ul class="unstyled-list">';
-        // Debug: show raw order data
-        html += `<pre class='debug-order-data'>DEBUG ORDER DATA:\n${JSON.stringify(order, null, 2)}</pre>`;
         order.forEach((item, idx) => {
           let line = `<b>${item.name}</b>`;
           if (item.selectedSize) line += ` <span class='selected-size'>[${item.selectedSize.name}]</span>`;
@@ -168,6 +171,19 @@
         });
       }
       document.addEventListener('DOMContentLoaded', function() {
+                // --- STRIPE JS INTEGRATION ---
+                let stripe, elements, cardElement;
+                async function setupStripe() {
+                  if (!stripe) {
+                    stripe = Stripe('pk_live_51Rw3qTGYjsS5ePNSGGE1xAaSInE9YDZwbPaGaqu7g1Cdj2yG1t7Cp7civr7PAjg7RC22flAaDwx0PAJj40hQe8JC001sS83TsB');
+                    elements = stripe.elements();
+                    cardElement = elements.create('card');
+                    cardElement.mount('#card-element');
+                    cardElement.on('change', function(event) {
+                      document.getElementById('card-errors').textContent = event.error ? event.error.message : '';
+                    });
+                  }
+                }
         // Restrict date picker to Friday, Saturday, Sunday only
         const dateInput = document.getElementById('date');
         dateInput.addEventListener('input', function() {
@@ -208,10 +224,13 @@
         cashBtn.addEventListener('click', function() {
           window.selectedPayment = 'cash';
           updatePaymentButtons();
+          document.getElementById('card-element-container').style.display = 'none';
         });
         cardBtn.addEventListener('click', function() {
           window.selectedPayment = 'card';
           updatePaymentButtons();
+          document.getElementById('card-element-container').style.display = 'block';
+          setupStripe();
         });
         // Optionally, you can require a payment method before submitting the order
         // Intercept form submit for postcode check
@@ -265,10 +284,6 @@
           const comments = document.getElementById('comments').value.trim();
           const allergens = document.getElementById('allergens').value.trim();
           const timeSlot = document.getElementById('time').value;
-          // Find slotId from timeSlot (assume slotId is time string for now)
-          // In a real app, fetch slotId from backend
-          // We'll send timeSlot as both slotId and timeSlot for now
-          // Calculate total
           let total = 0;
           orderItems.forEach(item => {
             total += (parseFloat(item.price) || 0) * (item.quantity || 1);
@@ -293,34 +308,77 @@
             total: parseFloat(total.toFixed(2)),
             paymentType
           };
-          // DEBUG: window.selectedPayment = ... (removed for production)
-          try {
-            const res = await fetch('https://admin.thecrustatngb.co.uk/api/orders', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(orderData)
-            });
-            if (!res.ok) {
-              const err = await res.json();
-              document.getElementById('postcode-error').textContent = err.error || 'Order failed.';
+          if (paymentType === 'card') {
+            // Stripe payment flow
+            try {
+              // 1. Create payment intent
+              const piRes = await fetch('/api/create-payment-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: orderData.total, currency: 'gbp' })
+              });
+              const piData = await piRes.json();
+              if (!piRes.ok || !piData.clientSecret) {
+                document.getElementById('card-errors').textContent = piData.error || 'Payment failed.';
+                return false;
+              }
+              // 2. Confirm card payment
+              const { error, paymentIntent } = await stripe.confirmCardPayment(piData.clientSecret, {
+                payment_method: {
+                  card: cardElement,
+                  billing_details: { name, email }
+                }
+              });
+              if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+                return false;
+              }
+              if (paymentIntent && paymentIntent.status === 'succeeded') {
+                // 3. Submit order to backend
+                const res = await fetch('https://admin.thecrustatngb.co.uk/api/orders', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(orderData)
+                });
+                if (!res.ok) {
+                  const err = await res.json();
+                  document.getElementById('postcode-error').textContent = err.error || 'Order failed.';
+                  return false;
+                }
+                localStorage.removeItem('order');
+                renderOrderSummary();
+                this.reset();
+                document.getElementById('card-element-container').style.display = 'none';
+                document.getElementById('card-errors').textContent = '';
+              }
+            } catch (err) {
+              document.getElementById('card-errors').textContent = 'Payment failed. Please try again.';
               return false;
             }
-            // Success
-            localStorage.removeItem('order');
-            renderOrderSummary();
-            if (window.manualApproval) {
-              // alert removed for production
-              window.manualApproval = false;
-            } else {
-              // alert removed for production
+          } else {
+            // Cash payment flow (original)
+            try {
+              const res = await fetch('https://admin.thecrustatngb.co.uk/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+              });
+              if (!res.ok) {
+                const err = await res.json();
+                document.getElementById('postcode-error').textContent = err.error || 'Order failed.';
+                return false;
+              }
+              localStorage.removeItem('order');
+              renderOrderSummary();
+              this.reset();
+            } catch (err) {
+              document.getElementById('postcode-error').textContent = 'Order failed. Please try again.';
             }
-            this.reset();
-          } catch (err) {
-            document.getElementById('postcode-error').textContent = 'Order failed. Please try again.';
           }
         };
       });
     </script>
   </footer>
+  <script src="https://js.stripe.com/v3/"></script>
 </body>
 </html>
