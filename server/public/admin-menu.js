@@ -153,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pizzaPreview = document.getElementById('pizza-preview');
     const addPizzaForm = document.getElementById('add-pizza-form');
     const pizzaNameInput = document.getElementById('pizza-name');
+    const pizzaDescriptionInput = document.getElementById('pizza-description');
 
     // Modal for size/price and toppings
     let modalBg = document.createElement('div');
@@ -352,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Send new pizza to backend
         const newPizza = {
             name: pizzaNameInput.value,
+            description: pizzaDescriptionInput.value.trim() || undefined,
             sizes: sizes,
             toppings: toppings,
             section: sectionSelect.value || 'Other'
@@ -368,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             alert('Pizza added to live menu!');
             pizzaNameInput.value = '';
+            pizzaDescriptionInput.value = '';
             sizes = [];
             toppings = [];
             renderSizes();
