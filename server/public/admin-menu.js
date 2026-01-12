@@ -244,11 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter both size and price.');
             return;
         }
-        if (sizes.some(s => s.size === size)) {
+        if (sizes.some(s => s.name === size)) {
             alert('This size already exists.');
             return;
         }
-        sizes.push({ size, price: parseFloat(price) });
+        sizes.push({ name: size, price: parseFloat(price) });
         renderSizes();
         renderPreview();
         hideModal();
