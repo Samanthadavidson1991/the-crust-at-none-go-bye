@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 previewDiv.innerHTML = `<span style="color:red;">Error loading menu preview: ${err.message}</span>`;
                             }
                         }
-                    // Add Section form handler
+                        // Add Section form handler
                     const addSectionForm = document.getElementById('add-section-form');
                     const sectionNameInput = document.getElementById('section-name');
                     addSectionForm.addEventListener('submit', async (e) => {
@@ -199,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
             span.textContent = topping;
             span.style.marginRight = '8px';
             const removeBtn = document.createElement('button');
-            removeBtn.textContent = 'x';
             removeBtn.style.marginLeft = '4px';
+            removeBtn.textContent = 'x';
             removeBtn.onclick = () => {
                 toppings.splice(idx, 1);
                 renderToppings();
@@ -256,6 +256,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSizes() {
         sizesList.innerHTML = '';
+
+                        // Render section list with delete buttons
+                        async function renderSectionsList() {
+                            const sectionsListDiv = document.getElementById('sections-list');
+                            sectionsListDiv.innerHTML = '<em>Loading sections...</em>';
+                            try {
+                                const res = await fetch('/api/sections');
+                                if (!res.ok) throw new Error('Failed to fetch sections');
+                                const data = await res.json();
+                                const sections = data.sections || [];
+                                if (!sections.length) {
+                                    sectionsListDiv.innerHTML = '<em>No sections found.</em>';
+                                    return;
+                                }
+                                let html = '<ul style="list-style:none;padding-left:0;">';
+                                sections.forEach(sec => {
+                                    html += `<li style="margin-bottom:6px;">`
+                                        + `<b>${sec.name}</b> `
+                                        + `<button data-id="${sec._id}" class="delete-section-btn" style="color:red;">Delete</button>`
+                                        + `</li>`;
+                                });
+                                html += '</ul>';
+                                sectionsListDiv.innerHTML = html;
+
+                                // Attach delete handlers
+                                document.querySelectorAll('.delete-section-btn').forEach(btn => {
+                                    btn.onclick = async function() {
+                                        if (!confirm('Are you sure you want to delete this section?')) return;
+                                        const id = btn.getAttribute('data-id');
+                                        try {
+                                            const res = await fetch(`/api/sections/${id}`, { method: 'DELETE' });
+                                            if (!res.ok) throw new Error('Failed to delete section');
+                                            await populateSectionDropdown();
+                                            await renderSectionsList();
+                                        } catch (err) {
+                                            alert('Error deleting section: ' + err.message);
+                                        }
+                                    };
+                                });
+                            } catch (err) {
+                                sectionsListDiv.innerHTML = `<span style="color:red;">Error loading sections: ${err.message}</span>`;
+                            }
+                        }
+
+                        // Initial render
+                        renderSectionsList();
+
         sizes.forEach((obj, idx) => {
             const div = document.createElement('div');
             div.textContent = `${obj.size} (£${obj.price.toFixed(2)})`;
@@ -294,93 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // After adding, refresh the admin menu preview
                 setTimeout(fetchAndRenderAdminMenuPreview, 500);
-        // --- Admin Menu Preview ---
-        async function fetchAndRenderAdminMenuPreview() {
-            const previewDiv = document.getElementById('admin-menu-preview');
-            previewDiv.innerHTML = '<em>Loading menu...</em>';
-            try {
-                const res = await fetch('/api/menu');
-                if (!res.ok) throw new Error('Failed to fetch menu');
-                const data = await res.json();
-                const items = data.items || [];
-                if (!items.length) {
-                    previewDiv.innerHTML = '<em>No menu items found.</em>';
-                    return;
-                }
-                // Group by section
-                const sectionMap = {};
-                items.forEach(item => {
-                    const section = item.section || 'Other';
-                    if (!sectionMap[section]) sectionMap[section] = [];
-                    sectionMap[section].push(item);
-                });
-                    let html = '';
-                Object.keys(sectionMap).forEach(section => {
-                    html += `<h4>${section}</h4><ul style="margin-bottom:12px;">`;
-                    sectionMap[section].forEach(item => {
-                        html += `<li><b>${item.name}</b>`;
-                        if (item.sizes && Array.isArray(item.sizes)) {
-                            html += ' - Sizes: ' + item.sizes.map(s => `${s.size} (£${parseFloat(s.price).toFixed(2)})`).join(', ');
-                        }
-                        // Edit button
-                        html += ` <button data-id="${item._id}" class="edit-menu-item-btn">Edit</button>`;
-                        // Delete button
-                        html += ` <button data-id="${item._id}" class="delete-menu-item-btn" style="color:red;">Delete</button>`;
-                        html += '</li>';
-                    });
-                    html += '</ul>';
-                });
-                previewDiv.innerHTML = html;
-
-                // Attach delete handlers
-                document.querySelectorAll('.delete-menu-item-btn').forEach(btn => {
-                    btn.onclick = async function() {
-                        if (!confirm('Are you sure you want to delete this menu item?')) return;
-                        const id = btn.getAttribute('data-id');
-                        try {
-                            const res = await fetch(`/api/menu/${id}`, { method: 'DELETE' });
-                            if (!res.ok) throw new Error('Failed to delete');
-                            fetchAndRenderAdminMenuPreview();
-                        } catch (err) {
-                            alert('Error deleting item: ' + err.message);
-                        }
-                    };
-                });
-
-                // Attach edit handlers (basic modal)
-                document.querySelectorAll('.edit-menu-item-btn').forEach(btn => {
-                    btn.onclick = async function() {
-                        const id = btn.getAttribute('data-id');
-                        // Fetch item details
-                        try {
-                            const res = await fetch(`/api/menu`);
-                            const data = await res.json();
-                            const item = (data.items || []).find(i => i._id === id);
-                            if (!item) return alert('Menu item not found');
-                            // Show a simple prompt for name edit (can be expanded)
-                            const newName = prompt('Edit pizza name:', item.name);
-                            if (newName && newName !== item.name) {
-                                // Send update
-                                const updateRes = await fetch(`/api/menu`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ ...item, name: newName })
-                                });
-                                if (!updateRes.ok) throw new Error('Failed to update');
-                                fetchAndRenderAdminMenuPreview();
-                            }
-                        } catch (err) {
-                            alert('Error editing item: ' + err.message);
-                        }
-                    };
-                });
-            } catch (err) {
-                previewDiv.innerHTML = `<span style="color:red;">Error loading menu preview: ${err.message}</span>`;
-            }
-        }
-
-        // Initial load
-        fetchAndRenderAdminMenuPreview();
         e.preventDefault();
         if (!pizzaNameInput.value || sizes.length === 0) {
             alert('Please enter a pizza name and at least one size.');
