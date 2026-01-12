@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     sectionMap[section].forEach(item => {
                                         html += `<li><b>${item.name}</b>`;
                                         if (item.sizes && Array.isArray(item.sizes)) {
-                                            html += ' - Sizes: ' + item.sizes.map(s => `${s.size} (£${parseFloat(s.price).toFixed(2)})`).join(', ');
+                                            html += ' - Sizes: ' + item.sizes.map(s => `${s.name} (£${parseFloat(s.price).toFixed(2)})`).join(', ');
                                         }
                                         // Edit button
                                         html += ` <button data-id="${item._id}" class="edit-menu-item-btn">Edit</button>`;
