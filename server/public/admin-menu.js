@@ -33,8 +33,8 @@
                     document.getElementById(`size-dropdown-${i}`).addEventListener('change', saveSelectedSets);
                 }
     // --- Master Toppings Management ---
-    let masterToppings = [];
-    let masterToppingPrices = { Vegetable: 0, Meat: 0, Other: 0 };
+    let masterToppings = JSON.parse(localStorage.getItem('masterToppings') || '[]');
+    let masterToppingPrices = JSON.parse(localStorage.getItem('masterToppingPrices') || '{"Vegetable":0,"Meat":0,"Other":0}');
 
     const masterToppingNameInput = document.getElementById('master-topping-name');
     const masterToppingCategorySelect = document.getElementById('master-topping-category');
@@ -85,6 +85,7 @@
         const category = masterToppingCategorySelect.value;
         if (!name || !category) return;
         masterToppings.push({ name, category });
+        localStorage.setItem('masterToppings', JSON.stringify(masterToppings));
         masterToppingNameInput.value = '';
         masterToppingCategorySelect.value = 'Vegetable';
         renderMasterToppingsList();
@@ -94,10 +95,15 @@
         masterToppingPrices.Vegetable = parseFloat(masterVegPriceInput.value) || 0;
         masterToppingPrices.Meat = parseFloat(masterMeatPriceInput.value) || 0;
         masterToppingPrices.Other = parseFloat(masterOtherPriceInput.value) || 0;
+        localStorage.setItem('masterToppingPrices', JSON.stringify(masterToppingPrices));
         alert('Master topping prices saved!');
+        renderMasterToppingsList();
     };
 
     // Initial render
+    masterVegPriceInput.value = masterToppingPrices.Vegetable;
+    masterMeatPriceInput.value = masterToppingPrices.Meat;
+    masterOtherPriceInput.value = masterToppingPrices.Other;
     renderMasterToppingsList();
 document.addEventListener('DOMContentLoaded', () => {
                         // --- Admin Menu Preview ---
