@@ -63,7 +63,7 @@
 
     function renderMasterToppingsList() {
         // Group toppings by category
-        const categories = ['Vegetable', 'Meat', 'Other'];
+        const categories = ['Veg', 'Meat', 'Other'];
         let html = '';
         categories.forEach(cat => {
             html += `<div style="margin-bottom:12px;">
