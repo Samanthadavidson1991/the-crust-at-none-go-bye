@@ -16,6 +16,58 @@
     </nav>
   <!-- Login redirect removed for dashboard access -->
     <script>
+      // --- Populate Offer Dropdowns with Live Menu Data ---
+      async function populateOfferDropdowns() {
+        // Fetch sections and menu items
+        const [menuRes, sectionsRes] = await Promise.all([
+          fetch('/api/menu'),
+          fetch('/api/sections')
+        ]);
+        const menuData = await menuRes.json();
+        const sectionsData = await sectionsRes.json();
+        const menuItems = menuData.items || [];
+        const sections = sectionsData.sections || [];
+        for (let i = 1; i <= 4; i++) {
+          const sectionDropdown = document.getElementById(`section-dropdown-${i}`);
+          const menuItemDropdown = document.getElementById(`menu-item-dropdown-${i}`);
+          const sizeDropdown = document.getElementById(`size-dropdown-${i}`);
+          // Populate sections
+          sectionDropdown.innerHTML = '<option value="">(None)</option>';
+          sections.forEach(sec => {
+            const opt = document.createElement('option');
+            opt.value = sec.name;
+            opt.textContent = sec.name;
+            sectionDropdown.appendChild(opt);
+          });
+          // Populate menu items and sizes on section change
+          sectionDropdown.onchange = function() {
+            const selectedSection = sectionDropdown.value;
+            const items = menuItems.filter(item => item.section === selectedSection);
+            menuItemDropdown.innerHTML = '<option value="">(None)</option>';
+            items.forEach(item => {
+              const opt = document.createElement('option');
+              opt.value = item._id;
+              opt.textContent = item.name;
+              menuItemDropdown.appendChild(opt);
+            });
+            sizeDropdown.innerHTML = '<option value="">(None)</option>';
+          };
+          // Populate sizes on menu item change
+          menuItemDropdown.onchange = function() {
+            const item = menuItems.find(i => i._id === menuItemDropdown.value);
+            sizeDropdown.innerHTML = '<option value="">(None)</option>';
+            if (item && item.sizes && Array.isArray(item.sizes)) {
+              item.sizes.forEach(sizeObj => {
+                const opt = document.createElement('option');
+                opt.value = sizeObj.name;
+                opt.textContent = `${sizeObj.name} (£${parseFloat(sizeObj.price).toFixed(2)})`;
+                sizeDropdown.appendChild(opt);
+              });
+            }
+          };
+        }
+      }
+      document.addEventListener('DOMContentLoaded', populateOfferDropdowns);
       // Login/session check
       fetch('/api/admin/check', { credentials: 'include' })
         .then(r => {
