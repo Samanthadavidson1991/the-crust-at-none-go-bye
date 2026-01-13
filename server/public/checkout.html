@@ -177,7 +177,29 @@
                   if (!stripe) {
                     stripe = Stripe('pk_live_51Rw3qTGYjsS5ePNSGGE1xAaSInE9YDZwbPaGaqu7g1Cdj2yG1t7Cp7civr7PAjg7RC22flAaDwx0PAJj40hQe8JC001sS83TsB');
                     elements = stripe.elements();
-                    cardElement = elements.create('card');
+                    const cardStyle = {
+                      style: {
+                        base: {
+                          color: '#111',
+                          fontFamily: 'Quicksand, Arial, sans-serif',
+                          fontSize: '1.2rem',
+                          fontWeight: '600',
+                          '::placeholder': {
+                            color: '#b9472e',
+                            fontWeight: '400',
+                            fontSize: '1.1rem',
+                          },
+                          iconColor: '#b9472e',
+                          backgroundColor: '#fffbe6',
+                          padding: '10px 0',
+                        },
+                        invalid: {
+                          color: '#b9472e',
+                          iconColor: '#b9472e',
+                        }
+                      }
+                    };
+                    cardElement = elements.create('card', cardStyle);
                     cardElement.mount('#card-element');
                     cardElement.on('change', function(event) {
                       document.getElementById('card-errors').textContent = event.error ? event.error.message : '';
