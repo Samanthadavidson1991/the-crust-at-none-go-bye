@@ -229,7 +229,7 @@
                       setTimeout(() => { card.style.background = ''; }, 300);
                       e.stopPropagation();
                     });
-          }
+                  });
           // Master toppings (if allowed for this item)
           if (item.allowMasterToppings && masterToppings.length > 0) {
             html += `<form class='toppings-form' data-name='${item.name}-master'>`;
