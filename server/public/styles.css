@@ -1,3 +1,16 @@
+/* Selected Offer Banner Styling */
+.selected-offer-banner {
+    background: linear-gradient(90deg, #ffe5b4 0%, #fffbe6 100%);
+    border: 2px solid #e9c46a;
+    color: #b9472e;
+    font-weight: bold;
+    font-size: 1.15em;
+    padding: 12px 18px;
+    margin: 18px 0 24px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(233,196,106,0.12);
+    text-align: center;
+}
 /* Option preview styling for admin menu editor */
 .option-preview-list {
     border: 1px solid #d0d0d0;

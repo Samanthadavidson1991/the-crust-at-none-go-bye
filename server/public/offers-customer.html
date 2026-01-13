@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Special Offers | None Go Bye</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="offers-page">
+<body class="offers-page app-body" id="offers-customer-page">
+  <nav class="main-nav" style="margin-bottom: 24px;">
+    <a href="index.html">Home</a>
+    <a href="menu.html">Menu</a>
+    <a href="checkout.html">Checkout</a>
+    <a href="offers-customer.html">Special Offers</a>
+  </nav>
+  <main id="main-content">
+    <h1 class="main-heading underline">Special Offers</h1>
+    <section class="offers-section" style="background: #fffbe6; border-radius: 12px; box-shadow: 0 2px 12px rgba(233,196,106,0.08); padding: 24px 18px; margin: 18px auto; max-width: 600px;">
+      <div id="customer-offer-list"></div>
+    </section>
+      <style>
+        .offer-item {
+          background: #fff;
+          border: 1.5px solid #e9c46a;
+          border-radius: 8px;
+          box-shadow: 0 1px 6px rgba(233,196,106,0.08);
+          margin-bottom: 18px;
+          padding: 16px 14px;
+          font-family: 'Quicksand', Arial, sans-serif;
+          color: #b9472e;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .offer-item button {
+          background: #e9c46a;
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          padding: 8px 18px;
+          font-weight: bold;
+          font-size: 1em;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .offer-item button:hover {
+          background: #b9472e;
+        }
+      </style>
+  </main>
+  <script>
+    async function fetchOffers() {
+      const res = await fetch('/api/offers');
+      const offers = await res.json();
+      renderOffers(offers);
+    }
+    function renderOffers(offers) {
+      const list = document.getElementById('customer-offer-list');
+      if (!offers.length) {
+        list.innerHTML = '<em>No special offers available.</em>';
+        return;
+      }
+      list.innerHTML = offers.map(offer => {
+        let price = offer.price ? `£${parseFloat(offer.price).toFixed(2)}` : '';
+        let dateStr = '';
+        if (offer.startDate || offer.endDate) {
+          dateStr = `<span style='color:#888;font-size:0.95em'>${offer.startDate ? 'From ' + new Date(offer.startDate).toLocaleDateString() : ''}${offer.endDate ? ' to ' + new Date(offer.endDate).toLocaleDateString() : ''}</span>`;
+        }
+        return `
+          <div class='offer-item'>
+            <span><b>${offer.title}</b> - ${offer.desc}${price ? ' <b>'+price+'</b>' : ''} ${dateStr}</span>
+            <button onclick='chooseOffer("${offer._id}")'>Choose</button>
+          </div>
+        `;
+      }).join('');
+    }
+    window.chooseOffer = function(id) {
+      localStorage.setItem('selectedOffer', id);
+      alert('Offer selected! You can now use it at checkout.');
+    }
+    fetchOffers();
+  </script>
+</body>
+</html>

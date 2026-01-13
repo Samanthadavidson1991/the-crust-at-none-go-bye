@@ -17,11 +17,13 @@
       <a href="index.html">Home</a>
       <a href="menu.html">Menu</a>
       <a href="checkout.html">Checkout</a>
+      <a href="offers-customer.html">Special Offers</a>
       <a href="allergens.html">Allergens</a>
     </nav>
   </header>
   <main>
     <main id="main-content">
+      <div id="selected-offer-checkout" class="selected-offer-banner" style="display:none;"></div>
     <section class="container">
       <h2>Order Summary</h2>
   <div class="flex-between">
@@ -79,6 +81,24 @@
     <p><b>Delivery only within a 5 mile radius of LS18 5HZ.</b></p>
   <div id="postcode-error" class="text-error"></div>
     <script>
+        // Show selected offer in checkout
+        async function showSelectedOfferCheckout() {
+          const selectedId = localStorage.getItem('selectedOffer');
+          if (!selectedId) {
+            document.getElementById('selected-offer-checkout').style.display = 'none';
+            return;
+          }
+          const res = await fetch('/api/offers');
+          const offers = await res.json();
+          const offer = offers.find(o => o._id === selectedId);
+          if (offer) {
+            document.getElementById('selected-offer-checkout').style.display = 'block';
+            document.getElementById('selected-offer-checkout').innerHTML = `<b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}`;
+          } else {
+            document.getElementById('selected-offer-checkout').style.display = 'none';
+          }
+        }
+        showSelectedOfferCheckout();
       // --- POSTCODE DISTANCE CHECK ---
       async function getDeliveryDistanceLimit() {
         try {
