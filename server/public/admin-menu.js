@@ -46,14 +46,29 @@
     const saveMasterToppingPricesBtn = document.getElementById('save-master-topping-prices');
 
     function renderMasterToppingsList() {
-        let html = '<ul style="list-style:none;padding-left:0;">';
-        masterToppings.forEach((topping, idx) => {
-            html += `<li style="margin-bottom:6px;">`
-                + `<b>${topping.name}</b> <span style='color:#888;'>(${topping.category})</span> `
-                + `<button data-idx="${idx}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
-                + `</li>`;
+        // Group toppings by category
+        const categories = ['Vegetable', 'Meat', 'Other'];
+        let html = '';
+        categories.forEach(cat => {
+            html += `<div style="margin-bottom:12px;">
+                <h4 style="margin-bottom:4px;">${cat} <span style='font-size:0.95em;color:#888;'>(£${parseFloat(masterToppingPrices[cat]).toFixed(2)})</span></h4>`;
+            const toppingsInCat = masterToppings.filter(t => t.category === cat);
+            if (toppingsInCat.length) {
+                html += '<ul style="list-style:none;padding-left:0;">';
+                toppingsInCat.forEach((topping, idx) => {
+                    // Find the index in masterToppings for delete
+                    const realIdx = masterToppings.findIndex(t => t.name === topping.name && t.category === topping.category);
+                    html += `<li style="margin-bottom:6px;">`
+                        + `<b>${topping.name}</b> `
+                        + `<button data-idx="${realIdx}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
+                        + `</li>`;
+                });
+                html += '</ul>';
+            } else {
+                html += `<em style='color:#888;'>No ${cat.toLowerCase()} toppings</em>`;
+            }
+            html += '</div>';
         });
-        html += '</ul>';
         masterToppingsListDiv.innerHTML = html;
         document.querySelectorAll('.delete-master-topping-btn').forEach(btn => {
             btn.onclick = function() {
