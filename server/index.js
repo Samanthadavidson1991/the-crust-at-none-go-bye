@@ -96,6 +96,8 @@ mongoose.connect(atlasUri)
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
       }
     });
+  const selectedMenuSetsRouter = require('./selected-menu-sets');
+  app.use('/api/selected-menu-sets', selectedMenuSetsRouter);
     // Helper: Admin authentication middleware
     function requireAdminAuth(req, res, next) {
       if (req.session && req.session.isAdmin) return next();

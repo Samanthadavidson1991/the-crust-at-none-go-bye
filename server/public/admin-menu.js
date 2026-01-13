@@ -1,3 +1,37 @@
+                // Helper to collect all four sets
+                function getSelectedSets() {
+                    const sets = [];
+                    for (let i = 1; i <= 4; i++) {
+                        const section = document.getElementById(`section-dropdown-${i}`).value;
+                        const item = document.getElementById(`menu-item-dropdown-${i}`).value;
+                        const size = document.getElementById(`size-dropdown-${i}`).value;
+                        if (section && item && size) {
+                            sets.push({ section, item, size });
+                        }
+                    }
+                    return sets;
+                }
+
+                // Save sets to backend
+                async function saveSelectedSets() {
+                    const sets = getSelectedSets();
+                    try {
+                        await fetch('/api/selected-menu-sets', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sets })
+                        });
+                    } catch (err) {
+                        alert('Error saving selected sets: ' + err.message);
+                    }
+                }
+
+                // Attach change listeners to all dropdowns
+                for (let i = 1; i <= 4; i++) {
+                    document.getElementById(`section-dropdown-${i}`).addEventListener('change', saveSelectedSets);
+                    document.getElementById(`menu-item-dropdown-${i}`).addEventListener('change', saveSelectedSets);
+                    document.getElementById(`size-dropdown-${i}`).addEventListener('change', saveSelectedSets);
+                }
     // --- Master Toppings Management ---
     let masterToppings = [];
     let masterToppingPrices = { Vegetable: 0, Meat: 0, Other: 0 };
@@ -168,27 +202,90 @@ document.addEventListener('DOMContentLoaded', () => {
                     refreshPreviewBtn.onclick = fetchAndRenderAdminMenuPreview;
                 }
             // Section selector
-            const sectionSelect = document.getElementById('pizza-section-select');
+            // Four dropdown sets
+            for (let i = 1; i <= 4; i++) {
+                const sectionDropdown = document.getElementById(`section-dropdown-${i}`);
+                const menuItemDropdown = document.getElementById(`menu-item-dropdown-${i}`);
+                const sizeDropdown = document.getElementById(`size-dropdown-${i}`);
 
-            // Fetch sections and populate dropdown
-            async function populateSectionDropdown() {
-                try {
-                    const res = await fetch('/api/sections');
-                    if (!res.ok) throw new Error('Failed to fetch sections');
-                    const data = await res.json();
-                    const sections = data.sections || [];
-                    sectionSelect.innerHTML = '';
-                    sections.forEach(sec => {
-                        const opt = document.createElement('option');
-                        opt.value = sec.name;
-                        opt.textContent = sec.name;
-                        sectionSelect.appendChild(opt);
-                    });
-                } catch (err) {
-                    sectionSelect.innerHTML = '<option value="Other">Other</option>';
+                let allMenuItems = [];
+                let sectionItems = [];
+
+                async function populateSectionDropdown() {
+                    try {
+                        const res = await fetch('/api/sections');
+                        if (!res.ok) throw new Error('Failed to fetch sections');
+                        const data = await res.json();
+                        const sections = data.sections || [];
+                        sectionDropdown.innerHTML = '<option value="">(None)</option>';
+                        sections.forEach(sec => {
+                            const opt = document.createElement('option');
+                            opt.value = sec.name;
+                            opt.textContent = sec.name;
+                            sectionDropdown.appendChild(opt);
+                        });
+                        if (sections.length) {
+                            sectionDropdown.value = '';
+                            await populateMenuItemDropdown('');
+                        }
+                    } catch (err) {
+                        sectionDropdown.innerHTML = '<option value="">(None)</option>';
+                    }
                 }
+
+                async function populateMenuItemDropdown(sectionName) {
+                    try {
+                        const res = await fetch('/api/menu');
+                        if (!res.ok) throw new Error('Failed to fetch menu items');
+                        const data = await res.json();
+                        allMenuItems = data.items || [];
+                        sectionItems = sectionName ? allMenuItems.filter(item => item.section === sectionName) : [];
+                        menuItemDropdown.innerHTML = '<option value="">(None)</option>';
+                        if (sectionItems.length) {
+                            const allOpt = document.createElement('option');
+                            allOpt.value = 'all';
+                            allOpt.textContent = 'All';
+                            menuItemDropdown.appendChild(allOpt);
+                            sectionItems.forEach(item => {
+                                const opt = document.createElement('option');
+                                opt.value = item._id;
+                                opt.textContent = item.name;
+                                menuItemDropdown.appendChild(opt);
+                            });
+                        }
+                        await populateSizeDropdown(null);
+                    } catch (err) {
+                        menuItemDropdown.innerHTML = '<option value="">Error loading items</option>';
+                    }
+                }
+
+                async function populateSizeDropdown(menuItem) {
+                    sizeDropdown.innerHTML = '<option value="">(None)</option>';
+                    if (!menuItem || !menuItem.sizes || !Array.isArray(menuItem.sizes)) return;
+                    menuItem.sizes.forEach(sizeObj => {
+                        const opt = document.createElement('option');
+                        opt.value = sizeObj.name;
+                        opt.textContent = `${sizeObj.name} (£${parseFloat(sizeObj.price).toFixed(2)})`;
+                        sizeDropdown.appendChild(opt);
+                    });
+                }
+
+                sectionDropdown.addEventListener('change', async function() {
+                    await populateMenuItemDropdown(sectionDropdown.value);
+                });
+
+                menuItemDropdown.addEventListener('change', function() {
+                    if (menuItemDropdown.value === 'all' || menuItemDropdown.value === '') {
+                        sizeDropdown.innerHTML = '<option value="">(None)</option>';
+                    } else {
+                        const item = sectionItems.find(i => i._id === menuItemDropdown.value);
+                        populateSizeDropdown(item);
+                    }
+                });
+
+                // Initial population
+                await populateSectionDropdown();
             }
-            populateSectionDropdown();
         console.log('admin-menu.js loaded and DOMContentLoaded fired');
     // State
     let sizes = [];
