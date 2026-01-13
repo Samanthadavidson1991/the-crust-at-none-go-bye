@@ -8,16 +8,12 @@
   <!-- Moved styles to styles.css -->
 </head>
 <body class="admin-page">
-  <nav class="admin-nav" style="margin-bottom: 24px;">
-      <a href="admin-menu.html" class="admin-link">Menu Editor</a>
-      <a href="stock-management.html" class="admin-link">Stock Management</a>
-      <a href="timeslots.html" class="admin-link">Time Slots</a>
-      <a href="orders.html" class="admin-link">Orders</a>
-      <a href="running-orders.html" class="admin-link">Running Orders</a>
-      <a href="takings.html" class="admin-link">Takings</a>
-      <a href="pos.html" class="admin-link">POS Manual Order</a>
-      <a href="offers.html" class="admin-link">Special Offers</a>
-  </nav>
+    <nav class="main-nav" style="margin-bottom: 24px;">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="offers.html">Special Offers</a>
+    </nav>
   <!-- Login redirect removed for dashboard access -->
     <script>
       // Login/session check
@@ -57,38 +53,9 @@
       }
       </script>
     <main id="main-content">
-    <section class="admin-section">
-      <h2>Manage Special Offers</h2>
-      <form id="add-offer-form" class="mb-24 flex flex-col gap-12 align-start">
-        <input type="text" id="offerTitle" placeholder="Offer title (e.g. Family Pizza Night)" required title="Offer title" class="w-100">
-        <textarea id="offerDesc" placeholder="Main offer wording (e.g. Any 2 pizzas, 2 sides, and a drink for £25)" required title="Offer description" class="w-100"></textarea>
-        <div class="flex gap-8 w-100">
-          <input type="text" class="offer-section" placeholder="Section (e.g. Pizzas)">
-          <input type="text" class="offer-section" placeholder="Section (e.g. Sides)">
-          <input type="text" class="offer-section" placeholder="Section (optional)">
-          <input type="text" class="offer-section" placeholder="Section (optional)">
-        </div>
-        <input type="number" id="offerPrice" placeholder="Offer Price (£)" step="0.01" min="0" title="Offer price" class="w-180">
-        <div class="flex gap-12 w-100">
-          <label>Start: <input type="date" id="offerStart"></label>
-          <label>End: <input type="date" id="offerEnd"></label>
-        </div>
-        <button type="submit">Add Offer</button>
-      </form>
+    <section class="offers-section">
+      <h2>Current Special Offers</h2>
       <div class="offer-list" id="offer-list"></div>
-      <hr class="my-32">
-      <section>
-        <h3>Voucher Codes</h3>
-        <div class="flex gap-12 align-center mb-12">
-          <select id="voucher-offer-select" title="Voucher offer"></select>
-          <input type="number" id="voucher-days" min="1" max="365" placeholder="Days valid" title="Voucher days" class="w-110">
-          <input type="number" id="voucher-price" min="0" step="0.01" placeholder="Voucher Price/Discount (£)" title="Voucher price/discount" class="w-140">
-          <button id="generate-voucher-btn" type="button">Generate Voucher Code</button>
-        </div>
-        <div id="voucher-list"></div>
-      </section>
-    </section>
-  </main>
   <script>
     let offers = [];
     let vouchers = [];

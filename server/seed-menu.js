@@ -1,13 +1,20 @@
+
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import dotenv from 'dotenv';
 // Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-mongoose.connect('mongodb://localhost:27017/pizzaShop', { useNewUrlParser: true, useUnifiedTopology: true });
+const dbUser = process.env.MONGO_ATLAS_USERNAME;
+const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
+const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
+
+mongoose.connect(atlasUri);
 
 const menuItemSchema = new mongoose.Schema({
   name: String,

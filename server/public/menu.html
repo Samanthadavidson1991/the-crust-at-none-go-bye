@@ -28,7 +28,7 @@
   </header>
   <main>
     <main id="main-content">
-    <div id="special-offers-banner" class="special-offers-banner"></div>
+    <div id="special-offers-banner" class="special-offers-banner" style="display:none;"></div>
     <section id="dynamic-menu">
       <div id="menu-content" class="d-none"></div>
     </section>
@@ -94,10 +94,30 @@
   });
 
   async function fetchSpecialOffers() {
-    // Special offers endpoint not implemented; banner will remain hidden
     const banner = document.getElementById('special-offers-banner');
-    banner.style.display = 'none';
-    banner.innerHTML = '';
+    try {
+      const res = await fetch('/api/offers');
+      if (!res.ok) throw new Error('No offers');
+      const offers = await res.json();
+      if (!offers || !offers.length) {
+        banner.style.display = 'none';
+        banner.innerHTML = '';
+        return;
+      }
+      banner.style.display = 'block';
+      banner.innerHTML = `
+        <div class="offers-banner-content">
+          <h2>Special Offers</h2>
+          <ul class="offers-list">
+            ${offers.slice(0,2).map(offer => `<li><b>${offer.title}</b>: ${offer.desc} ${offer.price ? `<span class='offer-price'>£${parseFloat(offer.price).toFixed(2)}</span>` : ''}</li>`).join('')}
+          </ul>
+          <a href="offers.html" class="see-all-offers-link">See all offers</a>
+        </div>
+      `;
+    } catch {
+      banner.style.display = 'none';
+      banner.innerHTML = '';
+    }
   }
 
       async function fetchMenu() {

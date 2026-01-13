@@ -391,6 +391,19 @@ mongoose.connect(atlasUri)
       ]);
     });
 
+    // --- ADD POST /api/orders ENDPOINT ---
+    app.post('/api/orders', async (req, res) => {
+      try {
+        // In production, save order to database. For now, just echo back.
+        const order = req.body;
+        // TODO: Validate and save order to DB
+        res.json({ success: true, order });
+      } catch (err) {
+        console.error('[POST /api/orders] Error:', err);
+        res.status(500).json({ error: 'Failed to submit order', details: err.message });
+      }
+    });
+
     app.get('/api/pizza-topping-stock', (req, res) => {
       res.set('Cache-Control', 'no-store');
       res.json({
@@ -402,6 +415,27 @@ mongoose.connect(atlasUri)
         ]
       });
     });
+
+      // --- STRIPE PAYMENT INTENT ENDPOINT ---
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      app.post('/api/create-payment-intent', async (req, res) => {
+        try {
+          const { amount, currency = 'gbp' } = req.body;
+          if (!amount || isNaN(amount)) {
+            return res.status(400).json({ error: 'Amount is required and must be a number.' });
+          }
+          // Stripe expects amount in pence
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(amount * 100),
+            currency,
+            automatic_payment_methods: { enabled: true }
+          });
+          res.json({ clientSecret: paymentIntent.client_secret });
+        } catch (err) {
+          console.error('[POST /api/create-payment-intent] Error:', err);
+          res.status(500).json({ error: 'Failed to create payment intent', details: err.message });
+        }
+      });
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
