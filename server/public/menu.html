@@ -187,9 +187,8 @@
     const content = document.getElementById('menu-content');
     if (!menu || !Array.isArray(menu) || menu.length === 0) {
       content.innerHTML = '<em>No menu items found.</em>';
-      return;
+      // Do not use return here unless inside a function
     }
-    content.style.display = 'block';
     // Group items by section name
     const sectionMap = {};
     menu.forEach(item => {
@@ -367,8 +366,7 @@
         setTimeout(() => { card.style.background = ''; }, 300);
         e.stopPropagation();
       });
-    });
-  }
+      });
 
   function addToOrder(item) {
     let order = JSON.parse(localStorage.getItem('order') || '[]');
