@@ -40,195 +40,196 @@
           async function showSelectedOfferBanner() {
             const selectedId = localStorage.getItem('selectedOffer');
             if (!selectedId) {
-              document.getElementById('selected-offer-banner').style.display = 'none';
-              return;
-            }
-            const res = await fetch('/api/offers');
-            const offers = await res.json();
-            const offer = offers.find(o => o._id === selectedId);
-            if (offer) {
-              document.getElementById('selected-offer-banner').style.display = 'block';
-              document.getElementById('selected-offer-banner').innerHTML = `<b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}`;
-            } else {
-              document.getElementById('selected-offer-banner').style.display = 'none';
-            }
-          }
-          showSelectedOfferBanner();
-        // Fetch selected sets from backend
-        async function fetchSelectedSets() {
-          try {
-            const res = await fetch('/api/selected-menu-sets');
-            if (!res.ok) throw new Error('Failed to fetch selected sets');
-            const data = await res.json();
-            return data.sets || [];
-          } catch {
-            return [];
-          }
-        }
-      // TEST: Force a fetch to backend and log result
-      fetch('https://the-crust-at-none-go-bye.onrender.com/api/menu')
-        .then(res => {
-          console.log('Test fetch to /api/menu status:', res.status);
-          return res.text();
-        })
-        .then(text => {
-          console.log('Test fetch to /api/menu response:', text);
-        })
-        .catch(err => {
-          console.error('Test fetch to /api/menu failed:', err);
-        });
-    // TEST: Confirm JS is running
-    console.log('JS test: menu.html script is running');
-    document.body.insertAdjacentHTML('afterbegin', '<div id="js-test-message" style="color:green;font-weight:bold;">JS test: Script is running</div>');
-    setTimeout(() => {
-      const msg = document.getElementById('js-test-message');
-      if (msg) msg.remove();
-    }, 3000);
-  // --- Dough Stock Logic ---
-  let doughStock = null;
-  let gfDoughStock = null;
-  async function fetchDoughStocks() {
-    try {
-      const [doughRes, gfRes] = await Promise.all([
-        fetch('https://the-crust-at-none-go-bye.onrender.com/api/dough-stock'),
-        fetch('https://the-crust-at-none-go-bye.onrender.com/api/gf-dough-stock')
-      ]);
-      doughStock = (await doughRes.json()).stock;
-      gfDoughStock = (await gfRes.json()).stock;
-    } catch {
-      doughStock = null;
-      gfDoughStock = null;
-    }
-  }
-  function updateCartBadge() {
-    const order = JSON.parse(localStorage.getItem('order') || '[]');
-    const count = order.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    const badge = document.getElementById('cart-badge');
-    document.getElementById('cart-count').textContent = count;
-    badge.style.display = count > 0 ? 'block' : 'none';
-  }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    updateCartBadge();
-    const badgeBtn = document.getElementById('cart-badge-btn');
-    if (badgeBtn) {
-      badgeBtn.onclick = function() {
-        window.location.href = 'checkout.html';
-      };
-      badgeBtn.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          window.location.href = 'checkout.html';
-        }
-      };
-    }
-  });
+                  // masterToppingsData: { toppings: [...], settings: {...} }
+                  // sectionAssignments: { [sectionName]: [toppingId, ...] }
+                  // masterToppingSettings: { masterMeatPrice, masterVegPrice }
+                  const masterToppings = masterToppingsData.toppings || [];
+                  const content = document.getElementById('menu-content');
+                  if (!menuData.items || !Array.isArray(menuData.items) || menuData.items.length === 0) {
+                    content.innerHTML = '<em>No menu items found.</em>';
+                    // Do not use return here unless inside a function
+                    return;
+                  }
+                  content.style.display = 'block';
+                  // Group items by section name
+                  const sectionMap = {};
+                  menuData.items.forEach(item => {
+                    const section = item.section || 'Other';
+                    if (!sectionMap[section]) sectionMap[section] = [];
+                    sectionMap[section].push(item);
+                  });
+                  let html = '';
+                  // Render sections in DB order, then any extra sections
+                  sectionsData.sections.forEach(sec => {
+                    const sectionName = sec.name;
+                    if (sectionMap[sectionName]) {
+                      html += `<h2>${sectionName}</h2><ul class='menu-card-list'>`;
+                      sectionMap[sectionName].forEach(item => {
+                        const isDoughTracked = !!item.doughTracked;
+                        const isGFDoughTracked = !!item.gfDoughTracked;
+                        let outOfStock = false;
+                        if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
+                        if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
+                        html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+                        if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+                          html += '<ul style="list-style:none;padding:0;">';
+                          item.sizes.forEach(size => {
+                            html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
+                              <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
+                                <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                              </button>
+                            </li>`;
+                          });
+                          html += '</ul>';
+                        }
+                        // --- Toppings UI ---
+                        // Pizza-specific toppings (from admin)
+                        if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+                          html += `<form class='toppings-form' data-name='${item.name}'>`;
+                          html += `<small><b>Remove Toppings:</b></small><br>`;
+                          item.toppings.forEach(topping => {
+                            html += `<label style='margin-right:8px'><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
+                          });
+                          html += `</form>`;
+                        }
+                        // Master toppings (if allowed for this item)
+                        if (item.allowMasterToppings) {
+                          if (masterToppings.length > 0) {
+                            html += `<form class='toppings-form' data-name='${item.name}-master'>`;
+                            html += `<small><b>Add Master Toppings:</b></small><br>`;
+                            masterToppings.forEach(mt => {
+                              let price = '0.00';
+                              if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
+                              else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
+                              else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+                              html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
+                              html += ` <span style='font-size:0.9em;color:#888'>(${mt.category} • £${price})</span>`;
+                              html += `</label>`;
+                            });
+                            html += `</form>`;
+                          }
+                        }
+                        if (outOfStock) {
+                          html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
+                            html += `<div class='out-of-stock-label'>Out of stock</div>`;
+                        }
+                        html += `</li>`;
+                      });
+                      html += '</ul>';
+                    }
+                  });
+                  // Render any sections not in DB (fallback)
+                  Object.keys(sectionMap).forEach(section => {
+                    if (!sectionsData.sections.find(sec => sec.name === section)) {
+                      html += `<h2>${section}</h2><ul class='menu-card-list'>`;
+                      sectionMap[section].forEach(item => {
+                        const isDoughTracked = !!item.doughTracked;
+                        const isGFDoughTracked = !!item.gfDoughTracked;
+                        let outOfStock = false;
+                        if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
+                        if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
+                        html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+                        if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+                          html += '<ul style="list-style:none;padding:0;">';
+                          item.sizes.forEach(size => {
+                            html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
+                              <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
+                                <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                                  <span class="menu-size-label">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
+                              </button>
+                            </li>`;
+                          });
+                          html += '</ul>';
+                        }
+                        // Section-based toppings assignment for fallback sections
+                        const assignedToppingIds = (sectionAssignmentsData.assignments && sectionAssignmentsData.assignments[section]) || [];
+                        const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
+                        if (assignedToppings.length > 0) {
+                          html += `<form class='toppings-form' data-name='${item.name}'>`;
+                          html += `<small><b>Add Toppings:</b></small><br>`;
+                          assignedToppings.forEach(mt => {
+                            let price = '0.00';
+                            if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
+                            else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
+                            else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+                            html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
+                            html += ` <span style='font-size:0.9em;color:#888'>(${mt.category} • £${price})</span>`;
+                            html += `</label>`;
+                          });
+                          html += `</form>`;
+                        }
+                        if (outOfStock) {
+                          html += `<div class='out-of-stock-label' style='color:#b9472e;font-weight:bold;margin-top:8px;'>Out of stock</div>`;
+                            html += `<div class='out-of-stock-label'>Out of stock</div>`;
+                        }
+                        html += `</li>`;
+                      });
+                      html += '</ul>';
+                    }
+                  });
+                  content.innerHTML = html;
 
-  async function fetchSpecialOffers() {
-    const banner = document.getElementById('special-offers-banner');
-    try {
-      const res = await fetch('/api/offers');
-      if (!res.ok) throw new Error('No offers');
-      const offers = await res.json();
-      if (!offers || !offers.length) {
-        banner.style.display = 'none';
-        banner.innerHTML = '';
-        return;
-      }
-      banner.style.display = 'block';
-      banner.innerHTML = `
-        <div class="offers-banner-content">
-          <h2>Special Offers</h2>
-          <ul class="offers-list">
-            ${offers.slice(0,2).map(offer => `<li><b>${offer.title}</b>: ${offer.desc} ${offer.price ? `<span class='offer-price'>£${parseFloat(offer.price).toFixed(2)}</span>` : ''}</li>`).join('')}
-          </ul>
-          <a href="offers.html" class="see-all-offers-link">See all offers</a>
-        </div>
-      `;
-    } catch {
-      banner.style.display = 'none';
-      banner.innerHTML = '';
-    }
-  }
+                  updateCartBadge();
 
-      async function fetchMenu() {
-        // Fetch menu, sections, master toppings, and section assignments in parallel
-        fetchSpecialOffers();
-        try {
-          const [menuRes, sectionsRes, masterToppingsRes, sectionAssignRes] = await Promise.all([
-            fetch('https://the-crust-at-none-go-bye.onrender.com/api/menu'),
-            fetch('https://the-crust-at-none-go-bye.onrender.com/api/sections'),
-            fetch('https://the-crust-at-none-go-bye.onrender.com/api/master-toppings'),
-            fetch('https://the-crust-at-none-go-bye.onrender.com/api/section-topping-assignments')
-          ]);
-          if (!menuRes.ok) throw new Error('Menu fetch failed');
-          if (!sectionsRes.ok) throw new Error('Sections fetch failed');
-          if (!masterToppingsRes.ok) throw new Error('Master toppings fetch failed');
-          if (!sectionAssignRes.ok) throw new Error('Section assignments fetch failed');
-          const menuData = await menuRes.json();
-          const sectionsData = await sectionsRes.json();
-          const masterToppingsData = await masterToppingsRes.json();
-          const sectionAssignmentsData = await sectionAssignRes.json();
-          await fetchDoughStocks();
-          renderMenu(menuData.items, masterToppingsData, sectionsData.sections, sectionAssignmentsData.assignments, masterToppingsData.settings);
-        } catch (err) {
-          console.error('DEBUG: fetchMenu error', err);
-          const content = document.getElementById('menu-content');
-          content.style.display = 'block';
-          content.innerHTML = '<em style="color:red">Failed to load menu, sections, or toppings. Please try again later.</em>';
-        }
-      }
-
-  // ...existing code...
-    // masterToppingsData: { toppings: [...], settings: {...} }
-    // sectionAssignments: { [sectionName]: [toppingId, ...] }
-    // masterToppingSettings: { masterMeatPrice, masterVegPrice }
-    const masterToppings = masterToppingsData.toppings || [];
-    const content = document.getElementById('menu-content');
-    if (!menu || !Array.isArray(menu) || menu.length === 0) {
-      content.innerHTML = '<em>No menu items found.</em>';
-      // Do not use return here unless inside a function
-    }
-    // Group items by section name
-    const sectionMap = {};
-    menu.forEach(item => {
-      const section = item.section || 'Other';
-      if (!sectionMap[section]) sectionMap[section] = [];
-      sectionMap[section].push(item);
-    });
-    let html = '';
-    // Render sections in DB order, then any extra sections
-    dbSections.forEach(sec => {
-      const sectionName = sec.name;
-      if (sectionMap[sectionName]) {
-        html += `<h2>${sectionName}</h2><ul class='menu-card-list'>`;
-        sectionMap[sectionName].forEach(item => {
-          const isDoughTracked = !!item.doughTracked;
-          const isGFDoughTracked = !!item.gfDoughTracked;
-          let outOfStock = false;
-          if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
-          if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
-          html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
-          if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-            html += '<ul style="list-style:none;padding:0;">';
-            item.sizes.forEach(size => {
-              html += `<li style="display:inline;margin-right:8px;margin-bottom:6px;">
-                <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
-                  <span style="font-weight:600;">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                </button>
-              </li>`;
-            });
-            html += '</ul>';
-          }
-          // --- Toppings UI ---
-          // Pizza-specific toppings (from admin)
-          if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Remove Toppings:</b></small><br>`;
-            item.toppings.forEach(topping => {
-              html += `<label style='margin-right:8px'><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
-            });
-            html += `</form>`;
+                  // Only allow add-to-order via size/side/gluten free options, but skip if out of stock
+                  document.querySelectorAll('.menu-size-option').forEach(opt => {
+                    if (opt.style.pointerEvents === 'none') return;
+                    opt.addEventListener('click', function(e) {
+                      const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
+                      const size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
+                      // Find the toppings form for this item
+                      let extraToppings = [];
+                      let extraToppingPrices = [];
+                      let menuItemCard = opt.closest('.menu-item-card');
+                      const form = menuItemCard ? menuItemCard.querySelector('.toppings-form') : null;
+                      if (form) {
+                        const addToppingCbs = Array.from(form.querySelectorAll('.add-topping'));
+                        addToppingCbs.forEach(cb => {
+                          if (cb.checked && !cb.disabled) {
+                            extraToppings.push(cb.value);
+                            extraToppingPrices.push(parseFloat(cb.getAttribute('data-price')) || 0);
+                          }
+                        });
+                      }
+                      // Calculate total price (size + extra toppings)
+                      let totalPrice = parseFloat(size.price) || 0;
+                      extraToppingPrices.forEach(p => { totalPrice += p; });
+                      const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: extraToppings };
+                      addToOrder(orderObj);
+                      // Reset add-topping checkboxes to unchecked
+                      if (form) {
+                        Array.from(form.querySelectorAll('.add-topping')).forEach(cb => { cb.checked = false; });
+                      }
+                      opt.style.background = '#e9ece5';
+                      setTimeout(() => { opt.style.background = ''; }, 300);
+                      e.stopPropagation();
+                    });
+                  });
+                  document.querySelectorAll('.menu-side-option').forEach(opt => {
+                    if (opt.style.pointerEvents === 'none') return;
+                    opt.addEventListener('click', function(e) {
+                      const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
+                      const side = JSON.parse(opt.getAttribute('data-side').replace(/&apos;/g, "'"));
+                      addToOrder({ ...item, selectedSide: side, price: side.price, quantity: 1 });
+                      opt.style.background = '#e9ece5';
+                      setTimeout(() => { opt.style.background = ''; }, 300);
+                      e.stopPropagation();
+                    });
+                  });
+                  // Make all other menu-item-cards clickable (desserts, drinks, etc.)
+                  document.querySelectorAll('.menu-item-card').forEach(card => {
+                    if (card.querySelector('.menu-size-option') || card.querySelector('.menu-side-option')) return;
+                    if (card.classList.contains('out-of-stock')) return;
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', function(e) {
+                      const item = JSON.parse(card.getAttribute('data-item').replace(/&apos;/g, "'"));
+                      addToOrder({ ...item, price: parseFloat(item.price), quantity: 1 });
+                      card.style.background = '#e9ece5';
+                      setTimeout(() => { card.style.background = ''; }, 300);
+                      e.stopPropagation();
+                    });
+                    });
           }
           // Master toppings (if allowed for this item)
           if (item.allowMasterToppings) {
