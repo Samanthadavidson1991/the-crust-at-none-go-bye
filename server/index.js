@@ -217,6 +217,8 @@ mongoose.connect(atlasUri)
     // Master Toppings and Section Assignments endpoints
     app.use('/api/master-toppings', require('./master-toppings'));
     app.use('/api/section-topping-assignments', require('./section-topping-assignments'));
+    // Special Offers API endpoint
+    app.use('/api/offers', require('./offers'));
 
     // Section endpoints
     app.get('/api/sections', async (req, res) => {
