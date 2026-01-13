@@ -28,7 +28,7 @@
       <h1 class="main-heading underline">Admin Special Offers <button id="lock-page-btn" class="float-right mt-8" onclick="lockAdminPage()">Lock this page</button></h1>
     <nav class="admin-nav" role="navigation" aria-label="Admin navigation">
       <a href="admin-menu.html">Menu Editor</a>
-      <a href="stock-management.html">Stock Management</    git remote set-url origin https://github.com/Samanthadavidson1991/the-crust-at-none-go-bye.gitgit remote -va>
+        <a href="stock-management.html">Stock Management</a>
       <a href="timeslots.html">Time Slots</a>
       <a href="orders.html">Orders</a>
       <a href="running-orders.html">Running Orders</a>
@@ -54,8 +54,24 @@
       </script>
     <main id="main-content">
     <section class="offers-section">
-      <h2>Current Special Offers</h2>
-      <div class="offer-list" id="offer-list"></div>
+        <h2>Add New Special Offer</h2>
+        <form id="add-offer-form" style="margin-bottom:24px;">
+          <label for="offerTitle"><b>Title:</b></label>
+          <input type="text" id="offerTitle" required style="margin-bottom:8px;width:100%"><br>
+          <label for="offerDesc"><b>Description:</b></label>
+          <input type="text" id="offerDesc" required style="margin-bottom:8px;width:100%"><br>
+          <label for="offerPrice"><b>Price (£):</b></label>
+          <input type="number" id="offerPrice" step="0.01" min="0" style="margin-bottom:8px;width:100px"><br>
+          <label for="offerStart"><b>Start Date:</b></label>
+          <input type="date" id="offerStart" style="margin-bottom:8px;">
+          <label for="offerEnd" style="margin-left:12px;"><b>End Date:</b></label>
+          <input type="date" id="offerEnd" style="margin-bottom:8px;"><br>
+          <label><b>Sections (comma separated):</b></label>
+          <input type="text" class="offer-section" placeholder="e.g. Pizzas, Sides" style="margin-bottom:8px;width:100%"><br>
+          <button type="submit" class="action-btn">Add Offer</button>
+        </form>
+        <h2>Current Special Offers</h2>
+        <div class="offer-list" id="offer-list"></div>
   <script>
     let offers = [];
     let vouchers = [];
