@@ -33,8 +33,29 @@
                     document.getElementById(`size-dropdown-${i}`).addEventListener('change', saveSelectedSets);
                 }
     // --- Master Toppings Management ---
-    let masterToppings = JSON.parse(localStorage.getItem('masterToppings') || '[]');
-    let masterToppingPrices = JSON.parse(localStorage.getItem('masterToppingPrices') || '{"Vegetable":0,"Meat":0,"Other":0}');
+    let masterToppings = [];
+    let masterToppingPrices = { Vegetable: 0, Meat: 0, Other: 0 };
+
+    // Load master toppings and prices from backend
+    async function loadMasterToppingsAndPrices() {
+        try {
+            const res = await fetch('/api/master-toppings');
+            const data = await res.json();
+            masterToppings = (data.toppings || []).map(t => ({ name: t.name, category: t.category }));
+            // Map backend settings to local keys
+            if (data.settings) {
+                masterToppingPrices.Vegetable = data.settings.masterVegPrice || 0;
+                masterToppingPrices.Meat = data.settings.masterMeatPrice || 0;
+                masterToppingPrices.Other = 0; // Only set by individual topping price
+            }
+            renderMasterToppingsList();
+            masterVegPriceInput.value = masterToppingPrices.Vegetable;
+            masterMeatPriceInput.value = masterToppingPrices.Meat;
+            masterOtherPriceInput.value = masterToppingPrices.Other;
+        } catch (err) {
+            console.error('Failed to load master toppings:', err);
+        }
+    }
 
     const masterToppingNameInput = document.getElementById('master-topping-name');
     const masterToppingCategorySelect = document.getElementById('master-topping-category');
@@ -79,32 +100,48 @@
         });
     }
 
-    addMasterToppingForm.addEventListener('submit', function(e) {
+    addMasterToppingForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const name = masterToppingNameInput.value.trim();
         const category = masterToppingCategorySelect.value;
+        let price = undefined;
         if (!name || !category) return;
-        masterToppings.push({ name, category });
-        localStorage.setItem('masterToppings', JSON.stringify(masterToppings));
-        masterToppingNameInput.value = '';
-        masterToppingCategorySelect.value = 'Vegetable';
-        renderMasterToppingsList();
+        if (category === 'Other') price = parseFloat(masterOtherPriceInput.value) || 0;
+        try {
+            const res = await fetch('/api/master-toppings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, category, price })
+            });
+            if (!res.ok) throw new Error('Failed to save topping');
+            await loadMasterToppingsAndPrices();
+            masterToppingNameInput.value = '';
+            masterToppingCategorySelect.value = 'Vegetable';
+        } catch (err) {
+            alert('Error saving topping: ' + err.message);
+        }
     });
 
-    saveMasterToppingPricesBtn.onclick = function() {
+    saveMasterToppingPricesBtn.onclick = async function() {
         masterToppingPrices.Vegetable = parseFloat(masterVegPriceInput.value) || 0;
         masterToppingPrices.Meat = parseFloat(masterMeatPriceInput.value) || 0;
-        masterToppingPrices.Other = parseFloat(masterOtherPriceInput.value) || 0;
-        localStorage.setItem('masterToppingPrices', JSON.stringify(masterToppingPrices));
-        alert('Master topping prices saved!');
-        renderMasterToppingsList();
+        // Other price is per-topping, not global
+        try {
+            const res = await fetch('/api/master-toppings/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ masterVegPrice: masterToppingPrices.Vegetable, masterMeatPrice: masterToppingPrices.Meat })
+            });
+            if (!res.ok) throw new Error('Failed to save prices');
+            alert('Master topping prices saved!');
+            await loadMasterToppingsAndPrices();
+        } catch (err) {
+            alert('Error saving prices: ' + err.message);
+        }
     };
 
     // Initial render
-    masterVegPriceInput.value = masterToppingPrices.Vegetable;
-    masterMeatPriceInput.value = masterToppingPrices.Meat;
-    masterOtherPriceInput.value = masterToppingPrices.Other;
-    renderMasterToppingsList();
+    loadMasterToppingsAndPrices();
 document.addEventListener('DOMContentLoaded', () => {
                         // --- Admin Menu Preview ---
                         async function fetchAndRenderAdminMenuPreview() {
