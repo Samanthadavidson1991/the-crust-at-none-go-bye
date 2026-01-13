@@ -267,17 +267,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Elements
     const addSizeBtn = document.getElementById('add-size-btn');
-        if (!addSizeBtn) {
-            console.error('Add Size button not found!');
-        } else {
-            console.log('Add Size button found, attaching event');
-        }
+    if (!addSizeBtn) {
+        console.error('Add Size button not found!');
+    } else {
+        console.log('Add Size button found, attaching event');
+    }
     const sizesList = document.getElementById('sizes-list');
     const pizzaPreview = document.getElementById('pizza-preview');
     const addPizzaForm = document.getElementById('add-pizza-form');
     const pizzaNameInput = document.getElementById('pizza-name');
     const pizzaDescriptionInput = document.getElementById('pizza-description');
     const includeMasterToppingsCheckbox = document.getElementById('include-master-toppings');
+    const sectionSelect = document.getElementById('pizza-section-select');
+
+    // Populate section dropdown
+    async function populatePizzaSectionDropdown() {
+        try {
+            const res = await fetch('/api/sections');
+            const data = await res.json();
+            const sections = data.sections || [];
+            sectionSelect.innerHTML = '';
+            sections.forEach(sec => {
+                const opt = document.createElement('option');
+                opt.value = sec.name;
+                opt.textContent = sec.name;
+                sectionSelect.appendChild(opt);
+            });
+        } catch (err) {
+            sectionSelect.innerHTML = '<option value="Other">Other</option>';
+        }
+    }
+    populatePizzaSectionDropdown();
 
     // Modal for size/price and toppings
     let modalBg = document.createElement('div');
