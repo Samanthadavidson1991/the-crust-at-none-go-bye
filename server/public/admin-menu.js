@@ -26,12 +26,7 @@
                     }
                 }
 
-                // Attach change listeners to all dropdowns
-                for (let i = 1; i <= 4; i++) {
-                    document.getElementById(`section-dropdown-${i}`).addEventListener('change', saveSelectedSets);
-                    document.getElementById(`menu-item-dropdown-${i}`).addEventListener('change', saveSelectedSets);
-                    document.getElementById(`size-dropdown-${i}`).addEventListener('change', saveSelectedSets);
-                }
+                // ...existing code...
     // --- Master Toppings Management ---
     let masterToppings = [];
     let masterToppingPrices = { Vegetable: 0, Meat: 0, Other: 0 };
