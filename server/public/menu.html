@@ -248,67 +248,8 @@
         html += '</ul>';
       
     content.innerHTML = html;
-
     updateCartBadge();
-
-    // Only allow add-to-order via size/side/gluten free options, but skip if out of stock
-    document.querySelectorAll('.menu-size-option').forEach(opt => {
-      if (opt.style.pointerEvents === 'none') return;
-      opt.addEventListener('click', function(e) {
-        const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
-        const size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
-        // Find the toppings form for this item
-        let extraToppings = [];
-        let extraToppingPrices = [];
-        let menuItemCard = opt.closest('.menu-item-card');
-        const form = menuItemCard ? menuItemCard.querySelector('.toppings-form') : null;
-        if (form) {
-          const addToppingCbs = Array.from(form.querySelectorAll('.add-topping'));
-          addToppingCbs.forEach(cb => {
-            if (cb.checked && !cb.disabled) {
-              extraToppings.push(cb.value);
-              extraToppingPrices.push(parseFloat(cb.getAttribute('data-price')) || 0);
-            }
-          });
-        }
-        // Calculate total price (size + extra toppings)
-        let totalPrice = parseFloat(size.price) || 0;
-        extraToppingPrices.forEach(p => { totalPrice += p; });
-        const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: extraToppings };
-        addToOrder(orderObj);
-        // Reset add-topping checkboxes to unchecked
-        if (form) {
-          Array.from(form.querySelectorAll('.add-topping')).forEach(cb => { cb.checked = false; });
-        }
-        opt.style.background = '#e9ece5';
-        setTimeout(() => { opt.style.background = ''; }, 300);
-        e.stopPropagation();
-      });
-    });
-    document.querySelectorAll('.menu-side-option').forEach(opt => {
-      if (opt.style.pointerEvents === 'none') return;
-      opt.addEventListener('click', function(e) {
-        const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
-        const side = JSON.parse(opt.getAttribute('data-side').replace(/&apos;/g, "'"));
-        addToOrder({ ...item, selectedSide: side, price: side.price, quantity: 1 });
-        opt.style.background = '#e9ece5';
-        setTimeout(() => { opt.style.background = ''; }, 300);
-        e.stopPropagation();
-      });
-    });
-    // Make all other menu-item-cards clickable (desserts, drinks, etc.)
-    document.querySelectorAll('.menu-item-card').forEach(card => {
-      if (card.querySelector('.menu-size-option') || card.querySelector('.menu-side-option')) return;
-      if (card.classList.contains('out-of-stock')) return;
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', function(e) {
-        const item = JSON.parse(card.getAttribute('data-item').replace(/&apos;/g, "'"));
-        addToOrder({ ...item, price: parseFloat(item.price), quantity: 1 });
-        card.style.background = '#e9ece5';
-        setTimeout(() => { card.style.background = ''; }, 300);
-        e.stopPropagation();
-      });
-    });
+  }
 
   function addToOrder(item) {
     let order = JSON.parse(localStorage.getItem('order') || '[]');
