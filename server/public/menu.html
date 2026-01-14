@@ -1,3 +1,8 @@
+  // --- Add updateCartBadge stub ---
+  function updateCartBadge() {
+    // TODO: Implement cart badge update logic
+    // For now, this is a no-op to prevent errors
+  }
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -493,8 +498,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     const sectionsData = await sectionsRes.json();
     const masterToppingsData = await masterToppingsRes.json();
     const sectionAssignmentsData = await sectionAssignmentsRes.json();
-    const doughStock = (await doughStockRes.json()).stock ?? null;
-    const gfDoughStock = (await gfDoughStockRes.json()).stock ?? null;
+    let doughStock = null;
+    let gfDoughStock = null;
+    try {
+      doughStock = (await doughStockRes.json()).stock ?? null;
+    } catch (err) {
+      console.warn('Failed to fetch dough stock:', err);
+      doughStock = null;
+    }
+    try {
+      gfDoughStock = (await gfDoughStockRes.json()).stock ?? null;
+    } catch (err) {
+      console.warn('Failed to fetch GF dough stock:', err);
+      gfDoughStock = null;
+    }
     console.log("Menu data:", menuData);
     renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock);
     document.getElementById('menu-content').classList.remove('d-none');
