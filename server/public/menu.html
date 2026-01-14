@@ -16,9 +16,24 @@
     <button id="cart-badge-btn" class="cart-badge-btn no-style-btn" aria-label="View checkout cart" tabindex="0">
       🛒 <span id="cart-count">0</span> in checkout
     </button>
-
-
-  </section>
+  </div>
+  <header>
+    <h1 class="main-heading underline">Inspired by Naples, perfected at None Go Bye.</h1>
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="offers-customer.html">Special Offers</a>
+      <a href="allergens.html">Allergens</a>
+    </nav>
+  </header>
+  <main id="main-content">
+    <div id="special-offers-banner" class="special-offers-banner"></div>
+    <div id="selected-offer-banner" class="selected-offer-banner"></div>
+    <section id="dynamic-menu">
+      <div id="menu-content" class="d-none"></div>
+    </section>
+  </main>
   <script>
   console.log("menu script loaded");
   document.addEventListener('DOMContentLoaded', async function() {
