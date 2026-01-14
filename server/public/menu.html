@@ -226,7 +226,7 @@
                 e.stopPropagation();
               });
             });
-          }
+          // Moved block inside the forEach(item) loop
           if (item.allowMasterToppings && masterToppings.length > 0) {
             html += `<form class='toppings-form' data-name='${item.name}-master'>`;
             html += `<small><b>Add Master Toppings:</b></small><br>`;
