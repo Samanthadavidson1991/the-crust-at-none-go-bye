@@ -17,6 +17,7 @@
       🛒 <span id="cart-count">0</span> in checkout
     </button>
 
+
   </section>
   <script>
   console.log("menu script loaded");
@@ -24,26 +25,28 @@
     console.log("DOMContentLoaded fired");
     console.log("Fetching menu data...");
     try {
-      const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes, doughStockRes, gfDoughStockRes] = await Promise.all([
+      const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes] = await Promise.all([
         fetch('/api/menu'),
         fetch('/api/sections'),
         fetch('/api/master-toppings'),
-        fetch('/api/section-topping-assignments'),
-        fetch('/api/dough-stock'),
-        fetch('/api/gf-dough-stock')
+        fetch('/api/section-topping-assignments')
       ]);
       const menuData = await menuRes.json();
       const sectionsData = await sectionsRes.json();
       const masterToppingsData = await masterToppingsRes.json();
       const sectionAssignmentsData = await sectionAssignmentsRes.json();
-      const doughStock = (await doughStockRes.json()).stock ?? null;
-      const gfDoughStock = (await gfDoughStockRes.json()).stock ?? null;
+      const doughStock = null;
+      const gfDoughStock = null;
       console.log("Menu data:", menuData);
       renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock);
-      document.getElementById('menu-content').classList.remove('d-none');
+      const menuContent = document.getElementById('menu-content');
+      if (menuContent) menuContent.classList.remove('d-none');
     } catch (err) {
-      document.getElementById('menu-content').innerHTML = '<span style="color:red">Failed to load menu. Please try again later.</span>';
-      document.getElementById('menu-content').classList.remove('d-none');
+      const menuContent = document.getElementById('menu-content');
+      if (menuContent) {
+        menuContent.innerHTML = '<span style="color:red">Failed to load menu. Please try again later.</span>';
+        menuContent.classList.remove('d-none');
+      }
       console.error('Menu load error:', err);
     }
   });
