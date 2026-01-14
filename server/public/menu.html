@@ -16,41 +16,40 @@
     <button id="cart-badge-btn" class="cart-badge-btn no-style-btn" aria-label="View checkout cart" tabindex="0">
       🛒 <span id="cart-count">0</span> in checkout
     </button>
-  </div>
-  <header>
-  <h1 class="main-heading underline">Inspired by Naples, perfected at None Go Bye.</h1>
-    <nav class="main-nav" role="navigation" aria-label="Main navigation">
-      <a href="index.html">Home</a>
-      <a href="menu.html">Menu</a>
-      <a href="checkout.html">Checkout</a>
-      <a href="offers-customer.html">Special Offers</a>
-      <a href="allergens.html">Allergens</a>
-    </nav>
-  </header>
-  <main>
-    <main id="main-content">
-    <div id="special-offers-banner" class="special-offers-banner"></div>
-    <div id="selected-offer-banner" class="selected-offer-banner"></div>
-    <section id="dynamic-menu">
-      <div id="menu-content" class="d-none"></div>
-    </section>
-</body>
-<script>
-          // Show selected offer banner
-          async function showSelectedOfferBanner() {
-            // ...existing code...
-          }
 
-          function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
-            const masterToppings = masterToppingsData.toppings || [];
-            const content = document.getElementById('menu-content');
-            if (!menuData.items || !Array.isArray(menuData.items) || menuData.items.length === 0) {
-              content.innerHTML = '<em>No menu items found.</em>';
-              return;
-            }
-            content.style.display = 'block';
-            // Group items by section name
-            const sectionMap = {};
+  </section>
+  <script>
+  console.log("menu script loaded");
+  document.addEventListener('DOMContentLoaded', async function() {
+    console.log("DOMContentLoaded fired");
+    console.log("Fetching menu data...");
+    try {
+      const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes, doughStockRes, gfDoughStockRes] = await Promise.all([
+        fetch('/api/menu'),
+        fetch('/api/sections'),
+        fetch('/api/master-toppings'),
+        fetch('/api/section-topping-assignments'),
+        fetch('/api/dough-stock'),
+        fetch('/api/gf-dough-stock')
+      ]);
+      const menuData = await menuRes.json();
+      const sectionsData = await sectionsRes.json();
+      const masterToppingsData = await masterToppingsRes.json();
+      const sectionAssignmentsData = await sectionAssignmentsRes.json();
+      const doughStock = (await doughStockRes.json()).stock ?? null;
+      const gfDoughStock = (await gfDoughStockRes.json()).stock ?? null;
+      console.log("Menu data:", menuData);
+      renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock);
+      document.getElementById('menu-content').classList.remove('d-none');
+    } catch (err) {
+      document.getElementById('menu-content').innerHTML = '<span style="color:red">Failed to load menu. Please try again later.</span>';
+      document.getElementById('menu-content').classList.remove('d-none');
+      console.error('Menu load error:', err);
+    }
+  });
+  </script>
+  </body>
+  </html>
             menuData.items.forEach(item => {
               const section = item.section || 'Other';
               if (!sectionMap[section]) sectionMap[section] = [];
