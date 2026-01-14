@@ -263,7 +263,7 @@
     localStorage.setItem('order', JSON.stringify(order));
     updateCartBadge();
   }
-  fetchMenu();
+  // fetchMenu(); // Removed: function not defined, not needed
   // Add out-of-stock style
   const style = document.createElement('style');
   style.textContent = `.menu-item-card.out-of-stock { opacity: 0.5; pointer-events: none; position: relative; } .out-of-stock-label { color: #b9472e; font-weight: bold; font-size: 1.1em; }`;
