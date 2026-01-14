@@ -308,7 +308,7 @@
         setTimeout(() => { card.style.background = ''; }, 300);
         e.stopPropagation();
       });
-      });
+    });
 
   function addToOrder(item) {
     let order = JSON.parse(localStorage.getItem('order') || '[]');
