@@ -268,8 +268,36 @@
   const style = document.createElement('style');
   style.textContent = `.menu-item-card.out-of-stock { opacity: 0.5; pointer-events: none; position: relative; } .out-of-stock-label { color: #b9472e; font-weight: bold; font-size: 1.1em; }`;
   document.head.appendChild(style);
+console.log("menu script loaded");
 </script>
 <script>
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log("DOMContentLoaded fired");
+  console.log("Fetching menu data...");
+  try {
+    const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes, doughStockRes, gfDoughStockRes] = await Promise.all([
+      fetch('/api/menu'),
+      fetch('/api/sections'),
+      fetch('/api/master-toppings'),
+      fetch('/api/section-topping-assignments'),
+      fetch('/api/dough-stock'),
+      fetch('/api/gf-dough-stock')
+    ]);
+    const menuData = await menuRes.json();
+    const sectionsData = await sectionsRes.json();
+    const masterToppingsData = await masterToppingsRes.json();
+    const sectionAssignmentsData = await sectionAssignmentsRes.json();
+    const doughStock = (await doughStockRes.json()).stock ?? null;
+    const gfDoughStock = (await gfDoughStockRes.json()).stock ?? null;
+    console.log("Menu data:", menuData);
+    renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock);
+    document.getElementById('menu-content').classList.remove('d-none');
+  } catch (err) {
+    document.getElementById('menu-content').innerHTML = '<span style="color:red">Failed to load menu. Please try again later.</span>';
+    document.getElementById('menu-content').classList.remove('d-none');
+    console.error('Menu load error:', err);
+  }
+});
 // Ensure menu loads on page load
 document.addEventListener('DOMContentLoaded', async function() {
   // Fetch all required data in parallel
