@@ -136,21 +136,8 @@
             html += `</form>`;
           }
           // Master toppings (if allowed for this item)
-          if (item.allowMasterToppings) {
-            if (masterToppings.length > 0) {
-              html += `<form class='toppings-form' data-name='${item.name}-master'>`;
-              html += `<small><b>Add Master Toppings:</b></small><br>`;
-              masterToppings.forEach(mt => {
-                let price = '0.00';
-                if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
-                else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
-                else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
-                html += `<label class="topping-label"><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
-                html += ` <span class="topping-meta">(${mt.category} • £${price})</span>`;
-                html += `</label>`;
-              });
-              html += `</form>`;
-            }
+          if (item.allowMasterToppings && masterToppings.length > 0) {
+            html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Master Toppings</button>`;
           }
           if (outOfStock) {
             html += `<div class='out-of-stock-label'>Out of stock</div>`;
@@ -212,6 +199,76 @@
     });
     content.innerHTML = html;
     updateCartBadge();
+
+    // --- Master Toppings Popup ---
+    let masterToppingsPopupBg = document.getElementById('master-toppings-popup-bg');
+    if (!masterToppingsPopupBg) {
+      masterToppingsPopupBg = document.createElement('div');
+      masterToppingsPopupBg.id = 'master-toppings-popup-bg';
+      masterToppingsPopupBg.style.position = 'fixed';
+      masterToppingsPopupBg.style.top = '0';
+      masterToppingsPopupBg.style.left = '0';
+      masterToppingsPopupBg.style.width = '100vw';
+      masterToppingsPopupBg.style.height = '100vh';
+      masterToppingsPopupBg.style.background = 'rgba(0,0,0,0.5)';
+      masterToppingsPopupBg.style.display = 'none';
+      masterToppingsPopupBg.style.justifyContent = 'center';
+      masterToppingsPopupBg.style.alignItems = 'center';
+      masterToppingsPopupBg.style.zIndex = '3000';
+      document.body.appendChild(masterToppingsPopupBg);
+    }
+    let masterToppingsPopup = document.getElementById('master-toppings-popup');
+    if (!masterToppingsPopup) {
+      masterToppingsPopup = document.createElement('div');
+      masterToppingsPopup.id = 'master-toppings-popup';
+      masterToppingsPopup.style.background = '#fff';
+      masterToppingsPopup.style.padding = '24px';
+      masterToppingsPopup.style.borderRadius = '8px';
+      masterToppingsPopup.style.boxShadow = '0 2px 16px rgba(0,0,0,0.2)';
+      masterToppingsPopup.style.minWidth = '320px';
+      masterToppingsPopup.style.border = '3px solid green';
+      masterToppingsPopupBg.appendChild(masterToppingsPopup);
+    }
+
+    function showMasterToppingsPopup(item) {
+      let popupHtml = `<h3>Add Master Toppings</h3>`;
+      popupHtml += `<form id='master-toppings-popup-form'>`;
+      masterToppings.forEach(mt => {
+        let price = '0.00';
+        if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
+        else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
+        else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+        popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-master-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}'> ${mt.name} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
+      });
+      popupHtml += `</form>`;
+      popupHtml += `<button id='master-toppings-popup-add'>Add Selected Toppings</button> <button id='master-toppings-popup-cancel'>Cancel</button>`;
+      masterToppingsPopup.innerHTML = popupHtml;
+      masterToppingsPopupBg.style.display = 'flex';
+
+      document.getElementById('master-toppings-popup-cancel').onclick = function() {
+        masterToppingsPopupBg.style.display = 'none';
+      };
+      document.getElementById('master-toppings-popup-add').onclick = function() {
+        // Gather selected toppings and prices
+        const selected = Array.from(masterToppingsPopup.querySelectorAll('.popup-master-topping-cb:checked'));
+        const extraToppings = selected.map(cb => cb.getAttribute('data-name'));
+        const extraToppingPrices = selected.map(cb => parseFloat(cb.getAttribute('data-price')) || 0);
+        let totalPrice = parseFloat(item.price) || 0;
+        extraToppingPrices.forEach(p => { totalPrice += p; });
+        const orderObj = { ...item, price: totalPrice, quantity: 1, masterToppings: extraToppings };
+        addToOrder(orderObj);
+        masterToppingsPopupBg.style.display = 'none';
+      };
+    }
+
+    document.querySelectorAll('.show-master-toppings-popup').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const item = JSON.parse(btn.getAttribute('data-item').replace(/&apos;/g, "'"));
+        showMasterToppingsPopup(item);
+        e.stopPropagation();
+      });
+    });
+
     // Add event listeners for menu actions (add to order, etc.)
     document.querySelectorAll('.menu-size-option').forEach(opt => {
       if (opt.style.pointerEvents === 'none') return;
