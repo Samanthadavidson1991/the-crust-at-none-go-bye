@@ -80,6 +80,10 @@
               </li>`;
             });
             html += '</ul>';
+            // Add a button to add without selecting a size
+            if (typeof item.price === 'number') {
+              html += `<button type="button" class="menu-direct-add" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add to order (no size)</button>`;
+            }
           } else if (typeof item.price === 'number') {
             html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
             html += `<button type="button" class="menu-direct-add" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add to order</button>`;
@@ -89,6 +93,7 @@
                 btn.addEventListener('click', function(e) {
                   const item = JSON.parse(btn.getAttribute('data-item').replace(/&apos;/g, "'"));
                   const price = parseFloat(btn.getAttribute('data-price'));
+                  // If the button is for 'no size', do not set selectedSize
                   addToOrder({ ...item, price, quantity: 1 });
                   btn.style.background = '#e9ece5';
                   setTimeout(() => { btn.style.background = ''; }, 300);
