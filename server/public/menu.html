@@ -37,8 +37,33 @@
   <script>
   // --- Add updateCartBadge stub ---
   function updateCartBadge() {
-    // TODO: Implement cart badge update logic
-    // For now, this is a no-op to prevent errors
+    // Update the cart badge count from localStorage
+    const cart = JSON.parse(localStorage.getItem('order') || '[]');
+    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const badge = document.getElementById('cart-badge');
+    const countSpan = document.getElementById('cart-count');
+    if (count > 0) {
+      badge.classList.remove('d-none');
+      countSpan.textContent = count;
+    } else {
+      badge.classList.add('d-none');
+      countSpan.textContent = '0';
+    }
+  }
+
+  // --- Add addToOrder implementation ---
+  function addToOrder(item) {
+    // Get current order from localStorage
+    let order = JSON.parse(localStorage.getItem('order') || '[]');
+    // Try to find a matching item (by name and selectedSize if present)
+    let matchIdx = order.findIndex(i => i.name === item.name && JSON.stringify(i.selectedSize) === JSON.stringify(item.selectedSize));
+    if (matchIdx > -1) {
+      order[matchIdx].quantity = (order[matchIdx].quantity || 1) + (item.quantity || 1);
+    } else {
+      order.push(item);
+    }
+    localStorage.setItem('order', JSON.stringify(order));
+    updateCartBadge();
   }
   // --- Restore renderMenu function ---
   function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
