@@ -111,7 +111,7 @@
                   <span class="menu-size-name">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
                 </button>`;
               if (item.allowMasterToppings && masterToppings.length > 0) {
-                html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
+                html += `<button type="button" class="show-master-toppings-popup add-toppings-btn" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
               }
               html += '</li>';
             });
@@ -122,7 +122,7 @@
           }
           // Always show Add Toppings button for items with allowMasterToppings
           if (item.allowMasterToppings && masterToppings.length > 0 && (!item.sizes || !item.sizes.length)) {
-            html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
+            html += `<button type="button" class="show-master-toppings-popup add-toppings-btn" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
           }
               // Add event listeners for direct price items
               document.querySelectorAll('.menu-direct-add').forEach(btn => {
@@ -146,10 +146,7 @@
             });
             html += `</form>`;
           }
-          // Master toppings (if allowed for this item)
-          if (item.allowMasterToppings && masterToppings.length > 0) {
-            html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
-          }
+          // (No duplicate Add Toppings button here)
           if (outOfStock) {
             html += `<div class='out-of-stock-label'>Out of stock</div>`;
             html += `<div class='out-of-stock-label'>Out of stock</div>`;

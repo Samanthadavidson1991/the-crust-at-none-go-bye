@@ -1,3 +1,22 @@
+/* Stylish Add Toppings button */
+.add-toppings-btn {
+    background: #ffe5b4;
+    color: #b9472e;
+    border: 2px solid #e9c46a;
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-size: 1em;
+    font-weight: 600;
+    margin: 6px 0 0 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 2px 8px rgba(233,196,106,0.10);
+}
+.add-toppings-btn:hover {
+    background: #fffbe6;
+    color: #b9472e;
+    border-color: #b9472e;
+}
 /* Selected Offer Banner Styling */
 .selected-offer-banner {
     background: linear-gradient(90deg, #ffe5b4 0%, #fffbe6 100%);
