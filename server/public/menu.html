@@ -238,8 +238,10 @@
       if (card.classList.contains('out-of-stock')) return;
       card.style.cursor = 'pointer';
       card.addEventListener('click', function(e) {
-        const item = JSON.parse(card.getAttribute('data-item').replace(/&apos;/g, "'"));
-        addToOrder({ ...item, price: parseFloat(item.price), quantity: 1 });
+        const item = JSON.parse(card.getAttribute('data-item') ? card.getAttribute('data-item').replace(/&apos;/g, "'") : '{}');
+        let price = parseFloat(item.price);
+        if (isNaN(price)) price = 0;
+        addToOrder({ ...item, price, quantity: 1 });
         card.style.background = '#e9ece5';
         setTimeout(() => { card.style.background = ''; }, 300);
         e.stopPropagation();
