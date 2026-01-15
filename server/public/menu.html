@@ -107,11 +107,11 @@
             html += '</ul>';
             // Add a button to add without selecting a size
             if (typeof item.price === 'number') {
-              html += `<button type="button" class="menu-direct-add" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add to order (no size)</button>`;
+              html += `<button type="button" class="menu-direct-add show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add Toppings</button>`;
             }
           } else if (typeof item.price === 'number') {
             html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
-            html += `<button type="button" class="menu-direct-add" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add to order</button>`;
+            html += `<button type="button" class="menu-direct-add show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add Toppings</button>`;
           }
               // Add event listeners for direct price items
               document.querySelectorAll('.menu-direct-add').forEach(btn => {
