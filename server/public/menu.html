@@ -105,13 +105,13 @@
               </li>`;
             });
             html += '</ul>';
-            // Add a button to add without selecting a size
-            if (typeof item.price === 'number') {
-              html += `<button type="button" class="menu-direct-add show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add Toppings</button>`;
-            }
-          } else if (typeof item.price === 'number') {
+          }
+          if (typeof item.price === 'number' && (!item.sizes || !item.sizes.length)) {
             html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
-            html += `<button type="button" class="menu-direct-add show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add Toppings</button>`;
+          }
+          // Always show Add Toppings button for items with allowMasterToppings
+          if (item.allowMasterToppings && masterToppings.length > 0) {
+            html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
           }
               // Add event listeners for direct price items
               document.querySelectorAll('.menu-direct-add').forEach(btn => {
