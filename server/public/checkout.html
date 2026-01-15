@@ -173,6 +173,7 @@
           if (item.selectedSize) line += ` <span class='selected-size'>[${item.selectedSize.name}]</span>`;
           if (item.selectedSide) line += ` <span class='selected-size'>[${item.selectedSide.name}]</span>`;
           if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) line += ` <span class='toppings-list-inline'>Toppings: ${item.toppings.join(', ')}</span>`;
+          if (item.masterToppings && Array.isArray(item.masterToppings) && item.masterToppings.length) line += ` <span class='toppings-list-inline'>Added: ${item.masterToppings.join(', ')}</span>`;
           if (item.removed && Array.isArray(item.removed) && item.removed.length) line += ` <span class='removed-list'>Removed: ${item.removed.join(', ')}</span>`;
           line += ` x${item.quantity} - £${(parseFloat(item.price) * item.quantity).toFixed(2)}`;
           line += ` <button class='remove-item-btn'>Remove</button>`;

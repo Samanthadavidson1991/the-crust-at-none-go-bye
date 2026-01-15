@@ -64,7 +64,7 @@
     // Get current order from localStorage
     let order = JSON.parse(localStorage.getItem('order') || '[]');
     // Try to find a matching item (by name and selectedSize if present)
-    let matchIdx = order.findIndex(i => i.name === item.name && JSON.stringify(i.selectedSize) === JSON.stringify(item.selectedSize));
+    let matchIdx = order.findIndex(i => i.name === item.name && JSON.stringify(i.selectedSize) === JSON.stringify(item.selectedSize) && JSON.stringify(i.masterToppings) === JSON.stringify(item.masterToppings));
     if (matchIdx > -1) {
       order[matchIdx].quantity = (order[matchIdx].quantity || 1) + (item.quantity || 1);
     } else {
@@ -72,6 +72,14 @@
     }
     localStorage.setItem('order', JSON.stringify(order));
     updateCartBadge();
+    // Show a quick summary of added toppings (if any)
+    if (item.masterToppings && item.masterToppings.length) {
+      const msg = document.createElement('div');
+      msg.className = 'toppings-added-msg';
+      msg.innerHTML = `Added: <b>${item.name}</b>${item.selectedSize ? ' [' + item.selectedSize.name + ']' : ''}<br>with toppings: <span class='toppings-list-inline'>${item.masterToppings.join(', ')}</span>`;
+      document.body.appendChild(msg);
+      setTimeout(() => { msg.remove(); }, 2500);
+    }
   }
   // --- Restore renderMenu function ---
   function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
