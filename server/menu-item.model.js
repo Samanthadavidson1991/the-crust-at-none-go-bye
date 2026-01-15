@@ -11,7 +11,8 @@ const menuItemSchema = new mongoose.Schema({
   sideOptions: Array,
   glutenFree: Boolean,
   stock: Number,
-  showsToppings: { type: Boolean, default: false }
+  showsToppings: { type: Boolean, default: false },
+  allowMasterToppings: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('MenuItem', menuItemSchema);
