@@ -127,6 +127,7 @@
           }
           if (typeof item.price === 'number' && (!item.sizes || !item.sizes.length)) {
             html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
+            html += `<button type="button" class="menu-direct-add add-toppings-btn" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add to Cart</button>`;
           }
           // Always show Add Toppings button for items with allowMasterToppings
           if (item.allowMasterToppings && masterToppings.length > 0 && (!item.sizes || !item.sizes.length)) {
