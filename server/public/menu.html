@@ -36,6 +36,14 @@
   </main>
   <script>
   // --- Add updateCartBadge stub ---
+  document.addEventListener('DOMContentLoaded', function() {
+    const cartBadgeBtn = document.getElementById('cart-badge-btn');
+    if (cartBadgeBtn) {
+      cartBadgeBtn.addEventListener('click', function() {
+        window.location.href = 'checkout.html';
+      });
+    }
+  });
   function updateCartBadge() {
     // Update the cart badge count from localStorage
     const cart = JSON.parse(localStorage.getItem('order') || '[]');
