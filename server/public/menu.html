@@ -109,8 +109,11 @@
               html += `<li class="menu-size-list-item">
                 <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
                   <span class="menu-size-name">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                </button>
-              </li>`;
+                </button>`;
+              if (item.allowMasterToppings && masterToppings.length > 0) {
+                html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
+              }
+              html += '</li>';
             });
             html += '</ul>';
           }
@@ -118,7 +121,7 @@
             html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
           }
           // Always show Add Toppings button for items with allowMasterToppings
-          if (item.allowMasterToppings && masterToppings.length > 0) {
+          if (item.allowMasterToppings && masterToppings.length > 0 && (!item.sizes || !item.sizes.length)) {
             html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
           }
               // Add event listeners for direct price items
@@ -174,8 +177,12 @@
               html += `<li class="menu-size-list-item">
                 <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
                   <span class="menu-size-name">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                </button>
-              </li>`;
+                </button>`;
+              // Add toppings button for sizes in fallback sections
+              if (item.allowMasterToppings && masterToppings.length > 0) {
+                html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
+              }
+              html += '</li>';
             });
             html += '</ul>';
           }
@@ -238,7 +245,7 @@
       masterToppingsPopupBg.appendChild(masterToppingsPopup);
     }
 
-    function showMasterToppingsPopup(item) {
+    function showMasterToppingsPopup(item, selectedSize) {
       let popupHtml = `<h3>Add Master Toppings</h3>`;
       popupHtml += `<form id='master-toppings-popup-form'>`;
       masterToppings.forEach(mt => {
@@ -261,9 +268,15 @@
         const selected = Array.from(masterToppingsPopup.querySelectorAll('.popup-master-topping-cb:checked'));
         const extraToppings = selected.map(cb => cb.getAttribute('data-name'));
         const extraToppingPrices = selected.map(cb => parseFloat(cb.getAttribute('data-price')) || 0);
-        let totalPrice = parseFloat(item.price) || 0;
+        let totalPrice = 0;
+        if (selectedSize && selectedSize.price) {
+          totalPrice = parseFloat(selectedSize.price) || 0;
+        } else {
+          totalPrice = parseFloat(item.price) || 0;
+        }
         extraToppingPrices.forEach(p => { totalPrice += p; });
         const orderObj = { ...item, price: totalPrice, quantity: 1, masterToppings: extraToppings };
+        if (selectedSize) orderObj.selectedSize = selectedSize;
         addToOrder(orderObj);
         masterToppingsPopupBg.style.display = 'none';
       };
@@ -272,7 +285,15 @@
     document.querySelectorAll('.show-master-toppings-popup').forEach(btn => {
       btn.addEventListener('click', function(e) {
         const item = JSON.parse(btn.getAttribute('data-item').replace(/&apos;/g, "'"));
-        showMasterToppingsPopup(item);
+        let size = null;
+        if (btn.hasAttribute('data-size')) {
+          try {
+            size = JSON.parse(btn.getAttribute('data-size').replace(/&apos;/g, "'"));
+          } catch (err) {
+            size = btn.getAttribute('data-size');
+          }
+        }
+        showMasterToppingsPopup(item, size);
         e.stopPropagation();
       });
     });
