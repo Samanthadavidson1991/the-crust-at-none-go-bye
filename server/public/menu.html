@@ -80,7 +80,21 @@
               </li>`;
             });
             html += '</ul>';
+          } else if (typeof item.price === 'number') {
+            html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
+            html += `<button type="button" class="menu-direct-add" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add to order</button>`;
           }
+              // Add event listeners for direct price items
+              document.querySelectorAll('.menu-direct-add').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                  const item = JSON.parse(btn.getAttribute('data-item').replace(/&apos;/g, "'"));
+                  const price = parseFloat(btn.getAttribute('data-price'));
+                  addToOrder({ ...item, price, quantity: 1 });
+                  btn.style.background = '#e9ece5';
+                  setTimeout(() => { btn.style.background = ''; }, 300);
+                  e.stopPropagation();
+                });
+              });
           // --- Toppings UI ---
           // Pizza-specific toppings (from admin)
           if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
@@ -173,7 +187,12 @@
       if (opt.style.pointerEvents === 'none') return;
       opt.addEventListener('click', function(e) {
         const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
-        const size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
+        let size = null;
+        try {
+          size = JSON.parse(opt.getAttribute('data-size').replace(/&apos;/g, "'"));
+        } catch (err) {
+          size = opt.getAttribute('data-size');
+        }
         // Find the toppings form for this item
         let extraToppings = [];
         let extraToppingPrices = [];
