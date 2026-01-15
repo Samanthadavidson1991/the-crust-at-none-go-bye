@@ -485,8 +485,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // After adding, refresh the admin menu preview
                 setTimeout(fetchAndRenderAdminMenuPreview, 500);
         e.preventDefault();
-        if (!pizzaNameInput.value || sizes.length === 0) {
-            alert('Please enter a pizza name and at least one size.');
+        const directPrice = document.getElementById('pizza-direct-price')?.value;
+        if (!pizzaNameInput.value || (sizes.length === 0 && (!directPrice || isNaN(parseFloat(directPrice))))) {
+            alert('Please enter a pizza name and at least one size or a direct price.');
             return;
         }
         // Send new pizza to backend
@@ -498,6 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
             section: sectionSelect.value || 'Other',
             allowMasterToppings: !!includeMasterToppingsCheckbox.checked
         };
+        if (sizes.length === 0 && directPrice && !isNaN(parseFloat(directPrice))) {
+            newPizza.price = parseFloat(directPrice);
+        }
         fetch('/api/menu', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -522,6 +526,16 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Error adding pizza: ' + err.message);
         });
     });
+
+    // Add direct price input to the form
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.id = 'pizza-direct-price';
+    priceInput.placeholder = 'Direct price (e.g. 7.99)';
+    priceInput.step = '0.01';
+    priceInput.min = '0';
+    priceInput.style.marginBottom = '8px';
+    pizzaNameInput.parentNode.insertBefore(priceInput, pizzaDescriptionInput);
 
     // Initial render
     renderSizes();
