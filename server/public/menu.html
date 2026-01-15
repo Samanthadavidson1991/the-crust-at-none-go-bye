@@ -109,8 +109,11 @@
               html += `<li class="menu-size-list-item">
                 <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
                   <span class="menu-size-name">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                </button>
-              </li>`;
+                </button>`;
+                if (item.allowMasterToppings && masterToppings.length > 0) {
+                  html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
+                }
+              html += '</li>';
             });
             html += '</ul>';
           }
@@ -118,7 +121,7 @@
             html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
           }
           // Always show Add Toppings button for items with allowMasterToppings
-          if (item.allowMasterToppings && masterToppings.length > 0) {
+          if (item.allowMasterToppings && masterToppings.length > 0 && (!item.sizes || !item.sizes.length)) {
             html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
           }
               // Add event listeners for direct price items
@@ -174,27 +177,27 @@
               html += `<li class="menu-size-list-item">
                 <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
                   <span class="menu-size-name">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                </button>
-              </li>`;
+                </button>`;
+                // Section-based toppings assignment for fallback sections
+                const assignedToppingIds = (sectionAssignmentsData.assignments && sectionAssignmentsData.assignments[section]) || [];
+                const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
+                if (assignedToppings.length > 0) {
+                  html += `<form class='toppings-form' data-name='${item.name}'>`;
+                  html += `<small><b>Add Toppings:</b></small><br>`;
+                  assignedToppings.forEach(mt => {
+                    let price = '0.00';
+                    if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
+                    else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
+                    else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+                    html += `<label class="topping-label"><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
+                    html += ` <span class="topping-meta">(${mt.category} • £${price})</span>`;
+                    html += `</label>`;
+                  });
+                  html += `</form>`;
+                }
+              html += '</li>';
             });
             html += '</ul>';
-          }
-          // Section-based toppings assignment for fallback sections
-          const assignedToppingIds = (sectionAssignmentsData.assignments && sectionAssignmentsData.assignments[section]) || [];
-          const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
-          if (assignedToppings.length > 0) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Add Toppings:</b></small><br>`;
-            assignedToppings.forEach(mt => {
-              let price = '0.00';
-              if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
-              else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
-              else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
-              html += `<label class="topping-label"><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
-              html += ` <span class="topping-meta">(${mt.category} • £${price})</span>`;
-              html += `</label>`;
-            });
-            html += `</form>`;
           }
           if (outOfStock) {
             html += `<div class='out-of-stock-label'>Out of stock</div>`;
@@ -238,7 +241,7 @@
       masterToppingsPopupBg.appendChild(masterToppingsPopup);
     }
 
-    function showMasterToppingsPopup(item) {
+    function showMasterToppingsPopup(item, selectedSize) {
       let popupHtml = `<h3>Add Master Toppings</h3>`;
       popupHtml += `<form id='master-toppings-popup-form'>`;
       masterToppings.forEach(mt => {
@@ -261,9 +264,15 @@
         const selected = Array.from(masterToppingsPopup.querySelectorAll('.popup-master-topping-cb:checked'));
         const extraToppings = selected.map(cb => cb.getAttribute('data-name'));
         const extraToppingPrices = selected.map(cb => parseFloat(cb.getAttribute('data-price')) || 0);
-        let totalPrice = parseFloat(item.price) || 0;
+        let totalPrice = 0;
+        if (selectedSize && selectedSize.price) {
+          totalPrice = parseFloat(selectedSize.price) || 0;
+        } else {
+          totalPrice = parseFloat(item.price) || 0;
+        }
         extraToppingPrices.forEach(p => { totalPrice += p; });
         const orderObj = { ...item, price: totalPrice, quantity: 1, masterToppings: extraToppings };
+        if (selectedSize) orderObj.selectedSize = selectedSize;
         addToOrder(orderObj);
         masterToppingsPopupBg.style.display = 'none';
       };
@@ -272,7 +281,15 @@
     document.querySelectorAll('.show-master-toppings-popup').forEach(btn => {
       btn.addEventListener('click', function(e) {
         const item = JSON.parse(btn.getAttribute('data-item').replace(/&apos;/g, "'"));
-        showMasterToppingsPopup(item);
+        let size = null;
+        if (btn.hasAttribute('data-size')) {
+          try {
+            size = JSON.parse(btn.getAttribute('data-size').replace(/&apos;/g, "'"));
+          } catch (err) {
+            size = btn.getAttribute('data-size');
+          }
+        }
+        showMasterToppingsPopup(item, size);
         e.stopPropagation();
       });
     });
@@ -308,73 +325,3 @@
         const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: extraToppings };
         addToOrder(orderObj);
         // Reset add-topping checkboxes to unchecked
-        if (form) {
-          Array.from(form.querySelectorAll('.add-topping')).forEach(cb => { cb.checked = false; });
-        }
-        opt.style.background = '#e9ece5';
-        setTimeout(() => { opt.style.background = ''; }, 300);
-        e.stopPropagation();
-      });
-    });
-    document.querySelectorAll('.menu-side-option').forEach(opt => {
-      if (opt.style.pointerEvents === 'none') return;
-      opt.addEventListener('click', function(e) {
-        const item = JSON.parse(opt.getAttribute('data-item').replace(/&apos;/g, "'"));
-        const side = JSON.parse(opt.getAttribute('data-side').replace(/&apos;/g, "'"));
-        addToOrder({ ...item, selectedSide: side, price: side.price, quantity: 1 });
-        opt.style.background = '#e9ece5';
-        setTimeout(() => { opt.style.background = ''; }, 300);
-        e.stopPropagation();
-      });
-    });
-    // Make all other menu-item-cards clickable (desserts, drinks, etc.)
-    document.querySelectorAll('.menu-item-card').forEach(card => {
-      if (card.querySelector('.menu-size-option') || card.querySelector('.menu-side-option')) return;
-      if (card.classList.contains('out-of-stock')) return;
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', function(e) {
-        const item = JSON.parse(card.getAttribute('data-item') ? card.getAttribute('data-item').replace(/&apos;/g, "'") : '{}');
-        let price = parseFloat(item.price);
-        if (isNaN(price)) price = 0;
-        addToOrder({ ...item, price, quantity: 1 });
-        card.style.background = '#e9ece5';
-        setTimeout(() => { card.style.background = ''; }, 300);
-        e.stopPropagation();
-      });
-    });
-  }
-
-  // --- End renderMenu function ---
-  console.log("menu script loaded");
-  document.addEventListener('DOMContentLoaded', async function() {
-    console.log("DOMContentLoaded fired");
-    console.log("Fetching menu data...");
-    try {
-      const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes] = await Promise.all([
-        fetch('/api/menu'),
-        fetch('/api/sections'),
-        fetch('/api/master-toppings'),
-        fetch('/api/section-topping-assignments')
-      ]);
-      const menuData = await menuRes.json();
-      const sectionsData = await sectionsRes.json();
-      const masterToppingsData = await masterToppingsRes.json();
-      const sectionAssignmentsData = await sectionAssignmentsRes.json();
-      const doughStock = null;
-      const gfDoughStock = null;
-      console.log("Menu data:", menuData);
-      renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock);
-      const menuContent = document.getElementById('menu-content');
-      if (menuContent) menuContent.classList.remove('d-none');
-    } catch (err) {
-      const menuContent = document.getElementById('menu-content');
-      if (menuContent) {
-        menuContent.innerHTML = '<span style="color:red">Failed to load menu. Please try again later.</span>';
-        menuContent.classList.remove('d-none');
-      }
-      console.error('Menu load error:', err);
-    }
-  });
-  </script>
-</body>
-</html>
