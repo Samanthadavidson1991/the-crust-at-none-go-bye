@@ -338,7 +338,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     includeMasterToppingsCheckbox.addEventListener('change', function() {
         if (this.checked) {
-            showMasterToppingsModal();
+            // Automatically select all master toppings and set their prices
+            selectedMasterToppings = [];
+            selectedMasterToppingPrices = {};
+            masterToppings.forEach(mt => {
+                const key = mt.name + '|' + mt.category;
+                selectedMasterToppings.push(key);
+                let price = 0;
+                if (mt.category === 'Meat') price = parseFloat(masterToppingPrices.Meat) || 0;
+                else if (mt.category === 'Veg') price = parseFloat(masterToppingPrices.Vegetable) || 0;
+                else if (typeof mt.price === 'number') price = mt.price;
+                selectedMasterToppingPrices[key] = price;
+            });
         } else {
             selectedMasterToppings = [];
             selectedMasterToppingPrices = {};
