@@ -444,3 +444,51 @@ mongoose.connect(atlasUri)
       console.log(`Server running on port ${PORT}`);
     });
   });
+
+const DoughStock = require('./dough-stock.model');
+
+// --- Dough Stock API ---
+app.get('/api/dough-stock', async (req, res) => {
+  try {
+    let doc = await DoughStock.findOne({ type: 'normal' });
+    if (!doc) doc = await DoughStock.create({ type: 'normal', stock: 0, outOfStock: false });
+    res.json({ stock: doc.stock, outOfStock: doc.outOfStock });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch dough stock', details: err.message });
+  }
+});
+app.post('/api/dough-stock', async (req, res) => {
+  try {
+    const { stock } = req.body;
+    let doc = await DoughStock.findOneAndUpdate(
+      { type: 'normal' },
+      { stock, outOfStock: stock <= 0 },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, stock: doc.stock, outOfStock: doc.outOfStock });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update dough stock', details: err.message });
+  }
+});
+app.get('/api/gf-dough-stock', async (req, res) => {
+  try {
+    let doc = await DoughStock.findOne({ type: 'gf' });
+    if (!doc) doc = await DoughStock.create({ type: 'gf', stock: 0, outOfStock: false });
+    res.json({ stock: doc.stock, outOfStock: doc.outOfStock });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch GF dough stock', details: err.message });
+  }
+});
+app.post('/api/gf-dough-stock', async (req, res) => {
+  try {
+    const { stock } = req.body;
+    let doc = await DoughStock.findOneAndUpdate(
+      { type: 'gf' },
+      { stock, outOfStock: stock <= 0 },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, stock: doc.stock, outOfStock: doc.outOfStock });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update GF dough stock', details: err.message });
+  }
+});

@@ -88,9 +88,10 @@
         document.getElementById('gf-dough-stock-btn').onclick = updateGFDoughStock;
       });
 
+
       async function fetchDoughStock() {
         try {
-          const res = await fetch('https://admin.thecrustatngb.co.uk/api/dough-stock', { credentials: 'include' });
+          const res = await fetch('/api/dough-stock', { credentials: 'include' });
           const data = await res.json();
           document.getElementById('dough-stock-input').value = data.stock || 0;
           document.getElementById('dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
@@ -102,7 +103,7 @@
       async function updateDoughStock() {
         const val = parseInt(document.getElementById('dough-stock-input').value, 10);
         if (isNaN(val) || val < 0) return;
-        await fetch('https://admin.thecrustatngb.co.uk/api/dough-stock', {
+        await fetch('/api/dough-stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -113,7 +114,7 @@
 
       async function fetchGFDoughStock() {
         try {
-          const res = await fetch('https://admin.thecrustatngb.co.uk/api/gf-dough-stock', { credentials: 'include' });
+          const res = await fetch('/api/gf-dough-stock', { credentials: 'include' });
           const data = await res.json();
           document.getElementById('gf-dough-stock-input').value = data.stock || 0;
           document.getElementById('gf-dough-stock-status').textContent = data.outOfStock ? 'Out of stock' : 'In stock';
@@ -125,7 +126,7 @@
       async function updateGFDoughStock() {
         const val = parseInt(document.getElementById('gf-dough-stock-input').value, 10);
         if (isNaN(val) || val < 0) return;
-        await fetch('https://admin.thecrustatngb.co.uk/api/gf-dough-stock', {
+        await fetch('/api/gf-dough-stock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
