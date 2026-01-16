@@ -124,7 +124,7 @@
       const select = document.getElementById('timeSlot');
       select.innerHTML = '<option value="">Loading...</option>';
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/timeslots', { credentials: 'include' });
+        const res = await fetch('/api/timeslots', { credentials: 'include' });
         const slots = await res.json();
         select.innerHTML = '<option value="">Select a time slot</option>' +
           slots.map(slot => `<option value="${slot.time}">${slot.time}</option>`).join('');
@@ -140,8 +140,8 @@
     async function fetchPosMenu() {
       try {
         const [menuRes, toppingsRes] = await Promise.all([
-          fetch('https://admin.thecrustatngb.co.uk/api/menu', { credentials: 'include' }),
-          fetch('https://admin.thecrustatngb.co.uk/api/pizza-topping-stock', { credentials: 'include' })
+          fetch('/api/menu', { credentials: 'include' }),
+          fetch('/api/pizza-topping-stock', { credentials: 'include' })
         ]);
         posMenu = await menuRes.json();
         posToppings = await toppingsRes.json();
@@ -363,7 +363,7 @@
         total
       };
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/orders', {
+        const res = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',

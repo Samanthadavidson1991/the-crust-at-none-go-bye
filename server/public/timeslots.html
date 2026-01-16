@@ -116,7 +116,7 @@
     // --- DELIVERY DISTANCE ---
     async function loadDeliveryDistance() {
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/delivery-distance');
+          const res = await fetch('/api/delivery-distance');
         if (!res.ok) throw new Error('Failed to load');
         const data = await res.json();
         document.getElementById('delivery-distance').value = data.miles || 5;
@@ -128,7 +128,7 @@
       e.preventDefault();
       const miles = parseFloat(document.getElementById('delivery-distance').value);
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/delivery-distance', {
+          const res = await fetch('/api/delivery-distance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ miles })
@@ -147,7 +147,7 @@
       // Get opening/closing times for the selected day
       let times;
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/opening-times');
+          const res = await fetch('/api/opening-times');
         times = await res.json();
       } catch (err) {
         document.getElementById('generate-slots-status').textContent = 'Error loading opening times.';
@@ -171,7 +171,7 @@
         start += duration;
       }
       // Send to backend
-      await fetch('https://admin.thecrustatngb.co.uk/api/timeslots/batch', {
+      await fetch('/api/timeslots/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slots })
@@ -193,7 +193,7 @@
 
     async function fetchOpeningTimes() {
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/opening-times');
+          const res = await fetch('/api/opening-times');
         const times = await res.json();
         // Helper to ensure valid time string
         function safeTime(val) {
@@ -229,7 +229,7 @@
         open: document.getElementById('sunday-open').value,
         close: document.getElementById('sunday-close').value
       };
-      await fetch('https://admin.thecrustatngb.co.uk/api/opening-times', {
+      await fetch('/api/opening-times', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ friday, saturday, sunday })
@@ -315,7 +315,7 @@
       const time = input.value.trim();
       const doughLimit = parseInt(doughLimitInput.value, 10) || 0;
       if (!time) return;
-      await fetch('https://admin.thecrustatngb.co.uk/api/timeslots', {
+      await fetch('/api/timeslots', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ time, doughLimit })
@@ -325,7 +325,7 @@
     }
 
     async function deleteTimeSlot(id) {
-      await fetch(`https://admin.thecrustatngb.co.uk/api/timeslots/${id}`, {
+      await fetch(`/api/timeslots/${id}`, {
         method: 'DELETE'
       });
       fetchTimeSlots();
