@@ -1,5 +1,3 @@
-// --- Opening Times Model ---
-const mongoose = require('mongoose');
 const OpeningTimesSchema = new mongoose.Schema({
   friday: { open: String, close: String },
   saturday: { open: String, close: String },
