@@ -461,21 +461,26 @@ app.get('/api/dough-stock', async (req, res) => {
   try {
     let doc = await DoughStock.findOne({ type: 'normal' });
     if (!doc) doc = await DoughStock.create({ type: 'normal', stock: 0, outOfStock: false });
+    console.log('[GET /api/dough-stock] Returning:', doc);
     res.json({ stock: doc.stock, outOfStock: doc.outOfStock });
   } catch (err) {
+    console.error('[GET /api/dough-stock] Error:', err);
     res.status(500).json({ error: 'Failed to fetch dough stock', details: err.message });
   }
 });
 app.post('/api/dough-stock', async (req, res) => {
   try {
     const { stock } = req.body;
+    console.log('[POST /api/dough-stock] Received stock:', stock);
     let doc = await DoughStock.findOneAndUpdate(
       { type: 'normal' },
       { stock, outOfStock: stock <= 0 },
       { new: true, upsert: true }
     );
+    console.log('[POST /api/dough-stock] Updated doc:', doc);
     res.json({ success: true, stock: doc.stock, outOfStock: doc.outOfStock });
   } catch (err) {
+    console.error('[POST /api/dough-stock] Error:', err);
     res.status(500).json({ error: 'Failed to update dough stock', details: err.message });
   }
 });
