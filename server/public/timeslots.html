@@ -260,7 +260,7 @@
           slots.push({ time: `${slotStart}-${slotEnd}`, doughLimit });
           start += duration;
         }
-        await fetch('https://admin.thecrustatngb.co.uk/api/timeslots/batch', {
+        await fetch('/api/timeslots/batch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ slots })
@@ -273,7 +273,7 @@
       const listDiv = document.getElementById('timeslot-list');
       listDiv.textContent = 'Loading...';
       try {
-        const res = await fetch('https://admin.thecrustatngb.co.uk/api/timeslots');
+        const res = await fetch('/api/timeslots');
         const slots = await res.json();
         if (!Array.isArray(slots) || slots.length === 0) {
           listDiv.textContent = 'No time slots yet.';
@@ -296,7 +296,7 @@
           input.addEventListener('change', async function() {
             const id = this.getAttribute('data-slot-id');
             const newVal = parseInt(this.value, 10) || 0;
-            await fetch(`https://admin.thecrustatngb.co.uk/api/timeslots/${id}`, {
+            await fetch(`/api/timeslots/${id}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
