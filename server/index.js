@@ -1,13 +1,3 @@
-// --- Local Menu API for Admin Tools ---
-const MenuItem = require('./menu-item.model');
-app.get('/api/menu', async (req, res) => {
-  try {
-    const menu = await MenuItem.find({});
-    res.json(menu);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch menu', details: err.message });
-  }
-});
 // Ensure all schemas are registered before any model usage
 require('./topping.model');
 require('./section.model');
@@ -88,6 +78,16 @@ mongoose.connect(atlasUri)
     }));
     app.use(express.json());
 
+    // --- Local Menu API for Admin Tools ---
+    const MenuItem = require('./menu-item.model');
+    app.get('/api/menu', async (req, res) => {
+      try {
+        const menu = await MenuItem.find({});
+        res.json(menu);
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch menu', details: err.message });
+      }
+    });
     // --- ROUTES ---
     // Serve admin-menu.html at / for any admin domain BEFORE static middleware
     app.get('/', (req, res, next) => {
