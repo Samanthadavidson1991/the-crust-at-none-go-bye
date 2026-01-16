@@ -1,107 +1,4 @@
-const OpeningTimesSchema = new mongoose.Schema({
-  friday: { open: String, close: String },
-  saturday: { open: String, close: String },
-  sunday: { open: String, close: String }
-}, { collection: 'opening_times' });
-const OpeningTimes = mongoose.models.OpeningTimes || mongoose.model('OpeningTimes', OpeningTimesSchema);
-
-// --- Delivery Distance Model ---
-const DeliveryDistanceSchema = new mongoose.Schema({ miles: Number }, { collection: 'delivery_distance' });
-const DeliveryDistance = mongoose.models.DeliveryDistance || mongoose.model('DeliveryDistance', DeliveryDistanceSchema);
-
-// --- Timeslot Model ---
-const TimeslotSchema = new mongoose.Schema({
-  time: String,
-  doughLimit: { type: Number, default: 0 },
-  deliveryAmount: { type: Number, default: 0 }
-}, { collection: 'timeslots' });
-const Timeslot = mongoose.models.Timeslot || mongoose.model('Timeslot', TimeslotSchema);
-
-// --- Opening Times API ---
-app.get('/api/opening-times', async (req, res) => {
-  try {
-    let doc = await OpeningTimes.findOne();
-    if (!doc) doc = await OpeningTimes.create({ friday: {}, saturday: {}, sunday: {} });
-    res.json(doc);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch opening times', details: err.message });
-  }
-});
-app.post('/api/opening-times', async (req, res) => {
-  try {
-    let doc = await OpeningTimes.findOneAndUpdate({}, req.body, { new: true, upsert: true });
-    res.json({ success: true, openingTimes: doc });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to save opening times', details: err.message });
-  }
-});
-
-// --- Delivery Distance API ---
-app.get('/api/delivery-distance', async (req, res) => {
-  try {
-    let doc = await DeliveryDistance.findOne();
-    if (!doc) doc = await DeliveryDistance.create({ miles: 5 });
-    res.json({ miles: doc.miles });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch delivery distance', details: err.message });
-  }
-});
-app.post('/api/delivery-distance', async (req, res) => {
-  try {
-    let doc = await DeliveryDistance.findOneAndUpdate({}, { miles: req.body.miles }, { new: true, upsert: true });
-    res.json({ success: true, miles: doc.miles });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to save delivery distance', details: err.message });
-  }
-});
-
-// --- Timeslots API ---
-app.get('/api/timeslots', async (req, res) => {
-  try {
-    const slots = await Timeslot.find({});
-    res.json(slots);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch timeslots', details: err.message });
-  }
-});
-app.post('/api/timeslots', async (req, res) => {
-  try {
-    const slot = new Timeslot(req.body);
-    await slot.save();
-    res.json({ success: true, slot });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to add timeslot', details: err.message });
-  }
-});
-app.patch('/api/timeslots/:id', async (req, res) => {
-  try {
-    const slot = await Timeslot.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ success: true, slot });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update timeslot', details: err.message });
-  }
-});
-app.delete('/api/timeslots/:id', async (req, res) => {
-  try {
-    await Timeslot.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to delete timeslot', details: err.message });
-  }
-});
-app.post('/api/timeslots/batch', async (req, res) => {
-  try {
-    const { slots } = req.body;
-    if (!Array.isArray(slots)) return res.status(400).json({ error: 'Slots must be an array' });
-    // Remove all existing timeslots
-    await Timeslot.deleteMany({});
-    // Insert new slots
-    const created = await Timeslot.insertMany(slots);
-    res.json({ success: true, slots: created });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to batch update timeslots', details: err.message });
-  }
-});
+// (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
 // Ensure all schemas are registered before any model usage
 require('./topping.model');
 require('./section.model');
@@ -510,6 +407,111 @@ mongoose.connect(atlasUri)
 
     // --- ADD POST /api/orders ENDPOINT ---
     app.post('/api/orders', async (req, res) => {
+      // --- Opening Times Model ---
+      const OpeningTimesSchema = new mongoose.Schema({
+        friday: { open: String, close: String },
+        saturday: { open: String, close: String },
+        sunday: { open: String, close: String }
+      }, { collection: 'opening_times' });
+      const OpeningTimes = mongoose.models.OpeningTimes || mongoose.model('OpeningTimes', OpeningTimesSchema);
+
+      // --- Delivery Distance Model ---
+      const DeliveryDistanceSchema = new mongoose.Schema({ miles: Number }, { collection: 'delivery_distance' });
+      const DeliveryDistance = mongoose.models.DeliveryDistance || mongoose.model('DeliveryDistance', DeliveryDistanceSchema);
+
+      // --- Timeslot Model ---
+      const TimeslotSchema = new mongoose.Schema({
+        time: String,
+        doughLimit: { type: Number, default: 0 },
+        deliveryAmount: { type: Number, default: 0 }
+      }, { collection: 'timeslots' });
+      const Timeslot = mongoose.models.Timeslot || mongoose.model('Timeslot', TimeslotSchema);
+
+      // --- Opening Times API ---
+      app.get('/api/opening-times', async (req, res) => {
+        try {
+          let doc = await OpeningTimes.findOne();
+          if (!doc) doc = await OpeningTimes.create({ friday: {}, saturday: {}, sunday: {} });
+          res.json(doc);
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to fetch opening times', details: err.message });
+        }
+      });
+      app.post('/api/opening-times', async (req, res) => {
+        try {
+          let doc = await OpeningTimes.findOneAndUpdate({}, req.body, { new: true, upsert: true });
+          res.json({ success: true, openingTimes: doc });
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to save opening times', details: err.message });
+        }
+      });
+
+      // --- Delivery Distance API ---
+      app.get('/api/delivery-distance', async (req, res) => {
+        try {
+          let doc = await DeliveryDistance.findOne();
+          if (!doc) doc = await DeliveryDistance.create({ miles: 5 });
+          res.json({ miles: doc.miles });
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to fetch delivery distance', details: err.message });
+        }
+      });
+      app.post('/api/delivery-distance', async (req, res) => {
+        try {
+          let doc = await DeliveryDistance.findOneAndUpdate({}, { miles: req.body.miles }, { new: true, upsert: true });
+          res.json({ success: true, miles: doc.miles });
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to save delivery distance', details: err.message });
+        }
+      });
+
+      // --- Timeslots API ---
+      app.get('/api/timeslots', async (req, res) => {
+        try {
+          const slots = await Timeslot.find({});
+          res.json(slots);
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to fetch timeslots', details: err.message });
+        }
+      });
+      app.post('/api/timeslots', async (req, res) => {
+        try {
+          const slot = new Timeslot(req.body);
+          await slot.save();
+          res.json({ success: true, slot });
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to add timeslot', details: err.message });
+        }
+      });
+      app.patch('/api/timeslots/:id', async (req, res) => {
+        try {
+          const slot = await Timeslot.findByIdAndUpdate(req.params.id, req.body, { new: true });
+          res.json({ success: true, slot });
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to update timeslot', details: err.message });
+        }
+      });
+      app.delete('/api/timeslots/:id', async (req, res) => {
+        try {
+          await Timeslot.findByIdAndDelete(req.params.id);
+          res.json({ success: true });
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to delete timeslot', details: err.message });
+        }
+      });
+      app.post('/api/timeslots/batch', async (req, res) => {
+        try {
+          const { slots } = req.body;
+          if (!Array.isArray(slots)) return res.status(400).json({ error: 'Slots must be an array' });
+          // Remove all existing timeslots
+          await Timeslot.deleteMany({});
+          // Insert new slots
+          const created = await Timeslot.insertMany(slots);
+          res.json({ success: true, slots: created });
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to batch update timeslots', details: err.message });
+        }
+      });
       try {
         // In production, save order to database. For now, just echo back.
         const order = req.body;
