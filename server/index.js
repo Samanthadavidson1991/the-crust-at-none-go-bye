@@ -224,7 +224,6 @@ mongoose.connect(atlasUri)
     // Mock API endpoints for admin dashboard
     // Use MenuItem model for menu endpoints
     require('./topping.model');
-    const MenuItem = require('./menu-item.model');
     const Section = require('./section.model');
     // Master Toppings and Section Assignments endpoints
     app.use('/api/master-toppings', require('./master-toppings'));
