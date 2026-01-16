@@ -250,26 +250,52 @@
 
       async function updateStock(itemName) {
         const input = document.getElementById(`stock-${itemName}`);
+        const btn = input.parentElement.parentElement.querySelector('.stock-action-btn');
+        const status = document.createElement('span');
+        status.className = 'ml-8 text-muted';
+        status.textContent = 'Saving...';
+        btn.disabled = true;
+        btn.parentElement.appendChild(status);
         const newStock = input.value;
-        await fetch('https://admin.thecrustatngb.co.uk/api/stock', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ name: itemName, stock: newStock })
-        });
-        fetchStock();
+        try {
+          await fetch('/api/stock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ name: itemName, stock: newStock })
+          });
+          status.textContent = 'Saved!';
+        } catch (err) {
+          status.textContent = 'Error!';
+        }
+        setTimeout(() => {
+          btn.disabled = false;
+          status.remove();
+        }, 1200);
       }
 
       async function updateDoughTracked(itemName, isTracked, isGF) {
         // Only send the changed property using PATCH
         const body = isGF ? { gfDoughTracked: isTracked } : { doughTracked: isTracked };
-        await fetch(`https://admin.thecrustatngb.co.uk/api/menu/${encodeURIComponent(itemName)}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(body)
-        });
-        fetchStock();
+        const row = Array.from(document.querySelectorAll('tr')).find(tr => tr.innerHTML.includes(itemName));
+        const status = document.createElement('span');
+        status.className = 'ml-8 text-muted';
+        status.textContent = 'Saving...';
+        if (row) row.querySelector('td:last-child').appendChild(status);
+        try {
+          await fetch(`/api/menu/${encodeURIComponent(itemName)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(body)
+          });
+          status.textContent = 'Saved!';
+        } catch (err) {
+          status.textContent = 'Error!';
+        }
+        setTimeout(() => {
+          status.remove();
+        }, 1200);
       }
     </script>
   </main>
