@@ -28,6 +28,17 @@
       <a href="pos.html" class="admin-link">POS Manual Order</a>
       <a href="offers.html" class="admin-link">Special Offers</a>
     </nav>
+    <div class="tab-nav" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px;">
+      <button class="tab-btn" id="tab-delivery" onclick="showTab('delivery')">Delivery Distance</button>
+      <button class="tab-btn" id="tab-timeslots" onclick="showTab('timeslots')">Time Slots</button>
+      <button class="tab-btn" id="tab-opening" onclick="showTab('opening')">Opening Times</button>
+    </div>
+    <style>
+      .tab-btn { padding: 8px 18px; border: none; border-radius: 8px 8px 0 0; background: #e9ece5; color: #333; font-weight: bold; cursor: pointer; }
+      .tab-btn.active { background: #b9472e; color: #fff; }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
+    </style>
     <script>
       // Login/session check
       fetch('/api/admin/check', { credentials: 'include' })
@@ -63,55 +74,80 @@
     </nav>
     <main id="main-content">
     <section class="admin-section">
-      <h2>Manage Time Slots</h2>
-      <h3>Delivery Distance Limit</h3>
-  <form id="delivery-distance-form" class="mb-24">
-        <label for="delivery-distance">Max Delivery Distance (miles) from LS18 5HZ:</label>
-        <input type="number" id="delivery-distance" class="input" min="1" max="20" value="5" step="0.1" required>
-        <button type="submit" class="action-btn">Save Distance</button>
-  <span id="delivery-distance-status" class="ml-12 text-muted"></span>
-      </form>
-      <h3>Auto-Generate Time Slots</h3>
-  <form id="generate-slots-form" class="mb-24">
-        <label for="slot-day">Day:</label>
-        <select id="slot-day" class="input">
-          <option value="friday">Friday</option>
-          <option value="saturday">Saturday</option>
-          <option value="sunday">Sunday</option>
-        </select>
-  <label for="slot-duration" class="ml-12">Duration (minutes):</label>
-        <input type="number" id="slot-duration" class="input" min="5" max="120" value="30" required>
-  <label for="slot-dough-limit" class="ml-12">Dough per slot:</label>
-  <input type="number" id="slot-dough-limit" class="input" min="0" max="99" value="0" required>
-        <button type="submit" class="action-btn">Generate Slots</button>
-  <span id="generate-slots-status" class="ml-12 text-muted"></span>
-      </form>
-      <h3>Set Opening Times</h3>
-  <form id="opening-times-form" class="mb-24">
-        <div>
-          <label>Friday:</label>
-          <input type="time" id="friday-open" class="input" required title="Friday opening time" placeholder="Open"> -
-          <input type="time" id="friday-close" class="input" required title="Friday closing time" placeholder="Close">
-        </div>
-        <div>
-          <label>Saturday:</label>
-          <input type="time" id="saturday-open" class="input" required title="Saturday opening time" placeholder="Open"> -
-          <input type="time" id="saturday-close" class="input" required title="Saturday closing time" placeholder="Close">
-        </div>
-        <div>
-          <label>Sunday:</label>
-          <input type="time" id="sunday-open" class="input" required title="Sunday opening time" placeholder="Open"> -
-          <input type="time" id="sunday-close" class="input" required title="Sunday closing time" placeholder="Close">
-        </div>
-        <button type="submit" class="action-btn">Save Opening Times</button>
-  <span id="opening-times-status" class="ml-12 text-muted"></span>
-      </form>
-  <form id="add-timeslot-form" class="mb-24">
-        <input type="text" id="timeslot-input" class="input" placeholder="e.g. 17:00-17:30" required>
-        <button type="submit" class="action-btn">Add Time Slot</button>
-      </form>
-      <div id="timeslot-list">Loading...</div>
+      <div id="tab-content-delivery" class="tab-content">
+        <h2>Delivery Distance Limit</h2>
+        <form id="delivery-distance-form" class="mb-24">
+          <label for="delivery-distance">Max Delivery Distance (miles) from LS18 5HZ:</label>
+          <input type="number" id="delivery-distance" class="input" min="1" max="20" value="5" step="0.1" required>
+          <button type="submit" class="action-btn">Save Distance</button>
+          <span id="delivery-distance-status" class="ml-12 text-muted"></span>
+        </form>
+      </div>
+      <div id="tab-content-timeslots" class="tab-content">
+        <h2>Manage Time Slots</h2>
+        <h3>Auto-Generate Time Slots</h3>
+        <form id="generate-slots-form" class="mb-24">
+          <label for="slot-day">Day:</label>
+          <select id="slot-day" class="input">
+            <option value="friday">Friday</option>
+            <option value="saturday">Saturday</option>
+            <option value="sunday">Sunday</option>
+          </select>
+          <label for="slot-duration" class="ml-12">Duration (minutes):</label>
+          <input type="number" id="slot-duration" class="input" min="5" max="120" value="30" required>
+          <label for="slot-dough-limit" class="ml-12">Dough per slot:</label>
+          <input type="number" id="slot-dough-limit" class="input" min="0" max="99" value="0" required>
+          <button type="submit" class="action-btn">Generate Slots</button>
+          <span id="generate-slots-status" class="ml-12 text-muted"></span>
+        </form>
+        <form id="add-timeslot-form" class="mb-24">
+          <input type="text" id="timeslot-input" class="input" placeholder="e.g. 17:00-17:30" required>
+          <button type="submit" class="action-btn">Add Time Slot</button>
+        </form>
+        <div id="timeslot-list">Loading...</div>
+      </div>
+      <div id="tab-content-opening" class="tab-content">
+        <h2>Set Opening Times</h2>
+        <form id="opening-times-form" class="mb-24">
+          <div>
+            <label>Friday:</label>
+            <input type="time" id="friday-open" class="input" required title="Friday opening time" placeholder="Open"> -
+            <input type="time" id="friday-close" class="input" required title="Friday closing time" placeholder="Close">
+          </div>
+          <div>
+            <label>Saturday:</label>
+            <input type="time" id="saturday-open" class="input" required title="Saturday opening time" placeholder="Open"> -
+            <input type="time" id="saturday-close" class="input" required title="Saturday closing time" placeholder="Close">
+          </div>
+          <div>
+            <label>Sunday:</label>
+            <input type="time" id="sunday-open" class="input" required title="Sunday opening time" placeholder="Open"> -
+            <input type="time" id="sunday-close" class="input" required title="Sunday closing time" placeholder="Close">
+          </div>
+          <button type="submit" class="action-btn">Save Opening Times</button>
+          <span id="opening-times-status" class="ml-12 text-muted"></span>
+        </form>
+      </div>
     </section>
+      // --- TAB SWITCHING LOGIC ---
+      function showTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
+        if (tab === 'delivery') {
+          document.getElementById('tab-delivery').classList.add('active');
+          document.getElementById('tab-content-delivery').classList.add('active');
+        } else if (tab === 'timeslots') {
+          document.getElementById('tab-timeslots').classList.add('active');
+          document.getElementById('tab-content-timeslots').classList.add('active');
+        } else if (tab === 'opening') {
+          document.getElementById('tab-opening').classList.add('active');
+          document.getElementById('tab-content-opening').classList.add('active');
+        }
+      }
+      // Set default tab on load
+      document.addEventListener('DOMContentLoaded', function() {
+        showTab('delivery');
+      });
   <!-- ...existing section code... -->
   <script>
     // --- DELIVERY DISTANCE ---

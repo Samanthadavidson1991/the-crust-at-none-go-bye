@@ -419,6 +419,47 @@ mongoose.connect(atlasUri)
     });
 
     app.get('/api/pizza-topping-stock', (req, res) => {
+      res.set('Cache-Control', 'no-store');
+      res.json({
+        toppings: [
+          { name: 'Pepperoni', stock: 20 },
+          { name: 'Mushrooms', stock: 15 },
+          { name: 'Onions', stock: 10 },
+          { name: 'Cheese', stock: 30 }
+        ]
+      });
+      res.set('Cache-Control', 'no-store');
+      res.json({
+        toppings: [
+          { name: 'Pepperoni', stock: 20 },
+          { name: 'Mushrooms', stock: 15 },
+          { name: 'Onions', stock: 10 },
+          { name: 'Cheese', stock: 30 }
+        ]
+      });
+    });
+
+      // --- STRIPE PAYMENT INTENT ENDPOINT ---
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      app.post('/api/create-payment-intent', async (req, res) => {
+        try {
+          const { amount, currency = 'gbp' } = req.body;
+          if (!amount || isNaN(amount)) {
+            return res.status(400).json({ error: 'Amount is required and must be a number.' });
+          }
+          // Stripe expects amount in pence
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(amount * 100),
+            currency,
+            automatic_payment_methods: { enabled: true }
+          });
+          res.json({ clientSecret: paymentIntent.client_secret });
+        } catch (err) {
+          console.error('[POST /api/create-payment-intent] Error:', err);
+          res.status(500).json({ error: 'Failed to create payment intent', details: err.message });
+        }
+      });
+    app.listen(PORT, () => {
           // --- Opening Times Model ---
           const OpeningTimesSchema = new mongoose.Schema({
             friday: { open: String, close: String },
@@ -524,38 +565,6 @@ mongoose.connect(atlasUri)
               res.status(500).json({ error: 'Failed to batch update timeslots', details: err.message });
             }
           });
-      res.set('Cache-Control', 'no-store');
-      res.json({
-        toppings: [
-          { name: 'Pepperoni', stock: 20 },
-          { name: 'Mushrooms', stock: 15 },
-          { name: 'Onions', stock: 10 },
-          { name: 'Cheese', stock: 30 }
-        ]
-      });
-    });
-
-      // --- STRIPE PAYMENT INTENT ENDPOINT ---
-      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-      app.post('/api/create-payment-intent', async (req, res) => {
-        try {
-          const { amount, currency = 'gbp' } = req.body;
-          if (!amount || isNaN(amount)) {
-            return res.status(400).json({ error: 'Amount is required and must be a number.' });
-          }
-          // Stripe expects amount in pence
-          const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(amount * 100),
-            currency,
-            automatic_payment_methods: { enabled: true }
-          });
-          res.json({ clientSecret: paymentIntent.client_secret });
-        } catch (err) {
-          console.error('[POST /api/create-payment-intent] Error:', err);
-          res.status(500).json({ error: 'Failed to create payment intent', details: err.message });
-        }
-      });
-    app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   });
