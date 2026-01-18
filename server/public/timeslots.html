@@ -120,25 +120,7 @@
         </form>
       </div>
     </section>
-      // --- TAB SWITCHING LOGIC ---
-      function showTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
-        if (tab === 'delivery') {
-          document.getElementById('tab-delivery').classList.add('active');
-          document.getElementById('tab-content-delivery').classList.add('active');
-        } else if (tab === 'timeslots') {
-          document.getElementById('tab-timeslots').classList.add('active');
-          document.getElementById('tab-content-timeslots').classList.add('active');
-        } else if (tab === 'opening') {
-          document.getElementById('tab-opening').classList.add('active');
-          document.getElementById('tab-content-opening').classList.add('active');
-        }
-      }
-      // Set default tab on load
-      document.addEventListener('DOMContentLoaded', function() {
-        showTab('delivery');
-      });
+
   <!-- ...existing section code... -->
   <script>
     // --- DELIVERY DISTANCE ---
