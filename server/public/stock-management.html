@@ -234,9 +234,9 @@
             table.style.display = 'table';
             menu.forEach(item => {
               const stockValue = Math.max(0, parseInt(item.stock, 10) || 0);
-              // Use item.doughTracked and item.gfDoughTracked for checkboxes
               const isDough = !!item.doughTracked;
               const isGFDough = !!item.gfDoughTracked;
+              const isHidden = !!item.hidden;
               const tr = document.createElement('tr');
               tr.innerHTML = `
                 <td><b>${item.name}</b></td>
@@ -247,9 +247,29 @@
                   <input type="number" class="stock-input${isDough || isGFDough ? ' input-disabled' : ''}" value="${stockValue}" min="0" id="stock-${item.name}" ${isDough || isGFDough ? 'disabled' : ''}>
                   ${(isDough || isGFDough) ? '<small class="text-muted">Stock managed by dough tracker</small>' : ''}
                 </td>
-                <td><button class="stock-action-btn${isDough || isGFDough ? ' btn-disabled' : ''}" onclick="updateStock('${item.name}')" ${isDough || isGFDough ? 'disabled' : ''}>Update</button></td>
+                <td>
+                  <button class="stock-action-btn${isDough || isGFDough ? ' btn-disabled' : ''}" onclick="updateStock('${item.name}')" ${isDough || isGFDough ? 'disabled' : ''}>Update</button>
+                  <button class="hide-action-btn ml-8" data-name="${item.name}" data-hidden="${isHidden}">${isHidden ? 'Show' : 'Hide'}</button>
+                </td>
               `;
+              if (isHidden) tr.style.opacity = 0.5;
               tbody.appendChild(tr);
+            });
+            // Add event listeners for hide/show buttons
+            document.querySelectorAll('.hide-action-btn').forEach(btn => {
+              btn.addEventListener('click', async function() {
+                const name = btn.getAttribute('data-name');
+                const currentlyHidden = btn.getAttribute('data-hidden') === 'true';
+                btn.textContent = '...';
+                btn.disabled = true;
+                await fetch(`/api/menu/${encodeURIComponent(name)}/hide`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({ hidden: !currentlyHidden })
+                });
+                fetchStock();
+              });
             });
             // Add event listeners for dough checkboxes
             document.querySelectorAll('.dough-track').forEach(cb => {

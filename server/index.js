@@ -1,3 +1,18 @@
+// --- Hide/Show Menu Item ---
+app.patch('/api/menu/:name/hide', async (req, res) => {
+  try {
+    const { hidden } = req.body;
+    const item = await MenuItem.findOneAndUpdate(
+      { name: req.params.name },
+      { hidden: !!hidden },
+      { new: true }
+    );
+    if (!item) return res.status(404).json({ error: 'Menu item not found' });
+    res.json({ success: true, hidden: item.hidden });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update hidden status', details: err.message });
+  }
+});
 // --- TEST ENDPOINT ---
 // (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
 // Ensure all schemas are registered before any model usage
