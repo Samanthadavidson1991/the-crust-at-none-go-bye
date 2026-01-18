@@ -1,7 +1,4 @@
 // --- TEST ENDPOINT ---
-app.get('/api/test', (req, res) => {
-  res.json({ ok: true, message: 'Backend is running' });
-});
 // (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
 // Ensure all schemas are registered before any model usage
 require('./topping.model');
@@ -23,6 +20,10 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const app = express();
+// --- TEST ENDPOINT ---
+app.get('/api/test', (req, res) => {
+  res.json({ ok: true, message: 'Backend is running' });
+});
 if (!process.env.PORT) {
   throw new Error('PORT environment variable is required. This app must be run with process.env.PORT set (e.g., by Render).');
 }
