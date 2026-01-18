@@ -1,6 +1,7 @@
 // --- TEST ENDPOINT ---
+// ...existing code...
 // --- PATCH order status endpoint ---
-// (Placed after app initialization to avoid ReferenceError)
+// (Placed after app initialization and middleware setup to avoid ReferenceError)
 app.patch('/api/orders/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
