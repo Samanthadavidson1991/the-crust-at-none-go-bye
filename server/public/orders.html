@@ -132,11 +132,8 @@
 
     async function fetchOrders(selectedDate) {
       // selectedDate: string YYYY-MM-DD
-      // Fetch order counts by name
-      try {
-        const countsRes = await fetch('/api/order-counts', { credentials: 'include' });
-        orderCountsByName = await countsRes.json();
-      } catch { orderCountsByName = {}; }
+      // Fetch order counts by name (removed: /api/order-counts endpoint does not exist)
+      orderCountsByName = {};
       // Fetch delivery distance limit
       let deliveryLimit = 5;
       try {
@@ -674,12 +671,16 @@
           `;
           for (let i = 0; i < copies; i++) {
             let printWindow = window.open('', '', 'width=500,height=700');
-            printWindow.document.write('<html><head><title>Order Print</title></head><body>' + html + '</body></html>');
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-            // Optionally, close after print
-            printWindow.close();
+            if (printWindow && printWindow.document) {
+              printWindow.document.write('<html><head><title>Order Print</title></head><body>' + html + '</body></html>');
+              printWindow.document.close();
+              printWindow.focus();
+              printWindow.print();
+              // Optionally, close after print
+              printWindow.close();
+            } else {
+              alert('Unable to open print window. Please check your popup blocker settings.');
+            }
           }
         }
       } catch (err) {
