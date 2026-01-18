@@ -142,7 +142,11 @@
                 btn.addEventListener('click', function(e) {
                   const item = JSON.parse(btn.getAttribute('data-item').replace(/&apos;/g, "'"));
                   const price = parseFloat(btn.getAttribute('data-price'));
-                  // If the button is for 'no size', do not set selectedSize
+                  // Always ensure name is present for direct price items
+                  if (!item.name || typeof item.name !== 'string' || !item.name.trim()) {
+                    alert('Error: This menu item is missing a name and cannot be added.');
+                    return;
+                  }
                   addToOrder({ ...item, price, quantity: 1 });
                   btn.style.background = '#e9ece5';
                   setTimeout(() => { btn.style.background = ''; }, 300);
