@@ -61,7 +61,11 @@
 
   // --- Add addToOrder implementation ---
   function addToOrder(item) {
-    // Get current order from localStorage
+    // Only add items with a valid name
+    if (!item.name || typeof item.name !== 'string' || !item.name.trim()) {
+      console.warn('Attempted to add item with missing or empty name:', item);
+      return;
+    }
     let order = JSON.parse(localStorage.getItem('order') || '[]');
     // Try to find a matching item (by name and selectedSize if present)
     let matchIdx = order.findIndex(i => i.name === item.name && JSON.stringify(i.selectedSize) === JSON.stringify(item.selectedSize) && JSON.stringify(i.masterToppings) === JSON.stringify(item.masterToppings));
