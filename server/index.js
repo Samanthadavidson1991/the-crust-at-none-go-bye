@@ -445,6 +445,21 @@ mongoose.connect(atlasUri)
     // --- ADD POST /api/orders ENDPOINT ---
     app.post('/api/orders', async (req, res) => {
       try {
+        // Always include price for each item using current menu
+        const MenuItem = require('./menu-item.model');
+        if (Array.isArray(req.body.items)) {
+          for (const item of req.body.items) {
+            if (typeof item.price === 'undefined') {
+              // Find menu item by name (case-insensitive)
+              const dbItem = await MenuItem.findOne({ name: item.name });
+              if (dbItem && typeof dbItem.price === 'number') {
+                item.price = dbItem.price;
+              } else {
+                item.price = 0;
+              }
+            }
+          }
+        }
         const order = new Order(req.body);
         await order.save();
 
