@@ -411,19 +411,21 @@ mongoose.connect(atlasUri)
       }
     });
 
-    app.get('/api/orders', (req, res) => {
-      res.json([
-        { _id: 'order1', name: 'Sam', items: [{ name: 'Margherita', quantity: 1 }], timeSlot: '18:00', status: 'Pending' },
-        { _id: 'order2', name: 'Alex', items: [{ name: 'Pepperoni', quantity: 2 }], timeSlot: '19:00', status: 'Accepted' }
-      ]);
+    const Order = require('./order.model');
+    app.get('/api/orders', async (req, res) => {
+      try {
+        const orders = await Order.find({}).sort({ createdAt: -1 });
+        res.json(orders);
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch orders', details: err.message });
+      }
     });
 
     // --- ADD POST /api/orders ENDPOINT ---
     app.post('/api/orders', async (req, res) => {
       try {
-        // In production, save order to database. For now, just echo back.
-        const order = req.body;
-        // TODO: Validate and save order to DB
+        const order = new Order(req.body);
+        await order.save();
         res.json({ success: true, order });
       } catch (err) {
         console.error('[POST /api/orders] Error:', err);
