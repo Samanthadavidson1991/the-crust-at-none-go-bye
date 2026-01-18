@@ -1,6 +1,6 @@
-// ...existing code...
+// --- TEST ENDPOINT ---
 // --- PATCH order status endpoint ---
-// (Moved below app initialization to avoid ReferenceError)
+// (Placed after app initialization to avoid ReferenceError)
 app.patch('/api/orders/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -25,7 +25,6 @@ app.patch('/api/orders/:orderId', async (req, res) => {
     res.status(500).json({ error: 'Failed to update order status', details: err.message });
   }
 });
-// --- TEST ENDPOINT ---
 // (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
 // Ensure all schemas are registered before any model usage
 require('./topping.model');
