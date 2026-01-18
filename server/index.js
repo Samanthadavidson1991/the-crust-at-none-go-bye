@@ -1,3 +1,7 @@
+// --- TEST ENDPOINT ---
+app.get('/api/test', (req, res) => {
+  res.json({ ok: true, message: 'Backend is running' });
+});
 // (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
 // Ensure all schemas are registered before any model usage
 require('./topping.model');
