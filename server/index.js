@@ -452,9 +452,26 @@ mongoose.connect(atlasUri)
             if (typeof item.price === 'undefined') {
               // Find menu item by name (case-insensitive)
               const dbItem = await MenuItem.findOne({ name: item.name });
-              if (dbItem && typeof dbItem.price === 'number') {
-                item.price = dbItem.price;
+              if (dbItem) {
+                // If item has a size, look for matching size price
+                if (item.size && Array.isArray(dbItem.sizes)) {
+                  const sizeObj = dbItem.sizes.find(s => s.name && item.size && s.name.toLowerCase() === item.size.toLowerCase());
+                  if (sizeObj && typeof sizeObj.price === 'number') {
+                    item.price = sizeObj.price;
+                  } else if (typeof dbItem.price === 'number') {
+                    item.price = dbItem.price;
+                  } else {
+                    console.warn(`[ORDER PRICE] No size price or top-level price for item: '${item.name}' (size: '${item.size}') in order. Setting price=0.`);
+                    item.price = 0;
+                  }
+                } else if (typeof dbItem.price === 'number') {
+                  item.price = dbItem.price;
+                } else {
+                  console.warn(`[ORDER PRICE] No price for item: '${item.name}' in order. Setting price=0.`);
+                  item.price = 0;
+                }
               } else {
+                console.warn(`[ORDER PRICE] No menu match for item: '${item.name}' in order. Setting price=0.`);
                 item.price = 0;
               }
             }
