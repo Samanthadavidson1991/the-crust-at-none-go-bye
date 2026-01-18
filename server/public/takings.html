@@ -63,24 +63,31 @@
       const monday = getMonday(selected);
       const lastSunday = getLastSundayOfMonth(selected);
       const yyyyMMdd = d => d.toISOString().slice(0, 10);
-      let url = `https://admin.thecrustatngb.co.uk/api/orders?from=${yyyyMMdd(new Date(selected.getFullYear(), selected.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
+      // Use relative URL for API to work in both local and production
+      let url = `/api/orders?from=${yyyyMMdd(new Date(selected.getFullYear(), selected.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
       try {
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
         if (!Array.isArray(orders) || !orders.length) {
           document.getElementById('takings-summary').innerHTML = '<b>No orders for this day.</b>';
           document.getElementById('running-totals').innerHTML = '';
-          return;
+            // Debug: show orders in console
+            console.log('No orders found for takings:', orders);
+            return;
         }
         let total = 0, card = 0, cash = 0, refund = 0;
         let sources = { Delivery: 0, Collection: 0 };
         let webCard = 0, webCash = 0, posCard = 0, posCash = 0;
         let daily = 0, weekly = 0, monthly = 0;
         for (const order of orders) {
-          let orderTotal = 0;
+            let orderTotal = 0;
           if (Array.isArray(order.items)) {
             for (const item of order.items) {
-              orderTotal += (Number(item.price) || 0) * (Number(item.quantity) || 1);
+                // If price is missing, fallback to 0 and log for debug
+                if (typeof item.price === 'undefined') {
+                  console.warn('Order item missing price:', item);
+                }
+                orderTotal += (Number(item.price) || 0) * (Number(item.quantity) || 1);
             }
           }
           if (order.refundAmount && order.refundAmount > 0) {

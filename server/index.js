@@ -415,7 +415,13 @@ mongoose.connect(atlasUri)
     app.get('/api/orders', async (req, res) => {
       try {
         let filter = {};
-        if (req.query.date) {
+        if (req.query.from && req.query.to) {
+          // Filter by date range (inclusive)
+          const from = new Date(req.query.from);
+          const to = new Date(req.query.to);
+          to.setHours(23, 59, 59, 999); // include the whole 'to' day
+          filter.createdAt = { $gte: from, $lte: to };
+        } else if (req.query.date) {
           // Filter by date (YYYY-MM-DD)
           const start = new Date(req.query.date);
           const end = new Date(start);
