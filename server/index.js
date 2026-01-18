@@ -414,7 +414,22 @@ mongoose.connect(atlasUri)
     const Order = require('./order.model');
     app.get('/api/orders', async (req, res) => {
       try {
-        const orders = await Order.find({}).sort({ createdAt: -1 });
+        let filter = {};
+        if (req.query.date) {
+          // Filter by date (YYYY-MM-DD)
+          const start = new Date(req.query.date);
+          const end = new Date(start);
+          end.setDate(end.getDate() + 1);
+          filter.createdAt = { $gte: start, $lt: end };
+        } else {
+          // Default: only show today's orders
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          const tomorrow = new Date(today);
+          tomorrow.setDate(today.getDate() + 1);
+          filter.createdAt = { $gte: today, $lt: tomorrow };
+        }
+        const orders = await Order.find(filter).sort({ createdAt: -1 });
         res.json(orders);
       } catch (err) {
         res.status(500).json({ error: 'Failed to fetch orders', details: err.message });
