@@ -156,7 +156,7 @@
         glutenFreeNames = menu.filter(item => item.glutenFree).map(item => item.name.toLowerCase());
       } catch {}
       try {
-        let url = 'https://admin.thecrustatngb.co.uk/api/orders';
+        let url = '/api/orders';
         if (selectedDate) url += `?date=${selectedDate}`;
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
@@ -420,7 +420,7 @@
                   // Fetch order details (from already loaded orders)
                   let order = null;
                   try {
-                    const orders = await (await fetch('https://admin.thecrustatngb.co.uk/api/orders', { credentials: 'include' })).json();
+                    const orders = await (await fetch('/api/orders', { credentials: 'include' })).json();
                     order = orders.find(o => o._id === orderId);
                   } catch {}
                   if (!order) return;
