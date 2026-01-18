@@ -20,6 +20,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const app = express();
+app.use(express.json());
 // --- TEST ENDPOINT ---
 app.get('/api/test', (req, res) => {
   res.json({ ok: true, message: 'Backend is running' });
