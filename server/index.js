@@ -97,7 +97,7 @@ mongoose.connect(atlasUri)
     app.get('/api/menu', async (req, res) => {
       try {
         const menu = await MenuItem.find({});
-        res.json(menu);
+        res.json({ items: menu });
       } catch (err) {
         res.status(500).json({ error: 'Failed to fetch menu', details: err.message });
       }
