@@ -426,6 +426,36 @@ mongoose.connect(atlasUri)
       try {
         const order = new Order(req.body);
         await order.save();
+
+        // Decrement dough stock based on order items
+        const DoughStock = require('./dough-stock.model');
+        let normalCount = 0;
+        let gfCount = 0;
+        if (Array.isArray(order.items)) {
+          for (const item of order.items) {
+            // If item.glutenFree is true, decrement GF dough, else normal
+            if (item.glutenFree) {
+              gfCount += item.quantity || 1;
+            } else {
+              normalCount += item.quantity || 1;
+            }
+          }
+        }
+        // Update normal dough stock
+        if (normalCount > 0) {
+          await DoughStock.findOneAndUpdate(
+            { type: 'normal' },
+            { $inc: { stock: -normalCount } }
+          );
+        }
+        // Update GF dough stock
+        if (gfCount > 0) {
+          await DoughStock.findOneAndUpdate(
+            { type: 'gf' },
+            { $inc: { stock: -gfCount } }
+          );
+        }
+
         res.json({ success: true, order });
       } catch (err) {
         console.error('[POST /api/orders] Error:', err);
