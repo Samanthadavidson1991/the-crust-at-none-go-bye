@@ -233,7 +233,6 @@
             loading.style.display = 'none';
             table.style.display = 'table';
             menu.forEach(item => {
-              const stockValue = Math.max(0, parseInt(item.stock, 10) || 0);
               const isDough = !!item.doughTracked;
               const isGFDough = !!item.gfDoughTracked;
               const isHidden = !!item.hidden;
@@ -243,12 +242,9 @@
                 <td>${item.category || ''}</td>
                 <td>
                   <label><input type="checkbox" class="dough-track" data-name="${item.name}" ${isDough ? 'checked' : ''}> Dough</label>
-                  <label class="ml-8"><input type="checkbox" class="gf-dough-track" data-name="${item.name}" ${isGFDough ? 'checked' : ''}> Gluten Free</label><br>
-                  <input type="number" class="stock-input${isDough || isGFDough ? ' input-disabled' : ''}" value="${stockValue}" min="0" id="stock-${item.name}" ${isDough || isGFDough ? 'disabled' : ''}>
-                  ${(isDough || isGFDough) ? '<small class="text-muted">Stock managed by dough tracker</small>' : ''}
+                  <label class="ml-8"><input type="checkbox" class="gf-dough-track" data-name="${item.name}" ${isGFDough ? 'checked' : ''}> Gluten Free</label>
                 </td>
                 <td>
-                  <button class="stock-action-btn${isDough || isGFDough ? ' btn-disabled' : ''}" onclick="updateStock('${item.name}')" ${isDough || isGFDough ? 'disabled' : ''}>Update</button>
                   <button class="hide-action-btn ml-8" data-name="${item.name}" data-hidden="${isHidden}">${isHidden ? 'Show' : 'Hide'}</button>
                 </td>
               `;
