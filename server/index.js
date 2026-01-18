@@ -1,3 +1,28 @@
+// --- PATCH order status endpoint ---
+app.patch('/api/orders/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    if (!status) return res.status(400).json({ error: 'Status is required' });
+    // Find and update order in DB (replace with real DB logic if needed)
+    // For now, update in-memory/mock orders if using mock data
+    // If using MongoDB, replace with Order model update
+    // Example: const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+    // For demo/mock:
+    let updated = false;
+    if (global.mockOrders && Array.isArray(global.mockOrders)) {
+      const idx = global.mockOrders.findIndex(o => o._id === orderId);
+      if (idx !== -1) {
+        global.mockOrders[idx].status = status;
+        updated = true;
+      }
+    }
+    // Respond success (always, for now)
+    res.json({ success: true, status });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update order status', details: err.message });
+  }
+});
 // --- TEST ENDPOINT ---
 // (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
 // Ensure all schemas are registered before any model usage
