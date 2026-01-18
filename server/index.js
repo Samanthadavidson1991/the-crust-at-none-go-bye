@@ -445,6 +445,8 @@ mongoose.connect(atlasUri)
     // --- ADD POST /api/orders ENDPOINT ---
     app.post('/api/orders', async (req, res) => {
       try {
+        // DEBUG: Log incoming order items
+        console.log('[ORDER DEBUG] Incoming order items:', JSON.stringify(req.body.items, null, 2));
         // Always include price for each item using current menu
         const MenuItem = require('./menu-item.model');
         if (Array.isArray(req.body.items)) {
@@ -452,20 +454,25 @@ mongoose.connect(atlasUri)
             if (typeof item.price === 'undefined') {
               // Find menu item by name (case-insensitive)
               const dbItem = await MenuItem.findOne({ name: item.name });
+              console.log(`[ORDER DEBUG] Looking up menu item for: '${item.name}'`, dbItem ? '(found)' : '(not found)');
               if (dbItem) {
                 // If item has a size, look for matching size price
                 if (item.size && Array.isArray(dbItem.sizes)) {
                   const sizeObj = dbItem.sizes.find(s => s.name && item.size && s.name.toLowerCase() === item.size.toLowerCase());
+                  console.log(`[ORDER DEBUG] Size lookup for '${item.name}' (size: '${item.size}'):`, sizeObj ? sizeObj : '(not found)');
                   if (sizeObj && typeof sizeObj.price === 'number') {
                     item.price = sizeObj.price;
+                    console.log(`[ORDER DEBUG] Assigned size price for '${item.name}' (size: '${item.size}'):`, item.price);
                   } else if (typeof dbItem.price === 'number') {
                     item.price = dbItem.price;
+                    console.log(`[ORDER DEBUG] Assigned top-level price for '${item.name}':`, item.price);
                   } else {
                     console.warn(`[ORDER PRICE] No size price or top-level price for item: '${item.name}' (size: '${item.size}') in order. Setting price=0.`);
                     item.price = 0;
                   }
                 } else if (typeof dbItem.price === 'number') {
                   item.price = dbItem.price;
+                  console.log(`[ORDER DEBUG] Assigned top-level price for '${item.name}':`, item.price);
                 } else {
                   console.warn(`[ORDER PRICE] No price for item: '${item.name}' in order. Setting price=0.`);
                   item.price = 0;
@@ -474,6 +481,8 @@ mongoose.connect(atlasUri)
                 console.warn(`[ORDER PRICE] No menu match for item: '${item.name}' in order. Setting price=0.`);
                 item.price = 0;
               }
+            } else {
+              console.log(`[ORDER DEBUG] Price already set for '${item.name}':`, item.price);
             }
           }
         }
