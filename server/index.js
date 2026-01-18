@@ -23,6 +23,7 @@ app.patch('/api/orders/:orderId', async (req, res) => {
     res.status(500).json({ error: 'Failed to update order status', details: err.message });
   }
 });
+// ...existing code...
 // --- TEST ENDPOINT ---
 // (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
 // Ensure all schemas are registered before any model usage
