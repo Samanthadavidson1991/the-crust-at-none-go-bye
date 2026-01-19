@@ -157,6 +157,7 @@
         if (selectedDate) url += `?date=${selectedDate}`;
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
+        console.log('[ORDERS DEBUG] Orders data received:', orders);
         if (!Array.isArray(orders) || !orders.length) {
           tbody.innerHTML = '<tr><td colspan="12">No orders found.</td></tr>';
           document.getElementById('dough-count').textContent = '0';
