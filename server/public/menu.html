@@ -184,7 +184,9 @@
           let outOfStock = false;
           if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
           if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
-          html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+          // Always set data-item attribute with at least name and price for fallback/other sections
+          const dataItemAttr = `data-item='${JSON.stringify({ name: item.name, price: item.price }).replace(/'/g, "&apos;")}'`;
+          html += `<li class='menu-item-card' ${dataItemAttr}><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
           if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
             html += '<ul class="menu-size-list">';
             item.sizes.forEach(size => {
