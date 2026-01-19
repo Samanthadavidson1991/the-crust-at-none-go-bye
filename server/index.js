@@ -445,6 +445,7 @@ mongoose.connect(atlasUri)
     // --- ADD POST /api/orders ENDPOINT ---
     app.post('/api/orders', async (req, res) => {
       try {
+        console.log('[ORDER DEBUG] Incoming paymentType:', req.body.paymentType);
         // Always include price for each item using current menu
         const MenuItem = require('./menu-item.model');
         // DEBUG: Log incoming order items
@@ -494,6 +495,7 @@ mongoose.connect(atlasUri)
         }
         const order = new Order(req.body);
         await order.save();
+        console.log('[ORDER DEBUG] Saved order paymentType:', order.paymentType);
 
         // Decrement dough stock based on order items
         const DoughStock = require('./dough-stock.model');
