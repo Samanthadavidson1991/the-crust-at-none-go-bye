@@ -445,13 +445,13 @@ mongoose.connect(atlasUri)
     // --- ADD POST /api/orders ENDPOINT ---
     app.post('/api/orders', async (req, res) => {
       try {
+        // Always include price for each item using current menu
+        const MenuItem = require('./menu-item.model');
         // DEBUG: Log incoming order items
         console.log('[ORDER DEBUG] Incoming order items:', JSON.stringify(req.body.items, null, 2));
         // DEBUG: Log menu items for matching
         const allMenuItems = await MenuItem.find({});
         console.log('[ORDER DEBUG] All menu items:', allMenuItems.map(mi => ({ name: mi.name, sizes: mi.sizes, price: mi.price })));
-        // Always include price for each item using current menu
-        const MenuItem = require('./menu-item.model');
         if (Array.isArray(req.body.items)) {
           for (const item of req.body.items) {
             if (typeof item.price === 'undefined') {
