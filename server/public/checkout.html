@@ -354,7 +354,8 @@
             customerNotes: comments,
             allergens: allergens,
             total: parseFloat(total.toFixed(2)),
-            paymentType
+            paymentType,
+            source: 'web'
           };
           if (paymentType === 'card') {
             // Stripe payment flow
