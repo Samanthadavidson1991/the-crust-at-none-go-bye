@@ -454,10 +454,11 @@ mongoose.connect(atlasUri)
         console.log('[ORDER DEBUG] All menu items:', allMenuItems.map(mi => ({ name: mi.name, sizes: mi.sizes, price: mi.price })));
         if (Array.isArray(req.body.items)) {
           for (const item of req.body.items) {
+            console.log('[ORDER DEBUG] Processing item:', JSON.stringify(item));
             if (typeof item.price === 'undefined') {
               // Find menu item by name (case-insensitive)
               const dbItem = await MenuItem.findOne({ name: item.name });
-              console.log(`[ORDER DEBUG] Looking up menu item for: '${item.name}'`, dbItem ? '(found)' : '(not found)');
+              console.log(`[ORDER DEBUG] Looking up menu item for: '${item.name}'`, dbItem ? '(found)' : '(not found)', dbItem);
               if (dbItem) {
                 // If item has a size, look for matching size price
                 if (item.size && Array.isArray(dbItem.sizes)) {
@@ -487,6 +488,8 @@ mongoose.connect(atlasUri)
             } else {
               console.log(`[ORDER DEBUG] Price already set for '${item.name}':`, item.price);
             }
+            // Log final item state after price assignment
+            console.log('[ORDER DEBUG] Final item after price assignment:', JSON.stringify(item));
           }
         }
         const order = new Order(req.body);
