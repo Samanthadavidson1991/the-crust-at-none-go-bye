@@ -216,6 +216,7 @@
           let itemsHtml = '';
           if (Array.isArray(order.items) && order.items.length) {
             itemsHtml = '<ul class="order-items-list">' + order.items.map(item => {
+              console.log('[ORDER ITEM DEBUG]', item.name, 'price:', item.price, 'type:', typeof item.price);
               let details = '';
               if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
                 details += '<br><span class="order-ingredients">Ingredients: ' + item.toppings.join(', ') + '</span>';
