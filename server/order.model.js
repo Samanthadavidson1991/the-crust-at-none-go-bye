@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
   name: String,
+  paymentType: String,
+  source: String,
   items: [
     {
       name: String,
