@@ -66,6 +66,7 @@
         <div class="payment-buttons">
           <button type="button" class="pay-card" id="pay-card-btn">Pay with Card</button>
           <button type="button" class="pay-cash" id="pay-cash-btn">Pay with Cash</button>
+          <span id="payment-method-error" style="color:#b9472e;display:none;margin-left:10px;"></span>
         </div>
         <div id="card-element-container" class="card-element-container">
           <label for="card-element">Card Details:</label>
@@ -282,8 +283,12 @@
           document.getElementById('postcode-error').textContent = '';
           // Require payment method
           if (!window.selectedPayment) {
-            document.getElementById('postcode-error').textContent = 'Please select a payment method (cash or card).';
+            document.getElementById('payment-method-error').textContent = 'Please select a payment method (cash or card).';
+            document.getElementById('payment-method-error').style.display = 'inline';
             return false;
+          } else {
+            document.getElementById('payment-method-error').textContent = '';
+            document.getElementById('payment-method-error').style.display = 'none';
           }
           window.manualApproval = false;
           let postcode = document.getElementById('postcode').value.trim().toUpperCase();
