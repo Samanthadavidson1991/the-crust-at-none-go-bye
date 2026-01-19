@@ -448,7 +448,6 @@ mongoose.connect(atlasUri)
         // DEBUG: Log incoming order items
         console.log('[ORDER DEBUG] Incoming order items:', JSON.stringify(req.body.items, null, 2));
         // DEBUG: Log menu items for matching
-        const MenuItem = require('./menu-item.model');
         const allMenuItems = await MenuItem.find({});
         console.log('[ORDER DEBUG] All menu items:', allMenuItems.map(mi => ({ name: mi.name, sizes: mi.sizes, price: mi.price })));
         // Always include price for each item using current menu
