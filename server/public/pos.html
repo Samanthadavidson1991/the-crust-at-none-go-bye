@@ -229,7 +229,15 @@
           }
           let totalPrice = parseFloat(size.price) || 0;
           extraToppingPrices.forEach(p => { totalPrice += p; });
-          const orderObj = { ...item, selectedSize: size, price: totalPrice, quantity: 1, toppings: allToppings, removed };
+          const orderObj = { 
+            ...item, 
+            selectedSize: size, 
+            size: size && size.name ? size.name : undefined, // Add 'size' string for backend
+            price: totalPrice, 
+            quantity: 1, 
+            toppings: allToppings, 
+            removed 
+          };
           addToOrder(orderObj);
           if (form) {
             Array.from(form.querySelectorAll('.remove-topping')).forEach(cb => { cb.checked = true; });
