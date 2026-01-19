@@ -332,7 +332,7 @@
     const nextAllowed = getNextAllowedDate(today);
     orderDateInput.min = nextAllowed.toISOString().slice(0,10);
 
-    document.getElementById('pos-form').onsubmit = async function(e) {
+    document.getElementById('payment-form').onsubmit = async function(e) {
       e.preventDefault();
       document.getElementById('success-message').style.display = 'none';
       document.getElementById('error-message').style.display = 'none';
