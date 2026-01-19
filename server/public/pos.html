@@ -144,7 +144,8 @@
           fetch('/api/menu', { credentials: 'include' }),
           fetch('/api/pizza-topping-stock', { credentials: 'include' })
         ]);
-        posMenu = await menuRes.json();
+        const menuJson = await menuRes.json();
+        posMenu = Array.isArray(menuJson.items) ? menuJson.items : [];
         posToppings = await toppingsRes.json();
       } catch {}
     }
