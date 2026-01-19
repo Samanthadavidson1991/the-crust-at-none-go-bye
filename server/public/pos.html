@@ -376,7 +376,8 @@
         customerNotes: notes,
         allergens,
         paymentType,
-        total
+        total,
+        source: 'pos'
       };
       try {
         const res = await fetch('/api/orders', {
