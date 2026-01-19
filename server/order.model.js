@@ -5,7 +5,12 @@ const orderSchema = new mongoose.Schema({
   items: [
     {
       name: String,
-      quantity: Number
+      quantity: Number,
+      price: Number,
+      size: String,
+      toppings: [String],
+      removed: [String],
+      notes: String
     }
   ],
   timeSlot: String,
