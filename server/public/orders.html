@@ -216,21 +216,17 @@
           let itemsHtml = '';
           if (Array.isArray(order.items) && order.items.length) {
             itemsHtml = '<ul class="order-items-list">' + order.items.map(item => {
-              // console.log('Order item:', item); // removed for production
               let details = '';
-              // List all toppings/ingredients if present
               if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
                 details += '<br><span class="order-ingredients">Ingredients: ' + item.toppings.join(', ') + '</span>';
               }
-              // Show notes for add/remove (e.g. removed ingredients)
               if (item.removed && Array.isArray(item.removed) && item.removed.length) {
                 details += `<br><span class='order-removed'>Removed: ${item.removed.join(', ')}</span>`;
               }
-              // Show notes for other customizations
               if (item.notes) {
                 details += `<br><em class='order-notes'>(${item.notes})</em>`;
               }
-              return `<li>${item.quantity || 1} × ${item.name}${item.size ? ' (' + item.size + ')' : ''}${details}</li>`;
+              return `<li>${item.quantity || 1} × ${item.name}${item.size ? ' (' + item.size + ')' : ''} - £${item.price ? Number(item.price).toFixed(2) : '0.00'}${details}</li>`;
             }).join('') + '</ul>';
           } else {
             itemsHtml = '<span class="muted">None</span>';
