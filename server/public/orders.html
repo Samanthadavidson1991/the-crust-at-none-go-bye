@@ -104,9 +104,15 @@
           body: JSON.stringify({ postcodes: [from, to] })
         });
         const data = await res.json();
-        if (!data.result || !Array.isArray(data.result) || data.result.length < 2) return { miles: '?', duration: '?' };
+        if (!data.result || !Array.isArray(data.result) || data.result.length < 2) {
+          console.error('[DISTANCE DEBUG] Invalid API result:', data);
+          return { miles: '?', duration: '?' };
+        }
         const [fromRes, toRes] = data.result;
-        if (!fromRes.result || !toRes.result) return { miles: '?', duration: '?' };
+        if (!fromRes.result || !toRes.result) {
+          console.error('[DISTANCE DEBUG] Missing result for postcode:', from, to, data);
+          return { miles: '?', duration: '?' };
+        }
         const lat1 = fromRes.result.latitude, lon1 = fromRes.result.longitude;
         const lat2 = toRes.result.latitude, lon2 = toRes.result.longitude;
         // Haversine formula
@@ -120,7 +126,8 @@
         // Assume 25 mph average delivery speed
         const duration = miles !== '?' ? Math.round((miles / 25) * 60) : '?';
         return { miles: miles.toFixed(2), duration: duration + ' min' };
-      } catch {
+      } catch (err) {
+        console.error('[DISTANCE DEBUG] API error:', err);
         return { miles: '?', duration: '?' };
       }
     }
