@@ -101,6 +101,7 @@
       </div>
       <!-- Center: Menu/Order Builder -->
       <div class="pos3col-center">
+        <button id="reload-menu-btn" style="margin-bottom:10px;float:right;">Reload Menu</button>
         <div id="pos-menu-content"></div>
       </div>
       <!-- Right: Payment & Summary -->
@@ -298,6 +299,13 @@
     fetchPosMenu().then(() => {
       renderPosMenu(posMenu, posToppings);
       renderOrderSummary();
+    });
+
+    // Add reload menu button logic
+    document.getElementById('reload-menu-btn').addEventListener('click', async function() {
+      document.getElementById('pos-menu-content').innerHTML = '<em>Reloading menu...</em>';
+      await fetchPosMenu();
+      renderPosMenu(posMenu, posToppings);
     });
     // --- POS Order Submission ---
     // Restrict orderDate to Friday, Saturday, Sunday only
