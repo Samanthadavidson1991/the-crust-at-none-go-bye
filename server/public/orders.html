@@ -261,6 +261,9 @@
                 travelTime = Math.round((parseFloat(miles) / 25) * 60); // 25 mph
               }
             } catch {}
+          } else {
+            console.warn('[DISTANCE DEBUG] Missing address or postcode for order (travelTime):', order);
+            travelTime = '?';
           }
           // 3 min to find house + 4 min per dough + 10 min buffer for finishing/packing
           const prepTime = 3 + (4 * orderDoughCount) + 10;
