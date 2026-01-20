@@ -156,7 +156,11 @@
         <div class="offer-list" id="offer-list"></div>
   <script>
     let offers = [];
+
     let vouchers = [];
+
+    // Fetch and show offers on page load
+    document.addEventListener('DOMContentLoaded', fetchOffers);
 
     async function fetchOffers() {
       const res = await fetch('/api/offers', { credentials: 'include' });
