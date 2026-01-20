@@ -168,9 +168,6 @@
         // Removed invalid block that referenced 'order' before it was defined
         tbody.innerHTML = '';
         // Count dough/gluten free for all orders
-                  console.warn('[DISTANCE DEBUG] Missing address or postcode for order:', order);
-                  distanceInfo = '<span class="distance-info">?</span>';
-                  durationInfo = '<span class="distance-info">?</span>';
         for (const order of orders) {
           if (Array.isArray(order.items)) {
             for (const item of order.items) {
