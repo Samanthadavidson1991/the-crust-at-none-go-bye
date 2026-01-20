@@ -498,7 +498,9 @@
                     const type = document.getElementById('edit-order-type').value;
                     const timeSlot = document.getElementById('edit-order-timeslot').value.trim();
                     const address = document.getElementById('edit-order-address').value.trim();
-                    const postcode = document.getElementById('edit-order-postcode').value.trim();
+                    let postcode = document.getElementById('edit-order-postcode').value.trim();
+                    // Normalize postcode: uppercase, single space
+                    postcode = postcode.toUpperCase().replace(/\s+/g, ' ');
                     const email = document.getElementById('edit-order-email').value.trim();
                     const phone = document.getElementById('edit-order-phone').value.trim();
                     const notes = document.getElementById('edit-order-notes').value.trim();
