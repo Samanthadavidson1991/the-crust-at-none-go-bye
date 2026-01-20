@@ -43,6 +43,34 @@
         window.location.href = 'checkout.html';
       });
     }
+    // --- Fetch and display special offers banner ---
+    fetch('/api/offers')
+      .then(res => res.json())
+      .then(offers => {
+        const banner = document.getElementById('special-offers-banner');
+        if (!banner) return;
+        if (!offers.length) {
+          banner.style.display = 'none';
+          return;
+        }
+        banner.style.display = 'block';
+        banner.innerHTML = offers.map(offer => {
+          let price = offer.price ? `£${parseFloat(offer.price).toFixed(2)}` : '';
+          let dateStr = '';
+          if (offer.startDate || offer.endDate) {
+            dateStr = `<span style='color:#888;font-size:0.95em'>${offer.startDate ? 'From ' + new Date(offer.startDate).toLocaleDateString() : ''}${offer.endDate ? ' to ' + new Date(offer.endDate).toLocaleDateString() : ''}</span>`;
+          }
+          return `<div class='selected-offer-banner'><b>${offer.title}</b> - ${offer.desc}${price ? ' <b>'+price+'</b>' : ''} ${dateStr}</div>`;
+        }).join('');
+      })
+      .catch(err => {
+        const banner = document.getElementById('special-offers-banner');
+        if (banner) {
+          banner.innerHTML = '<span style="color:red">Failed to load special offers.</span>';
+          banner.style.display = 'block';
+        }
+        console.error('Special offers fetch error:', err);
+      });
   });
   function updateCartBadge() {
     // Update the cart badge count from localStorage
