@@ -223,21 +223,36 @@
 
     function renderVoucherOfferSelect() {
       const sel = document.getElementById('voucher-offer-select');
+      if (!sel) {
+        console.error("Element 'voucher-offer-select' not found.");
+        return;
+      }
       sel.innerHTML = offers.map(o => `<option value="${o._id}">${o.title}</option>`).join('');
     }
 
-    document.getElementById('generate-voucher-btn').onclick = async function() {
-      const offerId = document.getElementById('voucher-offer-select').value;
-      const days = parseInt(document.getElementById('voucher-days').value, 10);
-      const price = document.getElementById('voucher-price').value;
-      if (!offerId || !days) return; // alert removed for production
-      await fetch('/api/vouchers/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ offerId, expiresInDays: days, price })
-      });
-      fetchVouchers();
+    const generateBtn = document.getElementById('generate-voucher-btn');
+    if (generateBtn) {
+      generateBtn.onclick = async function() {
+        const sel = document.getElementById('voucher-offer-select');
+        if (!sel) {
+          console.error("Element 'voucher-offer-select' not found.");
+          return;
+        }
+        const offerId = sel.value;
+        const days = parseInt(document.getElementById('voucher-days').value, 10);
+        const price = document.getElementById('voucher-price').value;
+        if (!offerId || !days) return;
+        await fetch('/api/vouchers/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ offerId, expiresInDays: days, price })
+        });
+        fetchVouchers();
+      };
+    } else {
+      console.error("Element 'generate-voucher-btn' not found.");
+    }
     };
 
     function renderVouchers() {
