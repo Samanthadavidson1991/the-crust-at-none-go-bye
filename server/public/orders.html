@@ -509,7 +509,8 @@
                       return;
                     }
                     // UK postcode regex (simple, covers most cases)
-                    const postcodeRegex = /^([A-Z]{1,2}[0-9][0-9A-Z]? ?[0-9][A-Z]{2})$/i;
+                    // UK postcode regex (strict, covers all valid cases)
+                    const postcodeRegex = /^(GIR ?0AA|[A-PR-UWYZ][A-HK-Y]?[0-9][0-9ABEHMNPRV-Y]? ?[0-9][ABD-HJLNP-UW-Z]{2})$/i;
                     if (!postcodeRegex.test(postcode)) {
                       document.getElementById('edit-order-error').textContent = 'Please enter a valid UK postcode (e.g. LS18 5HZ).';
                       return;
