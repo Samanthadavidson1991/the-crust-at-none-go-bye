@@ -4,6 +4,13 @@ const orderSchema = new mongoose.Schema({
   name: String,
   paymentType: String,
   source: String,
+  address: {
+    full: String,
+    postcode: String,
+    email: String,
+    phone: String,
+    comments: String
+  },
   items: [
     {
       name: String,

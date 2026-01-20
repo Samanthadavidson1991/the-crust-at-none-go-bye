@@ -504,8 +504,8 @@
                     const notes = document.getElementById('edit-order-notes').value.trim();
                     const allergens = document.getElementById('edit-order-allergens').value.trim();
                     const paymentType = document.getElementById('edit-order-payment').value;
-                    if (!name || !timeSlot) {
-                      document.getElementById('edit-order-error').textContent = 'Name and time slot are required.';
+                    if (!name || !timeSlot || !address || !postcode) {
+                      document.getElementById('edit-order-error').textContent = 'Name, time slot, address, and postcode are required.';
                       return;
                     }
                     // PATCH request
