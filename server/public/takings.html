@@ -108,7 +108,11 @@
           const source = (order.source || '').toLowerCase();
           if (payType === 'cash') cash += orderTotal;
           else card += orderTotal;
-          if (order.type && sources[order.type] !== undefined) sources[order.type] += orderTotal;
+          // Normalize type to match keys in sources
+          if (order.type) {
+            const orderType = order.type.charAt(0).toUpperCase() + order.type.slice(1).toLowerCase();
+            if (sources[orderType] !== undefined) sources[orderType] += orderTotal;
+          }
           if (source === 'pos') {
             if (payType === 'cash') posCash += orderTotal;
             else posCard += orderTotal;
