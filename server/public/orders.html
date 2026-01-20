@@ -165,12 +165,7 @@
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
         console.log('[ORDERS DEBUG] Orders data received:', orders);
-              if (order.address && order.address.postcode) {
-          tbody.innerHTML = '<tr><td colspan="12">No orders found.</td></tr>';
-          document.getElementById('dough-count').textContent = '0';
-          document.getElementById('gf-count').textContent = '0';
-          return;
-        }
+        // Removed invalid block that referenced 'order' before it was defined
         tbody.innerHTML = '';
         // Count dough/gluten free for all orders
                   console.warn('[DISTANCE DEBUG] Missing address or postcode for order:', order);
