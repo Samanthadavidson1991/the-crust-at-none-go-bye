@@ -508,6 +508,12 @@
                       document.getElementById('edit-order-error').textContent = 'Name, time slot, address, and postcode are required.';
                       return;
                     }
+                    // UK postcode regex (simple, covers most cases)
+                    const postcodeRegex = /^([A-Z]{1,2}[0-9][0-9A-Z]? ?[0-9][A-Z]{2})$/i;
+                    if (!postcodeRegex.test(postcode)) {
+                      document.getElementById('edit-order-error').textContent = 'Please enter a valid UK postcode (e.g. LS18 5HZ).';
+                      return;
+                    }
                     // PATCH request
                     try {
                       const res = await fetch(`/api/orders/${orderId}`, {
