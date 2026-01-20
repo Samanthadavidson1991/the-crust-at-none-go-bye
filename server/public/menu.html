@@ -50,6 +50,7 @@
         const banner = document.getElementById('special-offers-banner');
         if (!banner) return;
         if (!offers.length) {
+          banner.innerHTML = '';
           banner.style.display = 'none';
           return;
         }
@@ -66,8 +67,8 @@
       .catch(err => {
         const banner = document.getElementById('special-offers-banner');
         if (banner) {
-          banner.innerHTML = '<span style="color:red">Failed to load special offers.</span>';
-          banner.style.display = 'block';
+          banner.innerHTML = '';
+          banner.style.display = 'none';
         }
         console.error('Special offers fetch error:', err);
       });
