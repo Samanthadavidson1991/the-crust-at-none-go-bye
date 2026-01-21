@@ -48,6 +48,11 @@
         <textarea id="comments" name="comments" rows="3" placeholder="Let us know about delivery notes or anything else..."></textarea><br><br>
         <label for="allergens">Allergens (please list any allergies):</label><br>
         <textarea id="allergens" name="allergens" rows="2" placeholder="e.g. Gluten, Nuts, Dairy"></textarea><br><br>
+        <label for="voucher">Voucher Code:</label><br>
+        <input type="text" id="voucher" name="voucher" placeholder="Enter voucher code"><br>
+        <button type="button" id="check-voucher-btn">Check Voucher</button>
+        <span id="voucher-balance" style="display:none;"></span>
+        <span id="voucher-error" class="text-error"></span><br><br>
         <label for="date">Preferred Date:</label><br>
         <input type="date" id="date" name="date" required><br><br>
         <label for="time">Preferred Time Slot:</label><br>
@@ -82,6 +87,35 @@
     <p><b>Delivery only within a 5 mile radius of LS18 5HZ.</b></p>
   <div id="postcode-error" class="text-error"></div>
     <script>
+            // --- VOUCHER LOGIC ---
+            let voucherData = null;
+            document.getElementById('check-voucher-btn').onclick = async function() {
+              const code = document.getElementById('voucher').value.trim();
+              document.getElementById('voucher-error').textContent = '';
+              document.getElementById('voucher-balance').style.display = 'none';
+              if (!code) {
+                document.getElementById('voucher-error').textContent = 'Please enter a voucher code.';
+                return;
+              }
+              try {
+                const res = await fetch('/api/vouchers?code=' + encodeURIComponent(code));
+                const vouchers = await res.json();
+                const voucher = Array.isArray(vouchers) ? vouchers.find(v => v.code === code) : null;
+                if (!voucher) {
+                  document.getElementById('voucher-error').textContent = 'Voucher not found.';
+                  return;
+                }
+                if (voucher.used) {
+                  document.getElementById('voucher-error').textContent = 'Voucher already used.';
+                  return;
+                }
+                voucherData = voucher;
+                document.getElementById('voucher-balance').textContent = voucher.price ? `Voucher balance: £${voucher.price.toFixed(2)}` : 'Voucher valid.';
+                document.getElementById('voucher-balance').style.display = 'inline';
+              } catch (err) {
+                document.getElementById('voucher-error').textContent = 'Error checking voucher.';
+              }
+            };
         // Show selected offer in checkout
         async function showSelectedOfferCheckout() {
           const selectedId = localStorage.getItem('selectedOffer');
@@ -279,6 +313,13 @@
         // Optionally, you can require a payment method before submitting the order
         // Intercept form submit for postcode check
         document.querySelector('.checkout-form').onsubmit = async function(e) {
+                // If voucher is present, check and apply
+                if (voucherData && voucherData.price) {
+                  // Deduct voucher value from total
+                  orderData.voucherCode = voucherData.code;
+                  orderData.voucherAmount = voucherData.price;
+                  orderData.total = Math.max(0, orderData.total - voucherData.price);
+                }
           e.preventDefault();
           document.getElementById('postcode-error').textContent = '';
           // Require payment method

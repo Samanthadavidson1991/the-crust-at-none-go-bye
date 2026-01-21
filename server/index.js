@@ -483,24 +483,92 @@ mongoose.connect(atlasUri)
 
     // --- ADD POST /api/orders ENDPOINT ---
     app.post('/api/orders', async (req, res) => {
+              // --- VOUCHER LOGIC ---
+              if (req.body.voucherCode) {
+                const Voucher = require('./voucher.model');
+                const voucher = await Voucher.findOne({ code: req.body.voucherCode });
+                if (!voucher) {
+                  return res.status(400).json({ error: 'Voucher not found.' });
+                }
+                if (voucher.used) {
+                  return res.status(400).json({ error: 'Voucher already used.' });
+                }
+                if (typeof voucher.price === 'number' && voucher.price > 0) {
+                  // Deduct voucher amount from total
+                  const origTotal = req.body.total;
+                  req.body.total = Math.max(0, origTotal - voucher.price);
+                  // If voucher covers full amount, mark as used
+                  if (voucher.price >= origTotal) {
+                    voucher.used = true;
+                    voucher.usedAt = new Date();
+                    voucher.usedBy = req.body.email || req.body.name || '';
+                    await voucher.save();
+                  } else {
+                    // Otherwise, reduce voucher balance
+                    voucher.price = voucher.price - origTotal;
+                    await voucher.save();
+                  }
+                }
+              }
       try {
+        // --- VALIDATE ORDER TIME ---
+        const { timeSlot, date } = req.body;
+        // Parse date and timeSlot
+        let orderDate = null;
+        if (date && timeSlot) {
+          // date: YYYY-MM-DD, timeSlot: '18:00-18:30' or '18:00'
+          const [startTime] = timeSlot.split('-');
+          orderDate = new Date(`${date}T${startTime}:00`);
+        } else {
+          return res.status(400).json({ error: 'Order must include date and timeSlot.' });
+        }
+        // Get opening times for the day
+        const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+        const dayName = dayNames[orderDate.getDay()];
+        const OpeningTimes = require('./index.js').OpeningTimes || (mongoose.models.OpeningTimes || mongoose.model('OpeningTimes', new mongoose.Schema({
+          friday: { open: String, close: String },
+          saturday: { open: String, close: String },
+          sunday: { open: String, close: String }
+        }, { collection: 'opening_times' })));
+        const openingDoc = await OpeningTimes.findOne();
+        const openInfo = openingDoc && openingDoc[dayName];
+        if (!openInfo || !openInfo.open || !openInfo.close) {
+          return res.status(400).json({ error: 'We are closed on this day.' });
+        }
+        // Check if timeSlot is within open hours
+        const [openHour, openMin] = openInfo.open.split(':').map(Number);
+        const [closeHour, closeMin] = openInfo.close.split(':').map(Number);
+        const slotHour = Number(startTime.split(':')[0]);
+        const slotMin = Number(startTime.split(':')[1]);
+        const slotMins = slotHour * 60 + slotMin;
+        const openMins = openHour * 60 + openMin;
+        const closeMins = closeHour * 60 + closeMin;
+        if (slotMins < openMins || slotMins >= closeMins) {
+          return res.status(400).json({ error: 'Selected time is outside opening hours.' });
+        }
+        // --- BLOCK ORDERS >40 MIN BEFORE SLOT ---
+        const now = new Date();
+        const diffMins = (orderDate - now) / 60000;
+        if (diffMins > 40) {
+          return res.status(400).json({ error: 'Orders can only be placed up to 40 minutes before the selected slot.' });
+        }
+        // --- PRE-ORDER: Mark as Pending Approval if in future ---
+        if (diffMins > 0) {
+          req.body.status = 'Pending Approval';
+        }
+        // --- EXISTING LOGIC: Price assignment, dough decrement, save order ---
         console.log('[ORDER DEBUG] Incoming paymentType:', req.body.paymentType);
-        // Always include price for each item using current menu
         const MenuItem = require('./menu-item.model');
-        // DEBUG: Log incoming order items
         console.log('[ORDER DEBUG] Incoming order items:', JSON.stringify(req.body.items, null, 2));
-        // DEBUG: Log menu items for matching
         const allMenuItems = await MenuItem.find({});
         console.log('[ORDER DEBUG] All menu items:', allMenuItems.map(mi => ({ name: mi.name, sizes: mi.sizes, price: mi.price })));
         if (Array.isArray(req.body.items)) {
           for (const item of req.body.items) {
             console.log('[ORDER DEBUG] Processing item:', JSON.stringify(item));
             if (typeof item.price === 'undefined') {
-              // Find menu item by name (case-insensitive)
               const dbItem = await MenuItem.findOne({ name: item.name });
               console.log(`[ORDER DEBUG] Looking up menu item for: '${item.name}'`, dbItem ? '(found)' : '(not found)', dbItem);
               if (dbItem) {
-                // If item has a size, look for matching size price
                 if (item.size && Array.isArray(dbItem.sizes)) {
                   const sizeObj = dbItem.sizes.find(s => s.name && item.size && s.name.toLowerCase() === item.size.toLowerCase());
                   console.log(`[ORDER DEBUG] Size lookup for '${item.name}' (size: '${item.size}'):`, sizeObj ? sizeObj : '(not found)');
@@ -528,21 +596,17 @@ mongoose.connect(atlasUri)
             } else {
               console.log(`[ORDER DEBUG] Price already set for '${item.name}':`, item.price);
             }
-            // Log final item state after price assignment
             console.log('[ORDER DEBUG] Final item after price assignment:', JSON.stringify(item));
           }
         }
         const order = new Order(req.body);
         await order.save();
         console.log('[ORDER DEBUG] Saved order paymentType:', order.paymentType);
-
-        // Decrement dough stock based on order items
         const DoughStock = require('./dough-stock.model');
         let normalCount = 0;
         let gfCount = 0;
         if (Array.isArray(order.items)) {
           for (const item of order.items) {
-            // If item.glutenFree is true, decrement GF dough, else normal
             if (item.glutenFree) {
               gfCount += item.quantity || 1;
             } else {
@@ -550,21 +614,18 @@ mongoose.connect(atlasUri)
             }
           }
         }
-        // Update normal dough stock
         if (normalCount > 0) {
           await DoughStock.findOneAndUpdate(
             { type: 'normal' },
             { $inc: { stock: -normalCount } }
           );
         }
-        // Update GF dough stock
         if (gfCount > 0) {
           await DoughStock.findOneAndUpdate(
             { type: 'gf' },
             { $inc: { stock: -gfCount } }
           );
         }
-
         res.json({ success: true, order });
       } catch (err) {
         console.error('[POST /api/orders] Error:', err);
