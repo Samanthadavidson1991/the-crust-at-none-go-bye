@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-     "start": "cd server && npm install && node index.js",
-     "heroku-postbuild": "cd server && npm install"
+    "start": "cd server && npm install && node index.js",
+    "heroku-postbuild": "cd server && npm install"
   },
   "dependencies": {
     "connect-mongo": "^5.1.0",
     "dotenv": "^17.2.3",
     "express-session": "^1.18.2",
-    "mongoose": "^8.19.3"
+    "mongoose": "^8.19.3",
+    "node-cron": "^4.2.1"
   }
 }
