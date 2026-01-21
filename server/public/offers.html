@@ -156,8 +156,8 @@
         <div class="offer-list" id="offer-list"></div>
         <h2>Generate Voucher Codes</h2>
         <form id="voucher-form" style="margin-bottom:24px;">
-          <label for="voucher-offer-select"><b>Offer:</b></label>
-          <select id="voucher-offer-select" style="margin-bottom:8px;"></select><br>
+          <label for="voucher-offer-select"><b>Offer (optional):</b></label>
+          <select id="voucher-offer-select" style="margin-bottom:8px;"><option value="">(None)</option></select><br>
           <label for="voucher-name"><b>Name:</b></label>
           <input type="text" id="voucher-name" maxlength="64" style="margin-bottom:8px;width:200px;"><br>
           <label for="voucher-days"><b>Valid for (days):</b></label>
@@ -250,7 +250,7 @@
         console.error("Element 'voucher-offer-select' not found.");
         return;
       }
-      sel.innerHTML = offers.map(o => `<option value="${o._id}">${o.title}</option>`).join('');
+      sel.innerHTML = '<option value="">(None)</option>' + offers.map(o => `<option value="${o._id}">${o.title}</option>`).join('');
     }
 
     const generateBtn = document.getElementById('generate-voucher-btn');
@@ -261,15 +261,11 @@
         const days = parseInt(document.getElementById('voucher-days').value, 10);
         const price = document.getElementById('voucher-price').value;
         const name = document.getElementById('voucher-name').value.trim();
-        if (!offerId) {
-          alert('Please select an offer.');
-          return;
-        }
         await fetch('/api/vouchers/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ offerId, expiresInDays: days, price, name })
+          body: JSON.stringify({ offerId: offerId || undefined, expiresInDays: days, price, name })
         });
         fetchVouchers();
       };
