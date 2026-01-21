@@ -103,6 +103,9 @@ mongoose.connect(atlasUri)
       }
     });
     // --- ROUTES ---
+    // Register vouchers API
+    const vouchersRouter = require('./vouchers');
+    app.use('/api/vouchers', vouchersRouter);
     // Serve admin-menu.html at / for any admin domain BEFORE static middleware
     app.get('/', (req, res, next) => {
       const host = (req.headers.host || req.hostname || '').toLowerCase();
