@@ -200,7 +200,7 @@
         let price = offer.price ? `£${parseFloat(offer.price).toFixed(2)}` : '';
         let dateStr = '';
         if (offer.startDate || offer.endDate) {
-            return `<tr><td><b>${v.code}</b></td><td>${v.offer ? v.offer.title : ''}</td><td>${v.name ? v.name : ''}</td><td>${price}</td><td>${exp}</td><td>${status}</td></tr>`; 
+          dateStr = `${offer.startDate ? 'From ' + new Date(offer.startDate).toLocaleDateString() : ''}${offer.endDate ? ' to ' + new Date(offer.endDate).toLocaleDateString() : ''}`;
         }
         return `
           <div class='offer-item'>
