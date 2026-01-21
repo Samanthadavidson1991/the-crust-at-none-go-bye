@@ -6,6 +6,8 @@ app.get('/api/takings-history', async (req, res) => {
   if (!history) return res.json({});
   res.json(history);
 });
+// --- Takings History API ---
+// (Moved below app initialization)
 // --- Daily Archive and Reset Job ---
 const cron = require('node-cron');
 const Order = require('./order.model');
