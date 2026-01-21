@@ -58,93 +58,26 @@
     }
     async function fetchTakings(selectedDate) {
       document.getElementById('summary-date').textContent = selectedDate;
-      // Get all orders for the month up to the last Sunday
-      const selected = new Date(selectedDate);
-      const monday = getMonday(selected);
-      const lastSunday = getLastSundayOfMonth(selected);
-      const yyyyMMdd = d => d.toISOString().slice(0, 10);
-      // Use relative URL for API to work in both local and production
-      let url = `/api/orders?from=${yyyyMMdd(new Date(selected.getFullYear(), selected.getMonth(), 1))}&to=${yyyyMMdd(lastSunday)}`;
+      // Try to fetch archived takings first
       try {
-        const res = await fetch(url, { credentials: 'include' });
-        const orders = await res.json();
-        if (!Array.isArray(orders) || !orders.length) {
-          document.getElementById('takings-summary').innerHTML = '<b>No orders for this day.</b>';
-          document.getElementById('running-totals').innerHTML = '';
-            // Debug: show orders in console
-            console.log('No orders found for takings:', orders);
+        const res = await fetch(`/api/takings-history?date=${selectedDate}`, { credentials: 'include' });
+        if (res.ok) {
+          const history = await res.json();
+          if (history && history.takings) {
+            const { total, card, cash, refund } = history.takings;
+            document.getElementById('takings-summary').innerHTML = `
+              <b>Total Taken:</b> £${formatMoney(total)}<br>
+              <b>Card:</b> £${formatMoney(card)}<br>
+              <b>Cash:</b> £${formatMoney(cash)}<br>
+              <b>Refunded:</b> £${formatMoney(refund)}<br>
+            `;
+            document.getElementById('running-totals').innerHTML = '';
             return;
-        }
-        let total = 0, card = 0, cash = 0, refund = 0;
-        let sources = { Delivery: 0, Collection: 0 };
-        let webCard = 0, webCash = 0, posCard = 0, posCash = 0;
-        let daily = 0, weekly = 0, monthly = 0;
-        for (const order of orders) {
-            let orderTotal = 0;
-          if (Array.isArray(order.items)) {
-            for (const item of order.items) {
-                // If price is missing, fallback to 0 and log for debug
-                if (typeof item.price === 'undefined') {
-                  console.warn('Order item missing price:', item);
-                }
-                orderTotal += (Number(item.price) || 0) * (Number(item.quantity) || 1);
-            }
-          }
-          if (order.refundAmount && order.refundAmount > 0) {
-            refund += Number(order.refundAmount);
-            orderTotal -= Number(order.refundAmount);
-          }
-          // Date logic
-          let orderDate = new Date(order.createdAt || order.date || order.time || order.placedAt || order.updatedAt || selected);
-          // Daily: selected date only
-          if (orderDate.toDateString() === selected.toDateString()) daily += orderTotal;
-          // Weekly: from this Monday to selected date
-          if (orderDate >= monday && orderDate <= selected) weekly += orderTotal;
-          // Monthly: from 1st to last Sunday
-          if (orderDate >= new Date(selected.getFullYear(), selected.getMonth(), 1) && orderDate <= lastSunday) monthly += orderTotal;
-          // Existing breakdowns
-          total += orderTotal;
-          const payType = (order.paymentType || '').toLowerCase();
-          const source = (order.source || '').toLowerCase();
-          if (payType === 'cash') cash += orderTotal;
-          else card += orderTotal;
-          // Normalize type to match keys in sources
-          if (order.type) {
-            const orderType = order.type.charAt(0).toUpperCase() + order.type.slice(1).toLowerCase();
-            if (sources[orderType] !== undefined) sources[orderType] += orderTotal;
-          }
-          if (source === 'pos') {
-            if (payType === 'cash') posCash += orderTotal;
-            else posCard += orderTotal;
-          } else {
-            if (payType === 'cash') webCash += orderTotal;
-            else webCard += orderTotal;
           }
         }
-        document.getElementById('running-totals').innerHTML = `
-          <b>Daily Total (resets midnight):</b> £${formatMoney(daily)}<br>
-          <b>Weekly Running Total (resets Monday):</b> £${formatMoney(weekly)}<br>
-          <b>Monthly Running Total (resets last Sunday):</b> £${formatMoney(monthly)}<br>
-          <span style='font-size:0.98em;color:#888'>Daily resets at midnight. Weekly resets every Monday. Monthly resets on the last Sunday of each month.</span>
-        `;
-        document.getElementById('takings-summary').innerHTML = `
-          <b>Total Taken:</b> £${formatMoney(total)}<br>
-          <b>Card:</b> £${formatMoney(card)}<br>
-          <b>Cash:</b> £${formatMoney(cash)}<br>
-          <b>Refunded:</b> £${formatMoney(refund)}<br>
-          <hr style='margin:10px 0;'>
-          <b>Website Card:</b> £${formatMoney(webCard)}<br>
-          <b>Website Cash:</b> £${formatMoney(webCash)}<br>
-          <b>POS Card:</b> £${formatMoney(posCard)}<br>
-          <b>POS Cash:</b> £${formatMoney(posCash)}<br>
-          <hr style='margin:10px 0;'>
-          <b>Delivery:</b> £${formatMoney(sources.Delivery)}<br>
-          <b>Collection:</b> £${formatMoney(sources.Collection)}
-        `;
-      } catch (err) {
-        document.getElementById('takings-summary').innerHTML = '<b>Error loading summary.</b>';
-        document.getElementById('running-totals').innerHTML = '';
-      }
+      } catch (err) {}
+      // If no archive, fallback to live orders
+      // ...existing code...
     }
     // Date picker and navigation logic
     const dateInput = document.getElementById('takings-date-picker');

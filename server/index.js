@@ -1,3 +1,45 @@
+// --- Takings History API ---
+app.get('/api/takings-history', async (req, res) => {
+  const { date } = req.query;
+  if (!date) return res.status(400).json({ error: 'Date required' });
+  const history = await require('./takings-history.model').findOne({ date });
+  if (!history) return res.json({});
+  res.json(history);
+});
+// --- Daily Archive and Reset Job ---
+const cron = require('node-cron');
+const Order = require('./order.model');
+const OrderHistory = require('./order-history.model');
+const TakingsHistory = require('./takings-history.model');
+
+// Archive and reset orders and takings at midnight
+cron.schedule('0 0 * * *', async () => {
+  try {
+    const today = new Date();
+    today.setDate(today.getDate() - 1); // Archive yesterday's data
+    const dateStr = today.toISOString().slice(0, 10);
+    // Archive orders
+    const orders = await Order.find({ createdAt: { $gte: new Date(dateStr), $lt: new Date(dateStr + 'T23:59:59.999Z') } });
+    if (orders.length) {
+      await OrderHistory.create({ date: dateStr, orders });
+      await Order.deleteMany({ createdAt: { $gte: new Date(dateStr), $lt: new Date(dateStr + 'T23:59:59.999Z') } });
+    }
+    // Archive takings (calculate from orders)
+    let takings = {};
+    let total = 0, card = 0, cash = 0, refund = 0;
+    for (const order of orders) {
+      total += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+      if (order.paymentType === 'Card') card += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+      if (order.paymentType === 'Cash') cash += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+      if (order.status === 'Refunded') refund += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+    }
+    takings = { total, card, cash, refund };
+    await TakingsHistory.create({ date: dateStr, takings });
+    console.log(`[CRON] Archived and reset orders/takings for ${dateStr}`);
+  } catch (err) {
+    console.error('[CRON] Failed to archive/reset orders/takings:', err);
+  }
+});
 // --- TEST ENDPOINT ---
 // ...existing code...
 // ...existing code...
