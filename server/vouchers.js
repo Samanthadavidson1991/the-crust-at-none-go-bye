@@ -26,20 +26,30 @@ function generateCode(length = 8) {
 
 // Create a voucher for an offer
 router.post('/generate', async (req, res) => {
-  const { offerId, expiresInDays, price, name } = req.body;
+  const { offerId, expiresInDays, price, name, startDate, expiryDate } = req.body;
   let offer = null;
   if (offerId) {
     offer = await SpecialOffer.findById(offerId);
     if (!offer) return res.status(404).json({ error: 'Offer not found' });
   }
   const code = generateCode();
-  const expiresAt = expiresInDays ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000) : undefined;
+  let expiresAt;
+  if (expiryDate) {
+    expiresAt = new Date(expiryDate);
+  } else if (expiresInDays) {
+    expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
+  }
+  let createdAt;
+  if (startDate) {
+    createdAt = new Date(startDate);
+  }
   const voucherData = {
     code,
     expiresAt,
     price: price ? Number(price) : undefined,
     name
   };
+  if (createdAt) voucherData.createdAt = createdAt;
   if (offer) voucherData.offer = offer._id;
   const voucher = new Voucher(voucherData);
   await voucher.save();

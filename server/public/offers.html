@@ -160,8 +160,10 @@
           <select id="voucher-offer-select" style="margin-bottom:8px;"><option value="">(None)</option></select><br>
           <label for="voucher-name"><b>Name:</b></label>
           <input type="text" id="voucher-name" maxlength="64" style="margin-bottom:8px;width:200px;"><br>
-          <label for="voucher-days"><b>Valid for (days):</b></label>
-          <input type="number" id="voucher-days" min="1" value="7" style="margin-bottom:8px;width:80px;"><br>
+          <label for="voucher-start-date"><b>Start Date (optional):</b></label>
+          <input type="date" id="voucher-start-date" style="margin-bottom:8px;width:140px;"><br>
+          <label for="voucher-expiry-date"><b>Expiry Date (optional):</b></label>
+          <input type="date" id="voucher-expiry-date" style="margin-bottom:8px;width:140px;"><br>
           <label for="voucher-price"><b>Voucher Price (£):</b></label>
           <input type="number" id="voucher-price" step="0.01" min="0" style="margin-bottom:8px;width:100px"><br>
           <button type="button" id="generate-voucher-btn" class="action-btn">Generate Voucher</button>
@@ -258,14 +260,15 @@
       generateBtn.onclick = async function() {
         const sel = document.getElementById('voucher-offer-select');
         const offerId = sel.value;
-        const days = parseInt(document.getElementById('voucher-days').value, 10);
+        const startDate = document.getElementById('voucher-start-date').value;
+        const expiryDate = document.getElementById('voucher-expiry-date').value;
         const price = document.getElementById('voucher-price').value;
         const name = document.getElementById('voucher-name').value.trim();
         await fetch('/api/vouchers/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ offerId: offerId || undefined, expiresInDays: days, price, name })
+          body: JSON.stringify({ offerId: offerId || undefined, startDate, expiryDate, price, name })
         });
         fetchVouchers();
       };
