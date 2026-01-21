@@ -1,12 +1,4 @@
 // --- Takings History API ---
-app.get('/api/takings-history', async (req, res) => {
-  const { date } = req.query;
-  if (!date) return res.status(400).json({ error: 'Date required' });
-  const history = await require('./takings-history.model').findOne({ date });
-  if (!history) return res.json({});
-  res.json(history);
-});
-// --- Takings History API ---
 // (Moved below app initialization)
 // --- Daily Archive and Reset Job ---
 const cron = require('node-cron');
