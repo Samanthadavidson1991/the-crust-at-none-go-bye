@@ -154,6 +154,18 @@
         </form>
         <h2>Current Special Offers</h2>
         <div class="offer-list" id="offer-list"></div>
+        <h2>Generate Voucher Codes</h2>
+        <form id="voucher-form" style="margin-bottom:24px;">
+          <label for="voucher-offer-select"><b>Offer:</b></label>
+          <select id="voucher-offer-select" required style="margin-bottom:8px;"></select><br>
+          <label for="voucher-days"><b>Valid for (days):</b></label>
+          <input type="number" id="voucher-days" min="1" value="7" style="margin-bottom:8px;width:80px;" required><br>
+          <label for="voucher-price"><b>Voucher Price (£):</b></label>
+          <input type="number" id="voucher-price" step="0.01" min="0" style="margin-bottom:8px;width:100px"><br>
+          <button type="button" id="generate-voucher-btn" class="action-btn">Generate Voucher</button>
+        </form>
+        <h2>Voucher Codes</h2>
+        <div id="voucher-list"></div>
   <script>
     let offers = [];
 
