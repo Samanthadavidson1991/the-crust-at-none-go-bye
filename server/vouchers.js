@@ -1,3 +1,12 @@
+// Create a voucher with just a name (no offer required)
+router.post('/generate-name', async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const code = generateCode();
+  const voucher = new Voucher({ code, name });
+  await voucher.save();
+  res.json({ success: true, voucher });
+});
 // Express router for managing vouchers
 const express = require('express');
 const router = express.Router();
@@ -16,13 +25,13 @@ function generateCode(length = 8) {
 
 // Create a voucher for an offer
 router.post('/generate', async (req, res) => {
-  const { offerId, expiresInDays, price } = req.body;
+  const { offerId, expiresInDays, price, name } = req.body;
   if (!offerId) return res.status(400).json({ error: 'Offer required' });
   const offer = await SpecialOffer.findById(offerId);
   if (!offer) return res.status(404).json({ error: 'Offer not found' });
   const code = generateCode();
   const expiresAt = expiresInDays ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000) : undefined;
-  const voucher = new Voucher({ code, offer: offer._id, expiresAt, price: price ? Number(price) : undefined });
+  const voucher = new Voucher({ code, offer: offer._id, expiresAt, price: price ? Number(price) : undefined, name });
   await voucher.save();
   res.json({ success: true, voucher });
 });

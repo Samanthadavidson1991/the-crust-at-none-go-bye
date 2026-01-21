@@ -157,12 +157,19 @@
         <h2>Generate Voucher Codes</h2>
         <form id="voucher-form" style="margin-bottom:24px;">
           <label for="voucher-offer-select"><b>Offer:</b></label>
-          <select id="voucher-offer-select" required style="margin-bottom:8px;"></select><br>
+          <select id="voucher-offer-select" style="margin-bottom:8px;"></select><br>
+          <label for="voucher-name"><b>Name:</b></label>
+          <input type="text" id="voucher-name" maxlength="64" style="margin-bottom:8px;width:200px;"><br>
           <label for="voucher-days"><b>Valid for (days):</b></label>
-          <input type="number" id="voucher-days" min="1" value="7" style="margin-bottom:8px;width:80px;" required><br>
+          <input type="number" id="voucher-days" min="1" value="7" style="margin-bottom:8px;width:80px;"><br>
           <label for="voucher-price"><b>Voucher Price (£):</b></label>
           <input type="number" id="voucher-price" step="0.01" min="0" style="margin-bottom:8px;width:100px"><br>
           <button type="button" id="generate-voucher-btn" class="action-btn">Generate Voucher</button>
+        </form>
+        <form id="voucher-name-form" style="margin-bottom:24px;">
+          <label for="voucher-name-only"><b>Voucher Name:</b></label>
+          <input type="text" id="voucher-name-only" maxlength="64" style="margin-bottom:8px;width:200px;" required>
+          <button type="button" id="generate-voucher-name-btn" class="action-btn">Generate Voucher (Name Only)</button>
         </form>
         <h2>Voucher Codes</h2>
         <div id="voucher-list"></div>
@@ -193,7 +200,7 @@
         let price = offer.price ? `£${parseFloat(offer.price).toFixed(2)}` : '';
         let dateStr = '';
         if (offer.startDate || offer.endDate) {
-          dateStr = `<span style='color:#888;font-size:0.95em'>${offer.startDate ? 'From ' + new Date(offer.startDate).toLocaleDateString() : ''}${offer.endDate ? ' to ' + new Date(offer.endDate).toLocaleDateString() : ''}</span>`;
+            return `<tr><td><b>${v.code}</b></td><td>${v.offer ? v.offer.title : ''}</td><td>${v.name ? v.name : ''}</td><td>${price}</td><td>${exp}</td><td>${status}</td></tr>`; 
         }
         return `
           <div class='offer-item'>
@@ -250,24 +257,40 @@
     if (generateBtn) {
       generateBtn.onclick = async function() {
         const sel = document.getElementById('voucher-offer-select');
-        if (!sel) {
-          console.error("Element 'voucher-offer-select' not found.");
-          return;
-        }
         const offerId = sel.value;
         const days = parseInt(document.getElementById('voucher-days').value, 10);
         const price = document.getElementById('voucher-price').value;
-        if (!offerId || !days) return;
+        const name = document.getElementById('voucher-name').value.trim();
+        if (!offerId) {
+          alert('Please select an offer.');
+          return;
+        }
         await fetch('/api/vouchers/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ offerId, expiresInDays: days, price })
+          body: JSON.stringify({ offerId, expiresInDays: days, price, name })
         });
         fetchVouchers();
       };
-    } else {
-      console.error("Element 'generate-voucher-btn' not found.");
+    }
+
+    const generateNameBtn = document.getElementById('generate-voucher-name-btn');
+    if (generateNameBtn) {
+      generateNameBtn.onclick = async function() {
+        const name = document.getElementById('voucher-name-only').value.trim();
+        if (!name) {
+          alert('Please enter a name for the voucher.');
+          return;
+        }
+        await fetch('/api/vouchers/generate-name', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ name })
+        });
+        fetchVouchers();
+      };
     }
 
     function renderVouchers() {
@@ -276,12 +299,12 @@
         list.innerHTML = '<em>No voucher codes generated yet.</em>';
         return;
       }
-      list.innerHTML = `<table style='width:100%;border-collapse:collapse'><thead><tr><th>Code</th><th>Offer</th><th>Voucher Price</th><th>Expires</th><th>Status</th></tr></thead><tbody>` +
+      list.innerHTML = `<table style='width:100%;border-collapse:collapse'><thead><tr><th>Code</th><th>Offer</th><th>Name</th><th>Voucher Price</th><th>Expires</th><th>Status</th></tr></thead><tbody>` +
         vouchers.map(v => {
           let exp = v.expiresAt ? new Date(v.expiresAt).toLocaleDateString() : '-';
           let status = v.used ? `<span style='color:#b9472e'>Used</span>` : `<span style='color:#2e7d32'>Live</span>`;
           let price = v.price !== undefined && v.price !== null ? `£${parseFloat(v.price).toFixed(2)}` : '-';
-          return `<tr><td><b>${v.code}</b></td><td>${v.offer ? v.offer.title : ''}</td><td>${price}</td><td>${exp}</td><td>${status}</td></tr>`;
+          return `<tr><td><b>${v.code}</b></td><td>${v.offer ? v.offer.title : ''}</td><td>${v.name ? v.name : ''}</td><td>${price}</td><td>${exp}</td><td>${status}</td></tr>`;
         }).join('') + '</tbody></table>';
     }
 
