@@ -1,4 +1,5 @@
-// --- Special Pizza Model & API (moved here after mongoose/app setup) ---
+// ...existing code...
+// --- Special Pizza Model & API (must be after mongoose/app setup) ---
 const SpecialPizzaSchema = new mongoose.Schema({
   name: String,
   desc: String,
