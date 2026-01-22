@@ -69,7 +69,7 @@
       <div id="stock-loading">Loading menu...</div>
       <table id="stock-table" class="stock-table d-none">
         <thead>
-          <tr><th>Menu Item</th><th>Category</th><th>Stock</th><th>Action</th></tr>
+          <tr><th>Menu Item</th><th>Category</th><th>Dough</th><th>GF Dough</th><th>Stock Limit (optional)</th><th>Action</th></tr>
         </thead>
         <tbody id="stock-table-body"></tbody>
       </table>
@@ -236,17 +236,15 @@
               const isDough = !!item.doughTracked;
               const isGFDough = !!item.gfDoughTracked;
               const isHidden = !!item.hidden;
+              const stockAmount = item.stockAmount !== undefined ? item.stockAmount : '';
               const tr = document.createElement('tr');
               tr.innerHTML = `
                 <td><b>${item.name}</b></td>
                 <td>${item.category || ''}</td>
-                <td>
-                  <label><input type="checkbox" class="dough-track" data-name="${item.name}" ${isDough ? 'checked' : ''}> Dough</label>
-                  <label class="ml-8"><input type="checkbox" class="gf-dough-track" data-name="${item.name}" ${isGFDough ? 'checked' : ''}> Gluten Free</label>
-                </td>
-                <td>
-                  <button class="hide-action-btn ml-8" data-name="${item.name}" data-hidden="${isHidden}">${isHidden ? 'Show' : 'Hide'}</button>
-                </td>
+                <td><input type="checkbox" class="dough-track" data-name="${item.name}" ${isDough ? 'checked' : ''}></td>
+                <td><input type="checkbox" class="gf-dough-track" data-name="${item.name}" ${isGFDough ? 'checked' : ''}></td>
+                <td><input type="number" class="stock-amount" data-name="${item.name}" min="0" placeholder="No limit" value="${stockAmount}"></td>
+                <td><button class="hide-action-btn ml-8" data-name="${item.name}" data-hidden="${isHidden}">${isHidden ? 'Show' : 'Hide'}</button></td>
               `;
               if (isHidden) tr.style.opacity = 0.5;
               tbody.appendChild(tr);
@@ -278,12 +276,32 @@
                 updateDoughTracked(cb.getAttribute('data-name'), cb.checked, true);
               });
             });
+            // Add event listeners for stock amount inputs
+            document.querySelectorAll('.stock-amount').forEach(input => {
+              input.addEventListener('change', function() {
+                updateStockAmount(input.getAttribute('data-name'), input.value);
+              });
+            });
           })
           .catch(err => {
             loading.textContent = 'Error loading stock.';
             table.style.display = 'none';
             console.error('Failed to fetch stock:', err);
           });
+      }
+      async function updateStockAmount(itemName, amount) {
+        // Allow empty value (no limit)
+        const value = amount === '' ? null : parseInt(amount, 10);
+        try {
+          await fetch(`/api/menu/${encodeURIComponent(itemName)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ stockAmount: value })
+          });
+        } catch (err) {
+          alert('Error saving stock amount');
+        }
       }
 
       async function updateStock(itemName) {
