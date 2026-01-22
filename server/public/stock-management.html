@@ -179,9 +179,11 @@
             toppingsDiv.textContent = 'No toppings found.';
             return;
           }
-          const stockRes = await fetch('https://admin.thecrustatngb.co.uk/api/topping-stock', { credentials: 'include' });
-          const toppingStock = await stockRes.json();
-          const outOfStockSet = new Set(toppingStock.filter(t => t.outOfStock).map(t => t.topping));
+          const stockRes = await fetch('/api/pizza-topping-stock', { credentials: 'include' });
+          const toppingStockData = await stockRes.json();
+          const toppingStock = Array.isArray(toppingStockData) ? toppingStockData : (Array.isArray(toppingStockData.toppings) ? toppingStockData.toppings : []);
+          // For demo, treat stock=0 as out of stock
+          const outOfStockSet = new Set(toppingStock.filter(t => t.stock === 0).map(t => t.name));
           toppingsDiv.innerHTML = `<table class="stock-table mt-0">
             <thead>
               <tr><th>Topping</th><th>Out of Stock</th></tr>
