@@ -241,9 +241,15 @@
             html += `<small><b>Add Toppings:</b></small><br>`;
             assignedToppings.forEach(mt => {
               let price = '0.00';
-              if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
-              else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
-              else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+              if (mt.category === 'Meat') {
+                price = masterToppingsData.settings.masterMeatPrice;
+                price = (typeof price === 'number' && !isNaN(price)) ? price.toFixed(2) : '0.00';
+              } else if (mt.category === 'Veg') {
+                price = masterToppingsData.settings.masterVegPrice;
+                price = (typeof price === 'number' && !isNaN(price)) ? price.toFixed(2) : '0.60';
+              } else if (typeof mt.price === 'number') {
+                price = mt.price.toFixed(2);
+              }
               html += `<label class="topping-label"><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
               html += ` <span class="topping-meta">(${mt.category} • £${price})</span>`;
               html += `</label>`;
