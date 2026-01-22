@@ -86,16 +86,23 @@
           </select>
           <label for="slot-duration" class="ml-12">Duration (minutes):</label>
           <input type="number" id="slot-duration" class="input" min="5" max="120" value="30" required>
-          <label for="slot-dough-limit" class="ml-12">Dough per slot:</label>
+          <label for="slot-dough-limit" class="ml-12">Normal dough per slot:</label>
           <input type="number" id="slot-dough-limit" class="input" min="0" max="99" value="0" required>
+          <label for="slot-gf-dough-limit" class="ml-12">GF dough per slot:</label>
+          <input type="number" id="slot-gf-dough-limit" class="input" min="0" max="99" value="0" required>
           <button type="submit" class="action-btn">Generate Slots</button>
           <span id="generate-slots-status" class="ml-12 text-muted"></span>
         </form>
         <form id="add-timeslot-form" class="mb-24">
           <input type="text" id="timeslot-input" class="input" placeholder="e.g. 17:00-17:30" required>
+          <label for="add-dough-limit" class="ml-12">Normal dough:</label>
+          <input type="number" id="add-dough-limit" class="input" min="0" max="99" value="0" required>
+          <label for="add-gf-dough-limit" class="ml-12">GF dough:</label>
+          <input type="number" id="add-gf-dough-limit" class="input" min="0" max="99" value="0" required>
           <button type="submit" class="action-btn">Add Time Slot</button>
         </form>
         <div id="timeslot-list">Loading...</div>
+        <div id="slot-availability-table" style="margin-top:32px;"></div>
       </div>
       <div id="tab-content-opening" class="tab-content">
         <h2>Set Opening Times</h2>
@@ -171,13 +178,14 @@
       }
       // Generate slots
       const doughLimit = parseInt(document.getElementById('slot-dough-limit').value, 10) || 0;
+      const gfDoughLimit = parseInt(document.getElementById('slot-gf-dough-limit').value, 10) || 0;
       const slots = [];
       let start = toMinutes(open);
       const end = toMinutes(close);
       while (start + duration <= end) {
         const slotStart = fromMinutes(start);
         const slotEnd = fromMinutes(start + duration);
-        slots.push({ time: `${slotStart}-${slotEnd}`, doughLimit });
+        slots.push({ time: `${slotStart}-${slotEnd}`, doughLimit, gfDoughLimit });
         start += duration;
       }
       // Send to backend
@@ -282,26 +290,55 @@
     async function fetchTimeSlots() {
       const listDiv = document.getElementById('timeslot-list');
       listDiv.textContent = 'Loading...';
+      const availDiv = document.getElementById('slot-availability-table');
+      availDiv.textContent = '';
       try {
         const res = await fetch('/api/timeslots');
         const slots = await res.json();
         if (!Array.isArray(slots) || slots.length === 0) {
           listDiv.textContent = 'No time slots yet.';
+          availDiv.textContent = '';
           return;
         }
         listDiv.innerHTML = `<table class="timeslot-table">
-          <thead><tr><th>Time Slot</th><th>Delivery Amount</th><th>Action</th></tr></thead>
+          <thead><tr><th>Time Slot</th><th>Normal Dough</th><th>GF Dough</th><th>Delivery Amount</th><th>Action</th></tr></thead>
           <tbody>
             ${slots.map(slot => `
               <tr>
                 <td>${slot.time}</td>
+                <td><input type="number" min="0" max="99" value="${typeof slot.doughLimit === 'number' ? slot.doughLimit : 0}" data-slot-id="${slot._id}" class="dough-input" style="width:60px;" /></td>
+                <td><input type="number" min="0" max="99" value="${typeof slot.gfDoughLimit === 'number' ? slot.gfDoughLimit : 0}" data-slot-id="${slot._id}" class="gf-dough-input" style="width:60px;" /></td>
                 <td><input type="number" min="0" max="99" value="${typeof slot.deliveryAmount === 'number' ? slot.deliveryAmount : 0}" data-slot-id="${slot._id}" class="delivery-input" style="width:60px;" /></td>
                 <td><button class="action-btn" onclick="deleteTimeSlot('${slot._id}')">Delete</button></td>
               </tr>
             `).join('')}
           </tbody>
         </table>`;
-        // Add event listeners for delivery amount inputs
+        // Add event listeners for dough inputs
+        document.querySelectorAll('.dough-input').forEach(input => {
+          input.addEventListener('change', async function() {
+            const id = this.getAttribute('data-slot-id');
+            const newVal = parseInt(this.value, 10) || 0;
+            await fetch(`/api/timeslots/${id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ doughLimit: newVal })
+            });
+          });
+        });
+        document.querySelectorAll('.gf-dough-input').forEach(input => {
+          input.addEventListener('change', async function() {
+            const id = this.getAttribute('data-slot-id');
+            const newVal = parseInt(this.value, 10) || 0;
+            await fetch(`/api/timeslots/${id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ gfDoughLimit: newVal })
+            });
+          });
+        });
         document.querySelectorAll('.delivery-input').forEach(input => {
           input.addEventListener('change', async function() {
             const id = this.getAttribute('data-slot-id');
@@ -314,23 +351,77 @@
             });
           });
         });
+
+        // --- Slot Availability Table ---
+        // Fetch today's orders to check slot usage
+        let orders = [];
+        try {
+          const ordersRes = await fetch('/api/orders');
+          orders = await ordersRes.json();
+        } catch (err) {
+          // If error, just show slots without usage
+        }
+        // Helper: get dough used per slot
+        function getSlotUsage(slot) {
+          let used = 0, gfUsed = 0;
+          orders.forEach(order => {
+            if (order.timeSlot === slot.time || (Array.isArray(order.extraSlots) && order.extraSlots.includes(slot.time))) {
+              // Count normal and GF doughs
+              if (Array.isArray(order.items)) {
+                order.items.forEach(item => {
+                  if (item.gfDoughTracked || (item.selectedSize && item.selectedSize.gfDoughTracked)) {
+                    gfUsed += item.quantity || 1;
+                  } else if (item.doughTracked || (item.selectedSize && item.selectedSize.doughTracked)) {
+                    used += item.quantity || 1;
+                  }
+                });
+              }
+            }
+          });
+          return { used, gfUsed };
+        }
+        // Render table
+        availDiv.innerHTML = `<h3>Slot Availability</h3>
+          <table class="timeslot-table">
+            <thead><tr><th>Time Slot</th><th>Status</th><th>Start</th><th>End</th><th>Normal Dough Used</th><th>GF Dough Used</th></tr></thead>
+            <tbody>
+              ${slots.map(slot => {
+                const usage = getSlotUsage(slot);
+                const isFull = (usage.used >= (slot.doughLimit || 0)) && (usage.gfUsed >= (slot.gfDoughLimit || 0));
+                const [start, end] = slot.time.split('-');
+                return `<tr>
+                  <td>${slot.time}</td>
+                  <td style="background:${isFull ? '#ffcccc' : '#e0ffe0'};font-weight:bold;">${isFull ? 'Full' : 'Available'}</td>
+                  <td>${start}</td>
+                  <td>${end}</td>
+                  <td>${usage.used} / ${slot.doughLimit || 0}</td>
+                  <td>${usage.gfUsed} / ${slot.gfDoughLimit || 0}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>`;
       } catch (err) {
         listDiv.textContent = 'Error loading time slots.';
+        availDiv.textContent = '';
       }
     }
 
     async function addTimeSlot() {
       const input = document.getElementById('timeslot-input');
-      const doughLimitInput = document.getElementById('slot-dough-limit');
+      const doughLimitInput = document.getElementById('add-dough-limit');
+      const gfDoughLimitInput = document.getElementById('add-gf-dough-limit');
       const time = input.value.trim();
       const doughLimit = parseInt(doughLimitInput.value, 10) || 0;
+      const gfDoughLimit = parseInt(gfDoughLimitInput.value, 10) || 0;
       if (!time) return;
       await fetch('/api/timeslots', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ time, doughLimit })
+        body: JSON.stringify({ time, doughLimit, gfDoughLimit })
       });
       input.value = '';
+      doughLimitInput.value = 0;
+      gfDoughLimitInput.value = 0;
       fetchTimeSlots();
     }
 
