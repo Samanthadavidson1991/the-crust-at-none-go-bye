@@ -1,3 +1,5 @@
+// ...existing code...
+// Place this block after mongoose is imported and connected, and after app/middleware setup:
 // --- Special Pizza Model ---
 const SpecialPizzaSchema = new mongoose.Schema({
   name: String,
