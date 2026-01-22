@@ -1,6 +1,4 @@
-// ...existing code...
-// Place this block after mongoose is imported and connected, and after app/middleware setup:
-// --- Special Pizza Model ---
+// --- Special Pizza Model & API (moved here after mongoose/app setup) ---
 const SpecialPizzaSchema = new mongoose.Schema({
   name: String,
   desc: String,
@@ -8,7 +6,6 @@ const SpecialPizzaSchema = new mongoose.Schema({
 }, { collection: 'special_pizza', timestamps: true });
 const SpecialPizza = mongoose.models.SpecialPizza || mongoose.model('SpecialPizza', SpecialPizzaSchema);
 
-// --- Special Pizza API ---
 app.get('/api/special-pizza', async (req, res) => {
   try {
     const pizza = await SpecialPizza.findOne().sort({ updatedAt: -1 });
