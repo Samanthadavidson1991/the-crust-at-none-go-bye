@@ -1,5 +1,6 @@
 // ...existing code...
 // --- Special Pizza Model & API (must be after mongoose/app setup) ---
+// This block must be after mongoose and app are fully initialized!
 const SpecialPizzaSchema = new mongoose.Schema({
   name: String,
   desc: String,
