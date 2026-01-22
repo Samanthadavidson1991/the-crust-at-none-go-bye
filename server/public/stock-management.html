@@ -224,9 +224,10 @@
         const loading = document.getElementById('stock-loading');
         const table = document.getElementById('stock-table');
         const tbody = document.getElementById('stock-table-body');
-        fetch('https://admin.thecrustatngb.co.uk/api/menu', { credentials: 'include' })
+        fetch('/api/menu', { credentials: 'include' })
           .then(res => res.json())
-          .then(menu => {
+          .then(menuData => {
+            const menu = Array.isArray(menuData) ? menuData : (Array.isArray(menuData.items) ? menuData.items : []);
             tbody.innerHTML = '';
             if (!menu || !Array.isArray(menu) || menu.length === 0) {
               loading.textContent = 'No menu items yet.';
