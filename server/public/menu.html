@@ -28,6 +28,7 @@
     </nav>
   </header>
   <main id="main-content">
+    <div id="special-pizza-banner" class="special-pizza-banner"></div>
     <div id="special-offers-banner" class="special-offers-banner"></div>
     <div id="selected-offer-banner" class="selected-offer-banner"></div>
     <section id="dynamic-menu">
@@ -35,6 +36,28 @@
     </section>
   </main>
   <script>
+    // --- Fetch and display special pizza banner ---
+    fetch('/api/special-pizza')
+      .then(res => res.json())
+      .then(pizza => {
+        const banner = document.getElementById('special-pizza-banner');
+        if (!banner) return;
+        if (!pizza || !pizza.name) {
+          banner.innerHTML = '';
+          banner.style.display = 'none';
+          return;
+        }
+        banner.style.display = 'block';
+        let price = pizza.price ? `£${parseFloat(pizza.price).toFixed(2)}` : '';
+        banner.innerHTML = `<div class='special-pizza-banner-inner'><b>Special Pizza:</b> <span style='font-size:1.1em'>${pizza.name}</span>${pizza.desc ? ' – ' + pizza.desc : ''}${price ? ' <b>'+price+'</b>' : ''}</div>`;
+      })
+      .catch(() => {
+        const banner = document.getElementById('special-pizza-banner');
+        if (banner) {
+          banner.innerHTML = '';
+          banner.style.display = 'none';
+        }
+      });
   // --- Add updateCartBadge stub ---
   document.addEventListener('DOMContentLoaded', function() {
     const cartBadgeBtn = document.getElementById('cart-badge-btn');
