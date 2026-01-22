@@ -138,8 +138,16 @@
         html += `<h2>${sectionName}</h2>`;
         html += `<ul class='menu-card-list'>`;
         sectionMap[sectionName].forEach(item => {
-          const isDoughTracked = !!item.doughTracked;
-          const isGFDoughTracked = !!item.gfDoughTracked;
+          // Track gluten free dough for any item with gfDoughTracked or size name containing 'gluten free'
+          let isDoughTracked = !!item.doughTracked;
+          let isGFDoughTracked = !!item.gfDoughTracked;
+          if (item.sizes && Array.isArray(item.sizes)) {
+            item.sizes.forEach(size => {
+              if (typeof size.name === 'string' && size.name.toLowerCase().includes('gluten free')) {
+                isGFDoughTracked = true;
+              }
+            });
+          }
           let outOfStock = false;
           if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
           if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
@@ -424,19 +432,31 @@
     console.log("DOMContentLoaded fired");
     console.log("Fetching menu data...");
     try {
-      const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes] = await Promise.all([
+      const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes, toppingStockRes] = await Promise.all([
         fetch('/api/menu'),
         fetch('/api/sections'),
         fetch('/api/master-toppings'),
-        fetch('/api/section-topping-assignments')
+        fetch('/api/section-topping-assignments'),
+        fetch('/api/pizza-topping-stock')
       ]);
       const menuData = await menuRes.json();
       const sectionsData = await sectionsRes.json();
       const masterToppingsData = await masterToppingsRes.json();
       const sectionAssignmentsData = await sectionAssignmentsRes.json();
+      const toppingStockData = await toppingStockRes.json();
       const doughStock = null;
       const gfDoughStock = null;
-      console.log("Menu data:", menuData);
+      // Build out-of-stock topping set
+      const toppingStock = Array.isArray(toppingStockData) ? toppingStockData : (Array.isArray(toppingStockData.toppings) ? toppingStockData.toppings : []);
+      const outOfStockToppings = new Set(toppingStock.filter(t => t.stock === 0).map(t => t.name));
+      // Filter menu items: hide any item with a topping in outOfStockToppings
+      if (menuData.items && Array.isArray(menuData.items)) {
+        menuData.items = menuData.items.filter(item => {
+          if (!item.toppings || !Array.isArray(item.toppings) || item.toppings.length === 0) return true;
+          return !item.toppings.some(t => outOfStockToppings.has(t));
+        });
+      }
+      console.log("Menu data (filtered):", menuData);
       renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock);
       const menuContent = document.getElementById('menu-content');
       if (menuContent) menuContent.classList.remove('d-none');
