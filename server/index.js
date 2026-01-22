@@ -1,36 +1,5 @@
 // ...existing code...
-// --- Special Pizza Model & API (must be after mongoose/app setup) ---
-// This block must be after mongoose and app are fully initialized!
-const SpecialPizzaSchema = new mongoose.Schema({
-  name: String,
-  desc: String,
-  price: Number
-}, { collection: 'special_pizza', timestamps: true });
-const SpecialPizza = mongoose.models.SpecialPizza || mongoose.model('SpecialPizza', SpecialPizzaSchema);
-
-app.get('/api/special-pizza', async (req, res) => {
-  try {
-    const pizza = await SpecialPizza.findOne().sort({ updatedAt: -1 });
-    res.json(pizza || {});
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch special pizza', details: err.message });
-  }
-});
-app.post('/api/special-pizza', async (req, res) => {
-  try {
-    const { name, desc, price } = req.body;
-    if (!name) return res.status(400).json({ error: 'Name required' });
-    let pizza = await SpecialPizza.findOne();
-    if (!pizza) pizza = new SpecialPizza();
-    pizza.name = name;
-    pizza.desc = desc;
-    pizza.price = price;
-    await pizza.save();
-    res.json({ success: true, pizza });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to save special pizza', details: err.message });
-  }
-});
+// ...existing code...
 // --- Takings History API ---
 // (Moved below app initialization)
 // --- Daily Archive and Reset Job ---
