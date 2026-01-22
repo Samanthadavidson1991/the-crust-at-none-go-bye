@@ -556,6 +556,79 @@ mongoose.connect(atlasUri)
         if (diffMins > 0) {
           req.body.status = 'Pending Approval';
         }
+
+        // --- NEW LOGIC: Assign order to multiple slots if needed ---
+        // Calculate dough required
+        // normalCount and gfCount already calculated above
+        // Find all slots for the given date, sorted by time
+        const Timeslot = mongoose.models.Timeslot || mongoose.model('Timeslot');
+        const allSlots = await Timeslot.find({ time: { $regex: /^\d{2}:\d{2}/ } }).sort({ time: 1 });
+        // Get all orders for the same date
+        const Order = mongoose.models.Order || mongoose.model('Order');
+        const existingOrders = await Order.find({ date });
+        // Build a map of slot usage
+        const slotUsage = {};
+        for (const slot of allSlots) {
+          slotUsage[slot.time] = { normal: 0, gf: 0 };
+        }
+        for (const order of existingOrders) {
+          const slots = [order.timeSlot].concat(order.extraSlots || []);
+          let n = 0, g = 0;
+          if (Array.isArray(order.items)) {
+            for (const item of order.items) {
+              if (item.glutenFree) g += item.quantity || 1;
+              else n += item.quantity || 1;
+            }
+          }
+          for (const st of slots) {
+            if (slotUsage[st]) {
+              slotUsage[st].normal += n;
+              slotUsage[st].gf += g;
+            }
+          }
+        }
+        // Find index of requested slot
+        const slotIdx = allSlots.findIndex(s => s.time === timeSlot);
+        if (slotIdx === -1) {
+          return res.status(400).json({ error: 'Requested time slot not found.' });
+        }
+        // Try to fit order into consecutive slots, skipping blocks with occupied slots
+        let found = false;
+        let slotsNeeded = [];
+        for (let startIdx = slotIdx; startIdx <= allSlots.length - 1; startIdx++) {
+          let normalLeft = normalCount;
+          let gfLeft = gfCount;
+          let block = [];
+          let idx = startIdx;
+          while ((normalLeft > 0 || gfLeft > 0) && idx < allSlots.length) {
+            const slot = allSlots[idx];
+            const usage = slotUsage[slot.time];
+            let totalCanFit = Math.max(0, slot.doughLimit - (usage.normal + usage.gf));
+            let totalNeeded = normalLeft + gfLeft;
+            let used = Math.min(totalNeeded, totalCanFit);
+            if (totalCanFit === 0) {
+              // Blocked, break and try next block
+              break;
+            }
+            block.push(slot.time);
+            let usedFromNormal = Math.min(normalLeft, used);
+            let usedFromGF = used - usedFromNormal;
+            normalLeft -= usedFromNormal;
+            gfLeft -= usedFromGF;
+            idx++;
+          }
+          if (normalLeft <= 0 && gfLeft <= 0) {
+            slotsNeeded = block;
+            found = true;
+            break;
+          }
+        }
+        if (!found || slotsNeeded.length === 0) {
+          return res.status(400).json({ error: 'Not enough consecutive, unoccupied slots to fulfill order.' });
+        }
+        // Assign order to all needed slots (set timeSlot to first slot, and add extraSlots field)
+        req.body.timeSlot = slotsNeeded[0];
+        req.body.extraSlots = slotsNeeded.slice(1);
         // --- EXISTING LOGIC: Price assignment, dough decrement, save order ---
         console.log('[ORDER DEBUG] Incoming paymentType:', req.body.paymentType);
         const MenuItem = require('./menu-item.model');
@@ -690,7 +763,7 @@ mongoose.connect(atlasUri)
           // --- Timeslot Model ---
           const TimeslotSchema = new mongoose.Schema({
             time: String,
-            doughLimit: { type: Number, default: 0 },
+            doughLimit: { type: Number, default: 0 }, // total dough (normal + gluten free)
             deliveryAmount: { type: Number, default: 0 }
           }, { collection: 'timeslots' });
           const Timeslot = mongoose.models.Timeslot || mongoose.model('Timeslot', TimeslotSchema);
@@ -744,7 +817,11 @@ mongoose.connect(atlasUri)
           });
           app.post('/api/timeslots', async (req, res) => {
             try {
-              const slot = new Timeslot(req.body);
+              // Accept only doughLimit
+              const slot = new Timeslot({
+                ...req.body,
+                doughLimit: typeof req.body.doughLimit === 'number' ? req.body.doughLimit : 0
+              });
               await slot.save();
               res.json({ success: true, slot });
             } catch (err) {
@@ -753,7 +830,12 @@ mongoose.connect(atlasUri)
           });
           app.patch('/api/timeslots/:id', async (req, res) => {
             try {
-              const slot = await Timeslot.findByIdAndUpdate(req.params.id, req.body, { new: true });
+              // Accept only doughLimit
+              const update = {
+                ...req.body,
+                ...(req.body.doughLimit !== undefined ? { doughLimit: req.body.doughLimit } : {})
+              };
+              const slot = await Timeslot.findByIdAndUpdate(req.params.id, update, { new: true });
               res.json({ success: true, slot });
             } catch (err) {
               res.status(500).json({ error: 'Failed to update timeslot', details: err.message });
@@ -773,8 +855,12 @@ mongoose.connect(atlasUri)
               if (!Array.isArray(slots)) return res.status(400).json({ error: 'Slots must be an array' });
               // Remove all existing timeslots
               await Timeslot.deleteMany({});
-              // Insert new slots
-              const created = await Timeslot.insertMany(slots);
+              // Insert new slots, ensure only doughLimit is present
+              const slotsUnified = slots.map(slot => ({
+                ...slot,
+                doughLimit: typeof slot.doughLimit === 'number' ? slot.doughLimit : 0
+              }));
+              const created = await Timeslot.insertMany(slotsUnified);
               res.json({ success: true, slots: created });
             } catch (err) {
               res.status(500).json({ error: 'Failed to batch update timeslots', details: err.message });
