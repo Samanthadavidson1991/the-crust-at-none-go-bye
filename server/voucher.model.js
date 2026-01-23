@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const voucherSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
   offer: { type: mongoose.Schema.Types.ObjectId, ref: 'SpecialOffer' },
+  name: { type: String }, // Custom recipient or customer name
   createdAt: { type: Date, default: Date.now },
   expiresAt: { type: Date },
   used: { type: Boolean, default: false },

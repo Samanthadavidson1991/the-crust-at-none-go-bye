@@ -23,6 +23,7 @@ const orderSchema = new mongoose.Schema({
     }
   ],
   timeSlot: String,
+  extraSlots: [String],
   status: { type: String, default: 'Pending' },
   createdAt: { type: Date, default: Date.now }
 });

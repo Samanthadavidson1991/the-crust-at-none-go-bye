@@ -46,145 +46,7 @@ require('./topping.model');
 require('./section.model');
 // ...existing code...
 
-// Place after app and middleware setup
-// --- Hide/Show Menu Item ---
-// (Moved here to avoid ReferenceError)
-// Admin authentication check endpoint
-const path = require('path');
-require('dotenv').config();
-
-// --- REFUND ENDPOINT ---
-// (Moved below app initialization)
-// ...existing code...
-
-
-
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const app = express();
-app.use(express.json());
-// --- TEST ENDPOINT ---
-app.get('/api/test', (req, res) => {
-  res.json({ ok: true, message: 'Backend is running' });
-});
-if (!process.env.PORT) {
-  throw new Error('PORT environment variable is required. This app must be run with process.env.PORT set (e.g., by Render).');
-}
-
-const PORT = process.env.PORT;
-console.log('ADMIN_DASHBOARD:', process.env.ADMIN_DASHBOARD);
-
-
-// Removed default CORS to avoid conflicts. Only use configured CORS after session setup.
-// Parse JSON request bodies
-// ...existing code...
-const dbUser = process.env.MONGO_ATLAS_USERNAME;
-const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
-const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
-
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme123';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'supersecretkey';
-console.log('Connecting to MongoDB...');
-
-mongoose.connect(atlasUri)
-  .then(() => {
-    console.log('MongoDB connected!');
-    // MongoDB connected, now initialize session store
-
-    // Session middleware must come first
-    app.use(session({
-      secret: SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-      store: MongoStore.create({
-        mongoUrl: atlasUri,
-        collectionName: 'sessions',
-        ttl: 60 * 60 * 24, // 1 day
-      }),
-      cookie: {
-        httpOnly: true,
-        sameSite: 'none',
-        secure: true,
-        // domain property removed for Render compatibility
-      }
-    }));
-    // CORS with credentials for cross-origin cookies
-    const allowedOrigins = [
-      'https://the-crust-at-none-go-bye-admin.onrender.com',
-      'https://admin.thecrustatngb.co.uk',
-      'https://thecrustatngb.co.uk'
-    ];
-    app.use(cors({
-      origin: function(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      credentials: true
-    }));
-    app.use(express.json());
-
-    // --- Local Menu API for Admin Tools ---
-    const MenuItem = require('./menu-item.model');
-    app.get('/api/menu', async (req, res) => {
-      try {
-        const menu = await MenuItem.find({});
-        res.json({ items: menu });
-      } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch menu', details: err.message });
-      }
-    });
-    // --- ROUTES ---
-    // Register vouchers API
-    const vouchersRouter = require('./vouchers');
-    app.use('/api/vouchers', vouchersRouter);
-    // Serve admin-menu.html at / for any admin domain BEFORE static middleware
-    app.get('/', (req, res, next) => {
-      const host = (req.headers.host || req.hostname || '').toLowerCase();
-      console.log("[GET /] Host header:", host);
-      // Match any host containing both 'admin' and ('thecrust' or 'none-go-bye')
-      if (
-        host.includes('admin') &&
-        (host.includes('thecrust') || host.includes('none-go-bye'))
-      ) {
-        // Protect admin homepage with login
-        requireAdminAuth(req, res, () => {
-          res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
-        });
-      } else {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-      }
-    });
-  const selectedMenuSetsRouter = require('./selected-menu-sets');
-  app.use('/api/selected-menu-sets', selectedMenuSetsRouter);
-    // Helper: Admin authentication middleware
-    function requireAdminAuth(req, res, next) {
-      if (req.session && req.session.isAdmin) return next();
-        // Redirect to login.html if not authenticated
-        res.redirect('/login.html');
-    }
-    // Static file serving and HTML routes
-    app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
-    app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
-    app.use('/admin-order-toast.js', express.static(path.join(__dirname, 'public', 'admin-order-toast.js')));
-    app.use(express.static(path.join(__dirname, 'public')));
-    app.get('/index.html', (req, res) => {
-      const host = req.hostname || req.headers.host;
-      console.log("[GET /index.html] Hostname:", req.hostname, "Host header:", req.headers.host);
-      if (host && host.toLowerCase().startsWith('admin.')) {
-        // Block index.html for admin subdomain
-        res.redirect('/admin-menu.html');
-      } else {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-      }
-    });
+// The above endpoints and middleware must be moved after app and mongoose are initialized.
     app.get('/menu.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'menu.html'));
     });
@@ -467,7 +329,7 @@ mongoose.connect(atlasUri)
       }
     });
 
-    const Order = require('./order.model');
+    // const Order = require('./order.model');
     app.get('/api/orders', async (req, res) => {
       try {
         let filter = {};
@@ -883,92 +745,95 @@ mongoose.connect(atlasUri)
               res.status(500).json({ error: 'Failed to batch update timeslots', details: err.message });
             }
           });
+
       console.log(`Server running on port ${PORT}`);
     });
-  });
 
-const DoughStock = require('./dough-stock.model');
 
-// --- Dough Stock API ---
-app.get('/api/dough-stock', async (req, res) => {
-  try {
-    let doc = await DoughStock.findOne({ type: 'normal' });
-    if (!doc) doc = await DoughStock.create({ type: 'normal', stock: 0, outOfStock: false });
-    console.log('[GET /api/dough-stock] Returning:', doc);
-    res.json({ stock: doc.stock, outOfStock: doc.outOfStock });
-  } catch (err) {
-    console.error('[GET /api/dough-stock] Error:', err);
-    res.status(500).json({ error: 'Failed to fetch dough stock', details: err.message });
-  }
-});
-app.post('/api/dough-stock', async (req, res) => {
-  try {
-    const { stock } = req.body;
-    console.log('[POST /api/dough-stock] Received stock:', stock);
-    let doc = await DoughStock.findOneAndUpdate(
-      { type: 'normal' },
-      { stock, outOfStock: stock <= 0 },
-      { new: true, upsert: true }
-    );
-    console.log('[POST /api/dough-stock] Updated doc:', doc);
-    res.json({ success: true, stock: doc.stock, outOfStock: doc.outOfStock });
-  } catch (err) {
-    console.error('[POST /api/dough-stock] Error:', err);
-    res.status(500).json({ error: 'Failed to update dough stock', details: err.message });
-  }
-});
-app.get('/api/gf-dough-stock', async (req, res) => {
-  try {
-    let doc = await DoughStock.findOne({ type: 'gf' });
-    if (!doc) doc = await DoughStock.create({ type: 'gf', stock: 0, outOfStock: false });
-    res.json({ stock: doc.stock, outOfStock: doc.outOfStock });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch GF dough stock', details: err.message });
-  }
-});
-app.post('/api/gf-dough-stock', async (req, res) => {
-  try {
-    const { stock } = req.body;
-    let doc = await DoughStock.findOneAndUpdate(
-      { type: 'gf' },
-      { stock, outOfStock: stock <= 0 },
-      { new: true, upsert: true }
-    );
-    res.json({ success: true, stock: doc.stock, outOfStock: doc.outOfStock });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update GF dough stock', details: err.message });
-  }
-});
+    // --- Dough Stock API ---
+    const DoughStock = require('./dough-stock.model');
+    app.get('/api/dough-stock', async (req, res) => {
+      try {
+        let doc = await DoughStock.findOne({ type: 'normal' });
+        if (!doc) doc = await DoughStock.create({ type: 'normal', stock: 0, outOfStock: false });
+        console.log('[GET /api/dough-stock] Returning:', doc);
+        res.json({ stock: doc.stock, outOfStock: doc.outOfStock });
+      } catch (err) {
+        console.error('[GET /api/dough-stock] Error:', err);
+        res.status(500).json({ error: 'Failed to fetch dough stock', details: err.message });
+      }
+    });
+    app.post('/api/dough-stock', async (req, res) => {
+      try {
+        const { stock } = req.body;
+        console.log('[POST /api/dough-stock] Received stock:', stock);
+        let doc = await DoughStock.findOneAndUpdate(
+          { type: 'normal' },
+          { stock, outOfStock: stock <= 0 },
+          { new: true, upsert: true }
+        );
+        console.log('[POST /api/dough-stock] Updated doc:', doc);
+        res.json({ success: true, stock: doc.stock, outOfStock: doc.outOfStock });
+      } catch (err) {
+        console.error('[POST /api/dough-stock] Error:', err);
+        res.status(500).json({ error: 'Failed to update dough stock', details: err.message });
+      }
+    });
+    app.get('/api/gf-dough-stock', async (req, res) => {
+      try {
+        let doc = await DoughStock.findOne({ type: 'gf' });
+        if (!doc) doc = await DoughStock.create({ type: 'gf', stock: 0, outOfStock: false });
+        res.json({ stock: doc.stock, outOfStock: doc.outOfStock });
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch GF dough stock', details: err.message });
+      }
+    });
+    app.post('/api/gf-dough-stock', async (req, res) => {
+      try {
+        const { stock } = req.body;
+        let doc = await DoughStock.findOneAndUpdate(
+          { type: 'gf' },
+          { stock, outOfStock: stock <= 0 },
+          { new: true, upsert: true }
+        );
+        res.json({ success: true, stock: doc.stock, outOfStock: doc.outOfStock });
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to update GF dough stock', details: err.message });
+      }
+    });
 
-// --- Hide/Show Menu Item ---
-app.patch('/api/menu/:name/hide', async (req, res) => {
-  try {
-    const { hidden } = req.body;
-    const item = await MenuItem.findOneAndUpdate(
-      { name: req.params.name },
-      { hidden: !!hidden },
-      { new: true }
-    );
-    if (!item) return res.status(404).json({ error: 'Menu item not found' });
-    res.json({ success: true, hidden: item.hidden });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update hidden status', details: err.message });
-  }
-});
+    // --- Hide/Show Menu Item ---
+    app.patch('/api/menu/:name/hide', async (req, res) => {
+      try {
+        const { hidden } = req.body;
+        const item = await MenuItem.findOneAndUpdate(
+          { name: req.params.name },
+          { hidden: !!hidden },
+          { new: true }
+        );
+        if (!item) return res.status(404).json({ error: 'Menu item not found' });
+        res.json({ success: true, hidden: item.hidden });
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to update hidden status', details: err.message });
+      }
+    });
 
-// --- PATCH order status endpoint ---
-// (Placed after all app and middleware setup to avoid ReferenceError)
-app.patch('/api/orders/:orderId', async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const { status } = req.body;
-    if (!status) return res.status(400).json({ error: 'Status is required' });
-    // Update order status in MongoDB
-    const Order = require('./order.model');
-    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json({ success: true, status: order.status });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update order status', details: err.message });
-  }
-});
+    // --- PATCH order status endpoint ---
+    // (Placed after all app and middleware setup to avoid ReferenceError)
+    app.patch('/api/orders/:orderId', async (req, res) => {
+      try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+        if (!status) return res.status(400).json({ error: 'Status is required' });
+        // Update order status in MongoDB
+        // const Order = require('./order.model');
+        const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        res.json({ success: true, status: order.status });
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to update order status', details: err.message });
+      }
+    });
+
+// End of API and server setup
+module.exports = app;

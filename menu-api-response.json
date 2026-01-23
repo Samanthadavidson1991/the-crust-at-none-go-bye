@@ -1,0 +1,28 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"items":[{"_id":"69696bb2e1ebad21781451dc","name":"FARM
+                    HOUSE FEAST","section":"PIZZA'S","toppings":["ham","baco
+                    n"],"sizes":[{"name":"12in","price":10.95}],"sideOptions
+                    ":[],"showsToppings":false,"__v"...
+RawContent        : HTTP/1.1 200 OK
+                    Vary: Origin
+                    Access-Control-Allow-Credentials: true
+                    Connection: keep-alive
+                    Keep-Alive: timeout=5
+                    Content-Length: 545
+                    Cache-Control: no-store
+                    Content-Type: application/json; char...
+Forms             : {}
+Headers           : {[Vary, Origin], [Access-Control-Allow-Credentials, 
+                    true], [Connection, keep-alive], [Keep-Alive, 
+                    timeout=5]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 545
+
+
+

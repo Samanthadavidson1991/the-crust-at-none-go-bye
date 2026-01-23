@@ -1,0 +1,28 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"toppings":[{"_id":"6966cf8aa0c19f44b7d1b555","name":"M
+                    USHROOMS","category":"Veg","__v":0},{"_id":"6966cf95a0c1
+                    9f44b7d1b559","name":"ham","category":"Meat","__v":0},{"
+                    _id":"6966cfa5a0c19f44b7d1b55d",...
+RawContent        : HTTP/1.1 200 OK
+                    Vary: Origin
+                    Access-Control-Allow-Credentials: true
+                    Connection: keep-alive
+                    Keep-Alive: timeout=5
+                    Content-Length: 352
+                    Content-Type: application/json; charset=utf-8
+                    Date: Thu, 15 ...
+Forms             : {}
+Headers           : {[Vary, Origin], [Access-Control-Allow-Credentials, 
+                    true], [Connection, keep-alive], [Keep-Alive, 
+                    timeout=5]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 352
+
+
+
