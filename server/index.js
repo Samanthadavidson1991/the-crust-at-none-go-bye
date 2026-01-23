@@ -1,5 +1,10 @@
 const express = require('express');
 const app = express();
+// Admin authentication middleware
+function requireAdminAuth(req, res, next) {
+  if (req.session && req.session.isAdmin) return next();
+  res.status(401).json({ error: 'Not authenticated' });
+}
 // ...existing code...
 // ...existing code...
 // --- Takings History API ---
