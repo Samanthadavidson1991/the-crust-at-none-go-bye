@@ -532,15 +532,46 @@ document.addEventListener('DOMContentLoaded', () => {
                                     return;
                                 }
                                 let html = '<ul style="list-style:none;padding-left:0;">';
-                                sections.forEach(sec => {
+                                sections.forEach((sec, idx) => {
                                     html += `<li style="margin-bottom:6px;">`
                                         + `<b>${sec.name}</b> `
+                                        + `<button data-id="${sec._id}" class="move-section-up-btn" ${idx === 0 ? 'disabled' : ''}>↑</button> `
+                                        + `<button data-id="${sec._id}" class="move-section-down-btn" ${idx === sections.length - 1 ? 'disabled' : ''}>↓</button> `
                                         + `<button data-id="${sec._id}" class="delete-section-btn" style="color:red;">Delete</button>`
                                         + `</li>`;
                                 });
                                 html += '</ul>';
                                 sectionsListDiv.innerHTML = html;
 
+                                // Attach move up/down handlers
+                                document.querySelectorAll('.move-section-up-btn').forEach(btn => {
+                                    btn.onclick = async function() {
+                                        const id = btn.getAttribute('data-id');
+                                        const idx = sections.findIndex(s => s._id === id);
+                                        if (idx > 0) {
+                                            // Swap order with previous
+                                            const prev = sections[idx - 1];
+                                            const curr = sections[idx];
+                                            await updateSectionOrder([ { id: prev._id, order: idx }, { id: curr._id, order: idx - 1 } ]);
+                                            await renderSectionsList();
+                                            await populateSectionDropdown();
+                                        }
+                                    };
+                                });
+                                document.querySelectorAll('.move-section-down-btn').forEach(btn => {
+                                    btn.onclick = async function() {
+                                        const id = btn.getAttribute('data-id');
+                                        const idx = sections.findIndex(s => s._id === id);
+                                        if (idx < sections.length - 1) {
+                                            // Swap order with next
+                                            const next = sections[idx + 1];
+                                            const curr = sections[idx];
+                                            await updateSectionOrder([ { id: next._id, order: idx }, { id: curr._id, order: idx + 1 } ]);
+                                            await renderSectionsList();
+                                            await populateSectionDropdown();
+                                        }
+                                    };
+                                });
                                 // Attach delete handlers
                                 document.querySelectorAll('.delete-section-btn').forEach(btn => {
                                     btn.onclick = async function() {
@@ -556,6 +587,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                         }
                                     };
                                 });
+
+                                // Helper to update section order
+                                async function updateSectionOrder(updates) {
+                                    for (const u of updates) {
+                                        await fetch(`/api/sections/${u.id}/order`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ order: u.order })
+                                        });
+                                    }
+                                }
                             } catch (err) {
                                 sectionsListDiv.innerHTML = `<span style="color:red;">Error loading sections: ${err.message}</span>`;
                             }
