@@ -227,14 +227,21 @@ document.addEventListener('DOMContentLoaded', () => {
                                             const data = await res.json();
                                             const item = (data.items || []).find(i => i._id === id);
                                             if (!item) return alert('Menu item not found');
-                                            // Show a simple prompt for name edit (can be expanded)
+                                            // Prompt for name
                                             const newName = prompt('Edit pizza name:', item.name);
-                                            if (newName && newName !== item.name) {
-                                                // Send update
+                                            if (!newName) return;
+                                            // Prompt for toppings (comma-separated)
+                                            const newToppingsStr = prompt('Edit toppings (comma-separated):', (item.toppings || []).join(", "));
+                                            let newToppings = item.toppings;
+                                            if (newToppingsStr !== null) {
+                                                newToppings = newToppingsStr.split(',').map(t => t.trim()).filter(Boolean);
+                                            }
+                                            // Only update if changed
+                                            if (newName !== item.name || JSON.stringify(newToppings) !== JSON.stringify(item.toppings)) {
                                                 const updateRes = await fetch(`/api/menu`, {
                                                     method: 'PUT',
                                                     headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ ...item, name: newName })
+                                                    body: JSON.stringify({ ...item, name: newName, toppings: newToppings })
                                                 });
                                                 if (!updateRes.ok) throw new Error('Failed to update');
                                                 fetchAndRenderAdminMenuPreview();
