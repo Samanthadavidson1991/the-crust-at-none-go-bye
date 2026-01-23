@@ -1,17 +1,4 @@
-// PATCH endpoint to update section order
-app.patch('/api/sections/:id/order', async (req, res) => {
-  try {
-    const { order } = req.body;
-    const section = await Section.findByIdAndUpdate(
-      req.params.id,
-      { $set: { order } },
-      { new: true }
-    );
-    res.json({ success: true, section });
-  } catch (err) {
-    res.status(400).json({ error: 'Failed to update section order', details: err.message });
-  }
-});
+// ...existing code...
 // ...existing code...
 // ...existing code...
 // --- Takings History API ---
@@ -301,6 +288,20 @@ mongoose.connect(atlasUri)
     app.use('/api/offers', require('./offers'));
 
     // Section endpoints
+    // PATCH endpoint to update section order
+    app.patch('/api/sections/:id/order', async (req, res) => {
+      try {
+        const { order } = req.body;
+        const section = await Section.findByIdAndUpdate(
+          req.params.id,
+          { $set: { order } },
+          { new: true }
+        );
+        res.json({ success: true, section });
+      } catch (err) {
+        res.status(400).json({ error: 'Failed to update section order', details: err.message });
+      }
+    });
     app.get('/api/sections', async (req, res) => {
       try {
         const sections = await Section.find({}).sort({ order: 1 }).populate('toppings');
