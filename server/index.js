@@ -5,6 +5,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
+const PORT = process.env.PORT || 3000;
 // Helper: Admin authentication middleware
 function requireAdminAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
