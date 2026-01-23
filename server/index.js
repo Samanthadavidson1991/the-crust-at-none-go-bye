@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const PORT = process.env.PORT || 3000;
 // Admin authentication middleware
 function requireAdminAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
