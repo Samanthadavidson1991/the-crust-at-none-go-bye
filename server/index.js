@@ -1,16 +1,7 @@
-// ...existing code...
-// ...existing code...
-// ...existing code...
 const express = require('express');
 const app = express();
-const path = require('path');
-const mongoose = require('mongoose');
-const PORT = process.env.PORT || 3000;
-// Helper: Admin authentication middleware
-function requireAdminAuth(req, res, next) {
-  if (req.session && req.session.isAdmin) return next();
-  res.status(401).json({ error: 'Not authenticated' });
-}
+// ...existing code...
+// ...existing code...
 // --- Takings History API ---
 // (Moved below app initialization)
 // --- Daily Archive and Reset Job ---
