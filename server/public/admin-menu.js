@@ -75,8 +75,12 @@
                     // Find the index in masterToppings for delete
                     const realIdx = masterToppings.findIndex(t => t.name === topping.name && t.category === topping.category);
                     html += `<li style="margin-bottom:6px;">`
-                        + `<b>${topping.name}</b> `
-                        + `<button data-idx="${realIdx}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
+                        + `<b>${topping.name}</b> `;
+                    if (cat === 'Other') {
+                        html += ` Price: <input type='number' class='edit-other-topping-price' data-name='${topping.name}' value='${topping.price !== undefined ? topping.price : 0}' step='0.01' min='0' style='width:60px;'>`;
+                        html += ` <button data-name='${topping.name}' class='save-other-topping-price-btn' style='color:green;'>Save Price</button> `;
+                    }
+                    html += `<button data-idx="${realIdx}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
                         + `</li>`;
                 });
                 html += '</ul>';
@@ -91,6 +95,25 @@
                 const idx = parseInt(btn.getAttribute('data-idx'));
                 masterToppings.splice(idx, 1);
                 renderMasterToppingsList();
+            };
+        });
+        // Save price for 'Other' toppings
+        document.querySelectorAll('.save-other-topping-price-btn').forEach(btn => {
+            btn.onclick = async function() {
+                const name = btn.getAttribute('data-name');
+                const input = document.querySelector(`.edit-other-topping-price[data-name='${name}']`);
+                const price = parseFloat(input.value) || 0;
+                try {
+                    const res = await fetch('/api/master-toppings/update-price', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, price })
+                    });
+                    if (!res.ok) throw new Error('Failed to save price');
+                    await loadMasterToppingsAndPrices();
+                } catch (err) {
+                    alert('Error saving price: ' + err.message);
+                }
             };
         });
     }

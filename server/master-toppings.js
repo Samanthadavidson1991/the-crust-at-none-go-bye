@@ -1,3 +1,17 @@
+// Update price for an 'Other' master topping by name
+router.post('/update-price', async (req, res) => {
+  const { name, price } = req.body;
+  if (!name || typeof price !== 'number') {
+    return res.status(400).json({ error: 'Name and price required' });
+  }
+  const topping = await MasterTopping.findOne({ name, category: 'Other' });
+  if (!topping) {
+    return res.status(404).json({ error: 'Topping not found' });
+  }
+  topping.price = price;
+  await topping.save();
+  res.json({ success: true, topping });
+});
 const express = require('express');
 const router = express.Router();
 const { MasterTopping, MasterToppingSettings } = require('./master-topping.model');
