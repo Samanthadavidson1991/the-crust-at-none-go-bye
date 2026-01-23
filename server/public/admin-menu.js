@@ -394,7 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionSelect = document.getElementById('pizza-section-select');
 
     // Populate section dropdown
-    async function populatePizzaSectionDropdown() {
+
+    // Make section dropdown population function global for all handlers
+    window.populateSectionDropdown = async function populateSectionDropdown() {
         try {
             const res = await fetch('/api/sections');
             const data = await res.json();
@@ -410,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sectionSelect.innerHTML = '<option value="Other">Other</option>';
         }
     }
-    populatePizzaSectionDropdown();
+    window.populateSectionDropdown();
 
     // Modal for size/price and toppings
     let modalBg = document.createElement('div');
