@@ -1,6 +1,10 @@
 // ...existing code...
 // ...existing code...
 // ...existing code...
+const express = require('express');
+const app = express();
+const path = require('path');
+const mongoose = require('mongoose');
 // --- Takings History API ---
 // (Moved below app initialization)
 // --- Daily Archive and Reset Job ---
