@@ -1,3 +1,9 @@
+const express = require('express');
+const router = express.Router();
+const { MasterTopping, MasterToppingSettings } = require('./master-topping.model');
+const SectionToppingAssignment = require('./section-topping-assignments.model');
+
+// Get all master toppings and settings
 // Update price for an 'Other' master topping by name
 router.post('/update-price', async (req, res) => {
   const { name, price } = req.body;
@@ -12,12 +18,6 @@ router.post('/update-price', async (req, res) => {
   await topping.save();
   res.json({ success: true, topping });
 });
-const express = require('express');
-const router = express.Router();
-const { MasterTopping, MasterToppingSettings } = require('./master-topping.model');
-const SectionToppingAssignment = require('./section-topping-assignments.model');
-
-// Get all master toppings and settings
 router.get('/', async (req, res) => {
   const toppings = await MasterTopping.find();
   let settings = await MasterToppingSettings.findOne();
