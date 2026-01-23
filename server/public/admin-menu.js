@@ -236,12 +236,18 @@ document.addEventListener('DOMContentLoaded', () => {
                                             if (newToppingsStr !== null) {
                                                 newToppings = newToppingsStr.split(',').map(t => t.trim()).filter(Boolean);
                                             }
+                                            // Prompt for description
+                                            const newDescription = prompt('Edit description:', item.description || '');
                                             // Only update if changed
-                                            if (newName !== item.name || JSON.stringify(newToppings) !== JSON.stringify(item.toppings)) {
+                                            if (
+                                                newName !== item.name ||
+                                                JSON.stringify(newToppings) !== JSON.stringify(item.toppings) ||
+                                                (newDescription !== null && newDescription !== item.description)
+                                            ) {
                                                 const updateRes = await fetch(`/api/menu`, {
                                                     method: 'PUT',
                                                     headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ ...item, name: newName, toppings: newToppings })
+                                                    body: JSON.stringify({ ...item, name: newName, toppings: newToppings, description: newDescription })
                                                 });
                                                 if (!updateRes.ok) throw new Error('Failed to update');
                                                 fetchAndRenderAdminMenuPreview();
