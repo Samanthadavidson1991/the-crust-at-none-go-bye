@@ -5,6 +5,11 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
+// Helper: Admin authentication middleware
+function requireAdminAuth(req, res, next) {
+  if (req.session && req.session.isAdmin) return next();
+  res.status(401).json({ error: 'Not authenticated' });
+}
 // --- Takings History API ---
 // (Moved below app initialization)
 // --- Daily Archive and Reset Job ---
