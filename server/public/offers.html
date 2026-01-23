@@ -334,13 +334,22 @@
         list.innerHTML = '<em>No voucher codes generated yet.</em>';
         return;
       }
-      list.innerHTML = `<table style='width:100%;border-collapse:collapse'><thead><tr><th>Code</th><th>Offer</th><th>Name</th><th>Voucher Price</th><th>Expires</th><th>Status</th></tr></thead><tbody>` +
+      list.innerHTML = `<table style='width:100%;border-collapse:collapse'><thead><tr><th>Code</th><th>Offer</th><th>Name</th><th>Voucher Price</th><th>Expires</th><th>Status</th><th>Action</th></tr></thead><tbody>` +
         vouchers.map(v => {
           let exp = v.expiresAt ? new Date(v.expiresAt).toLocaleDateString() : '-';
           let status = v.used ? `<span style='color:#b9472e'>Used</span>` : `<span style='color:#2e7d32'>Live</span>`;
           let price = v.price !== undefined && v.price !== null ? `£${parseFloat(v.price).toFixed(2)}` : '-';
-          return `<tr><td><b>${v.code}</b></td><td>${v.offer ? v.offer.title : ''}</td><td>${v.name ? v.name : ''}</td><td>${price}</td><td>${exp}</td><td>${status}</td></tr>`;
+          return `<tr><td><b>${v.code}</b></td><td>${v.offer ? v.offer.title : ''}</td><td>${v.name ? v.name : ''}</td><td>${price}</td><td>${exp}</td><td>${status}</td><td><button class='delete-voucher-btn' data-id='${v._id || v.code}' style='color:#b9472e'>Delete</button></td></tr>`;
         }).join('') + '</tbody></table>';
+      // Add event listeners for delete buttons
+      list.querySelectorAll('.delete-voucher-btn').forEach(btn => {
+        btn.onclick = async function() {
+          if (!confirm('Delete this voucher code?')) return;
+          const id = btn.getAttribute('data-id');
+          await fetch(`/api/vouchers/${id}`, { method: 'DELETE', credentials: 'include' });
+          fetchVouchers();
+        };
+      });
     }
 
     // (fetchOffers now runs on DOMContentLoaded only)

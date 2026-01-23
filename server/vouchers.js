@@ -1,3 +1,18 @@
+// Delete a voucher by ID or code
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  let result = null;
+  // Try by MongoDB _id first
+  if (id.match(/^[0-9a-fA-F]{24}$/)) {
+    result = await Voucher.findByIdAndDelete(id);
+  }
+  // If not found, try by code
+  if (!result) {
+    result = await Voucher.findOneAndDelete({ code: id });
+  }
+  if (!result) return res.status(404).json({ error: 'Voucher not found' });
+  res.json({ success: true });
+});
 // Express router for managing vouchers
 const express = require('express');
 const router = express.Router();
