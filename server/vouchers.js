@@ -1,3 +1,9 @@
+// Express router for managing vouchers
+const express = require('express');
+const router = express.Router();
+const Voucher = require('./voucher.model');
+const SpecialOffer = require('./special-offer.model');
+
 // Delete a voucher by ID or code
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
@@ -13,11 +19,6 @@ router.delete('/:id', async (req, res) => {
   if (!result) return res.status(404).json({ error: 'Voucher not found' });
   res.json({ success: true });
 });
-// Express router for managing vouchers
-const express = require('express');
-const router = express.Router();
-const Voucher = require('./voucher.model');
-const SpecialOffer = require('./special-offer.model');
 
 // Create a voucher with just a name (no offer required)
 router.post('/generate-name', async (req, res) => {
