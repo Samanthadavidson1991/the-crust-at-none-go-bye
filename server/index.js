@@ -1,6 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+
+// Session middleware setup
+const session = require('express-session');
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
 const PORT = process.env.PORT || 3000;
 // Admin authentication middleware
 function requireAdminAuth(req, res, next) {
