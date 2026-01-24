@@ -1,83 +1,84 @@
-const path = require('path');
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
-const express = require('express');
-const mongoose = require('mongoose');
 
-const app = express();
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public')));
+// --- Opening Times Model ---
+const OpeningTimesSchema = new mongoose.Schema({
+  friday: { open: String, close: String },
+  saturday: { open: String, close: String },
+  sunday: { open: String, close: String }
+}, { collection: 'opening_times' });
+const OpeningTimes = mongoose.models.OpeningTimes || mongoose.model('OpeningTimes', OpeningTimesSchema);
 
-// Session middleware setup
-const session = require('express-session');
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // Set to true if using HTTPS
-}));
-const PORT = process.env.PORT || 3000;
-// Admin authentication middleware
-function requireAdminAuth(req, res, next) {
-  if (req.session && req.session.isAdmin) return next();
-  res.status(401).json({ error: 'Not authenticated' });
-}
-// ...existing code...
-// ...existing code...
-// --- Takings History API ---
-// (Moved below app initialization)
-// --- Daily Archive and Reset Job ---
-const cron = require('node-cron');
-const Order = require('./order.model');
-const OrderHistory = require('./order-history.model');
-const TakingsHistory = require('./takings-history.model');
+// --- Delivery Distance Model ---
+const DeliveryDistanceSchema = new mongoose.Schema({ miles: Number }, { collection: 'delivery_distance' });
+const DeliveryDistance = mongoose.models.DeliveryDistance || mongoose.model('DeliveryDistance', DeliveryDistanceSchema);
 
-// Archive and reset orders and takings at midnight
-cron.schedule('0 0 * * *', async () => {
+// --- Timeslot Model ---
+const TimeslotSchema = new mongoose.Schema({
+  time: String,
+  doughLimit: { type: Number, default: 0 }, // total dough (normal + gluten free)
+  deliveryAmount: { type: Number, default: 0 }
+}, { collection: 'timeslots' });
+const Timeslot = mongoose.models.Timeslot || mongoose.model('Timeslot', TimeslotSchema);
+
+// --- Opening Times API ---
+app.get('/api/opening-times', async (req, res) => {
   try {
-    const today = new Date();
-    today.setDate(today.getDate() - 1); // Archive yesterday's data
-    const dateStr = today.toISOString().slice(0, 10);
-    // Archive orders
-    const orders = await Order.find({ createdAt: { $gte: new Date(dateStr), $lt: new Date(dateStr + 'T23:59:59.999Z') } });
-    if (orders.length) {
-      await OrderHistory.create({ date: dateStr, orders });
-      await Order.deleteMany({ createdAt: { $gte: new Date(dateStr), $lt: new Date(dateStr + 'T23:59:59.999Z') } });
-    }
-    // Archive takings (calculate from orders)
-    let takings = {};
-    let total = 0, card = 0, cash = 0, refund = 0;
-    for (const order of orders) {
-      total += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-      if (order.paymentType === 'Card') card += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-      if (order.paymentType === 'Cash') cash += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-      if (order.status === 'Refunded') refund += order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-    }
-    takings = { total, card, cash, refund };
-    await TakingsHistory.create({ date: dateStr, takings });
-    console.log(`[CRON] Archived and reset orders/takings for ${dateStr}`);
+    let doc = await OpeningTimes.findOne();
+    if (!doc) doc = await OpeningTimes.create({ friday: {}, saturday: {}, sunday: {} });
+    res.json(doc);
   } catch (err) {
-    console.error('[CRON] Failed to archive/reset orders/takings:', err);
+    res.status(500).json({ error: 'Failed to fetch opening times', details: err.message });
   }
 });
-// --- TEST ENDPOINT ---
-// ...existing code...
-// ...existing code...
-// (Moved opening-times, delivery-distance, and timeslots models & endpoints below app/mongoose init)
-// Ensure all schemas are registered before any model usage
-require('./topping.model');
-require('./section.model');
-// ...existing code...
+app.post('/api/opening-times', async (req, res) => {
+  try {
+    let doc = await OpeningTimes.findOneAndUpdate({}, req.body, { new: true, upsert: true });
+    res.json({ success: true, openingTimes: doc });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save opening times', details: err.message });
+  }
+});
 
-// The above endpoints and middleware must be moved after app and mongoose are initialized.
-    app.get('/menu.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'menu.html'));
-    });
-    app.get('/checkout.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
-    });
-    app.get('/allergens.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'allergens.html'));
+// --- Delivery Distance API ---
+app.get('/api/delivery-distance', async (req, res) => {
+  try {
+    let doc = await DeliveryDistance.findOne();
+    if (!doc) doc = await DeliveryDistance.create({ miles: 5 });
+    res.json({ miles: doc.miles });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch delivery distance', details: err.message });
+  }
+});
+app.post('/api/delivery-distance', async (req, res) => {
+  try {
+    let doc = await DeliveryDistance.findOneAndUpdate({}, req.body, { new: true, upsert: true });
+    res.json({ success: true, deliveryDistance: doc });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save delivery distance', details: err.message });
+  }
+});
+
+// --- Timeslot API ---
+app.get('/api/timeslots', async (req, res) => {
+  try {
+    const timeslots = await Timeslot.find();
+    res.json(timeslots);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch timeslots', details: err.message });
+  }
+});
+app.post('/api/timeslots', async (req, res) => {
+  try {
+    const timeslot = await Timeslot.create(req.body);
+    res.json({ success: true, timeslot });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create timeslot', details: err.message });
+  }
+});
+
+// --- Server Start Log ---
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
     });
     app.get('/offers.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'offers.html'));
