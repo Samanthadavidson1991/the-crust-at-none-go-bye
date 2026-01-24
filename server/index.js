@@ -1,7 +1,6 @@
 
-// ...existing code...
 
-// Serve index.html at root path
+// Serve index.html at root path (after app initialization)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
