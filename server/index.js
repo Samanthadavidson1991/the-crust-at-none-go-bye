@@ -1,4 +1,3 @@
-// Serve index.html at root path
 
 // ...existing code...
 
