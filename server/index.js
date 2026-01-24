@@ -3,7 +3,10 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
+
 const app = express();
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Session middleware setup
 const session = require('express-session');
