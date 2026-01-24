@@ -1,4 +1,7 @@
 
+
+// ...existing code...
+
 // --- Opening Times Model ---
 const OpeningTimesSchema = new mongoose.Schema({
   friday: { open: String, close: String },
