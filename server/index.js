@@ -1,12 +1,3 @@
-
-
-// Serve index.html at root path (after app initialization)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-
-
 const path = require('path');
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
@@ -14,7 +5,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
+
 const PORT = process.env.PORT || 3000;
+
+// Serve index.html at root path (after app initialization)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Admin authentication middleware
 function requireAdminAuth(req, res, next) {
