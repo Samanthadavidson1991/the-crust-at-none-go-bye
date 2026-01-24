@@ -92,9 +92,6 @@ app.post('/api/timeslots', async (req, res) => {
 });
 
 // --- Server Start Log ---
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
     app.get('/offers.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'offers.html'));
     });
