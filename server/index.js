@@ -7,7 +7,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
-// ...existing code...
+const app = express();
 
 // --- Opening Times Model ---
 const OpeningTimesSchema = new mongoose.Schema({
