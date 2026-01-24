@@ -1,3 +1,7 @@
+// Serve index.html at root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 
 
