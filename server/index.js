@@ -32,7 +32,18 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
 });
 
-// Serve all static files from public directory (must be after admin routes)
+
+// Root route: redirect to login page for admin subdomain
+app.get('/', (req, res) => {
+  // If already logged in as admin, go to admin menu editor
+  if (req.session && req.session.isAdmin) {
+    return res.redirect('/admin-menu.html');
+  }
+  // Otherwise, go to login page
+  return res.redirect('/login.html');
+});
+
+// Serve all static files from public directory (must be after admin and root routes)
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
