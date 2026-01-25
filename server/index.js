@@ -4,6 +4,9 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
 const MenuItem = require('./menu-item.model');
+require('./topping.model');
+require('./section.model');
+const MenuItem = require('./menu-item.model');
 const session = require('express-session');
 const app = express();
 
