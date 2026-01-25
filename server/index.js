@@ -3,6 +3,7 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
+const MenuItem = require('./menu-item.model');
 const session = require('express-session');
 const app = express();
 
@@ -45,14 +46,21 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
 });
 
 
-// Root route: redirect to login page for admin subdomain
+
+// Root route: show index.html for public, redirect to login for admin subdomain
 app.get('/', (req, res) => {
-  // If already logged in as admin, go to admin menu editor
-  if (req.session && req.session.isAdmin) {
-    return res.redirect('/admin-menu.html');
+  // Check if request is for admin subdomain (Render sets X-Forwarded-Host)
+  const host = req.headers['x-forwarded-host'] || req.headers.host || '';
+  if (host.startsWith('admin.') || host.includes('admin-')) {
+    // If already logged in as admin, go to admin menu editor
+    if (req.session && req.session.isAdmin) {
+      return res.redirect('/admin-menu.html');
+    }
+    // Otherwise, go to login page
+    return res.redirect('/login.html');
   }
-  // Otherwise, go to login page
-  return res.redirect('/login.html');
+  // For public site, serve index.html
+  return res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Serve all static files from public directory (must be after admin and root routes)
