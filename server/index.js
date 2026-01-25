@@ -3,9 +3,9 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
-const MenuItem = require('./menu-item.model');
 require('./topping.model');
 require('./section.model');
+
 const MenuItem = require('./menu-item.model');
 const session = require('express-session');
 const app = express();
@@ -586,7 +586,6 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
         req.body.extraSlots = slotsNeeded.slice(1);
         // --- EXISTING LOGIC: Price assignment, dough decrement, save order ---
         console.log('[ORDER DEBUG] Incoming paymentType:', req.body.paymentType);
-        const MenuItem = require('./menu-item.model');
         console.log('[ORDER DEBUG] Incoming order items:', JSON.stringify(req.body.items, null, 2));
         const allMenuItems = await MenuItem.find({});
         console.log('[ORDER DEBUG] All menu items:', allMenuItems.map(mi => ({ name: mi.name, sizes: mi.sizes, price: mi.price })));
