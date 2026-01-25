@@ -889,6 +889,8 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
     });
 
 // End of API and server setup
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}/`);
+  });
+}
