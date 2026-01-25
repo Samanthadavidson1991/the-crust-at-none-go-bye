@@ -6,12 +6,12 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
 
+// Serve all static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 const PORT = process.env.PORT || 3000;
 
-// Serve index.html at root path (after app initialization)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+
 
 // Admin authentication middleware
 function requireAdminAuth(req, res, next) {
@@ -95,62 +95,32 @@ app.post('/api/timeslots', async (req, res) => {
 });
 
 // --- Server Start Log ---
-    app.get('/offers.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'offers.html'));
-    });
-    app.get('/orders.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'orders.html'));
-    });
-    app.get('/sales-summary.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
-    });
-      app.get('/sales-summary.html', requireAdminAuth, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
-      });
-    app.get('/stock-management.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
-    });
-      app.get('/stock-management.html', requireAdminAuth, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
-      });
-    app.get('/takings.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'takings.html'));
-    });
-      app.get('/takings.html', requireAdminAuth, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'takings.html'));
-      });
-    app.get('/takings-totals.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
-    });
-      app.get('/takings-totals.html', requireAdminAuth, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
-      });
-    app.get('/timeslots.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
-    });
-      app.get('/timeslots.html', requireAdminAuth, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
-      });
-    app.get('/pos.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'pos.html'));
-    });
-      app.get('/pos.html', requireAdminAuth, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'pos.html'));
-      });
-    app.get('/running-orders.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
-    });
-      app.get('/running-orders.html', requireAdminAuth, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
-      });
-    // Only one route for /admin-menu.html, protected by login
-    app.get('/admin-menu.html', requireAdminAuth, (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
-    });
-    // Always allow access to /login.html
-    app.get('/login.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'login.html'));
-    });
+
+// Protect admin-only HTML pages
+app.get('/admin-menu.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+});
+app.get('/sales-summary.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
+});
+app.get('/stock-management.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
+});
+app.get('/takings.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'takings.html'));
+});
+app.get('/takings-totals.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
+});
+app.get('/timeslots.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
+});
+app.get('/pos.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pos.html'));
+});
+app.get('/running-orders.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
+});
 
     // API routes
     app.get('/api/admin/check', (req, res) => {
