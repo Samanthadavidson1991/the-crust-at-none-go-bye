@@ -878,4 +878,6 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
     });
 
 // End of API and server setup
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
+});
