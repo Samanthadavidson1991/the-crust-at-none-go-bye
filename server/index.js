@@ -6,8 +6,17 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
 
+
 // Enable JSON body parsing for API requests
 app.use(express.json());
+
+// Enable session support for admin authentication
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'changeme',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set to true if using HTTPS only
+}));
 
 // Protect admin-only HTML pages (must be before express.static)
 app.get('/admin-menu.html', requireAdminAuth, (req, res) => {
