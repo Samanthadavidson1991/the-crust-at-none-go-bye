@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
 
+// Enable JSON body parsing for API requests
+app.use(express.json());
+
 // Protect admin-only HTML pages (must be before express.static)
 app.get('/admin-menu.html', requireAdminAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
