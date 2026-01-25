@@ -42,7 +42,14 @@ const PORT = process.env.PORT || 3000;
 // Admin authentication middleware
 function requireAdminAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
-  res.status(401).json({ error: 'Not authenticated' });
+  // Serve a custom 401 page if it exists, otherwise send a simple message
+  const unauthorizedPath = path.join(__dirname, 'public', '401.html');
+  const fs = require('fs');
+  if (fs.existsSync(unauthorizedPath)) {
+    res.status(401).sendFile(unauthorizedPath);
+  } else {
+    res.status(401).send('<h1>401 Unauthorized</h1><p>You must be logged in as admin to access this page.</p>');
+  }
 }
 // --- Opening Times Model ---
 const OpeningTimesSchema = new mongoose.Schema({
