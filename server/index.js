@@ -6,7 +6,33 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const app = express();
 
-// Serve all static files from public directory
+// Protect admin-only HTML pages (must be before express.static)
+app.get('/admin-menu.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
+});
+app.get('/sales-summary.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sales-summary.html'));
+});
+app.get('/stock-management.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'stock-management.html'));
+});
+app.get('/takings.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'takings.html'));
+});
+app.get('/takings-totals.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'takings-totals.html'));
+});
+app.get('/timeslots.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'timeslots.html'));
+});
+app.get('/pos.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pos.html'));
+});
+app.get('/running-orders.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'running-orders.html'));
+});
+
+// Serve all static files from public directory (must be after admin routes)
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
