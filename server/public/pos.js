@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fetch toppings from backend (reuse /api/master-toppings or similar)
   async function loadToppings() {
     try {
-      const res = await fetch('/api/master-toppings');
+      // Use full backend URL for topping stock
+      const backendBase = 'https://the-crust-at-none-go-bye-admin.onrender.com';
+      const res = await fetch(backendBase + '/api/pizza-topping-stock', { credentials: 'include' });
       const data = await res.json();
       availableToppings = (data.toppings || []).map(t => t.name);
       renderToppingsList();
