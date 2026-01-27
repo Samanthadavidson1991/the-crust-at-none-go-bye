@@ -52,7 +52,7 @@
             });
             sizeDropdown.innerHTML = '<option value="">(None)</option>';
 
-            // Blocked items checklist
+            // Blocked items checklist and extra price UI
             let blockDiv = document.getElementById(`block-items-div-${i}`);
             if (!blockDiv) {
               blockDiv = document.createElement('div');
@@ -64,13 +64,19 @@
               blockDiv.innerHTML = '';
               return;
             }
-            blockDiv.innerHTML = '<b>Block these items from offer:</b><br>';
+            // Section-wide extra price input
+            blockDiv.innerHTML = `<b>Block these items from offer:</b><br>
+              <label style='display:inline-block;margin-bottom:8px;'>
+                <span style='color:#b9472e;font-weight:bold;'>Section extra price (all items):</span>
+                <input type='number' min='0' step='0.01' placeholder='Extra £' style='width:70px;margin-left:4px;' class='section-extra-price-input' id='section-extra-price-${i}' title='Optional extra price for all items in this section'>
+              </label><br>`;
+            // Per-item extra price inputs
             items.forEach(item => {
               const id = `block-item-${i}-${item._id}`;
               const priceId = `extra-price-${i}-${item._id}`;
               blockDiv.innerHTML += `<label style='margin-right:12px;display:inline-block;'>
                 <input type='checkbox' class='block-item-cb' id='${id}' value='${item._id}'> ${item.name}
-                <input type='number' min='0' step='0.01' placeholder='Extra £' style='width:70px;margin-left:4px;' class='extra-price-input' id='${priceId}' title='Optional extra price for this item'>
+                <input type='number' min='0' step='0.01' placeholder='Override £' style='width:70px;margin-left:4px;' class='extra-price-input' id='${priceId}' title='Optional extra price for this item (overrides section)'>
               </label>`;
             });
           };
