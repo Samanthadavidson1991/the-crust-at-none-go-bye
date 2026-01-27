@@ -458,6 +458,7 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
         const orders = await Order.find(filter).sort({ createdAt: -1 });
         res.json(orders);
       } catch (err) {
+        console.error('Error in /api/orders:', err);
         res.status(500).json({ error: 'Failed to fetch orders', details: err.message });
       }
     });
