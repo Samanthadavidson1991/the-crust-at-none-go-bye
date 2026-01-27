@@ -94,7 +94,7 @@ app.get('/', (req, res) => {
 // Serve all static files from public directory (must be after admin and root routes)
 app.use(express.static(path.join(__dirname, 'public')));
 
-const PORT = process.env.PORT || 3000;
+// PORT is already declared above, do not redeclare
 
 
 
