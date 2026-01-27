@@ -3,6 +3,16 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
+
+// Connect to MongoDB using environment variable
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('MongoDB connected');
+}).catch((err) => {
+  console.error('MongoDB connection error:', err);
+});
 require('./topping.model');
 require('./section.model');
 
@@ -237,6 +247,11 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
         );
         res.json({ success: true, section });
       } catch (err) {
+        // Global error handler for diagnostics
+        app.use((err, req, res, next) => {
+          console.error('Global error handler:', err);
+          res.status(500).json({ error: 'Internal server error', details: err.message });
+        });
         res.status(400).json({ error: 'Failed to update section order', details: err.message });
       }
     });
