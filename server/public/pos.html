@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>POS Manual Order | None Go Bye</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="pos.js" defer></script>
   <style>
     body { background: #f3f7ef; }
     .pos3col-container { max-width: 1200px; margin: 32px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px #0001; padding: 32px; }
@@ -171,34 +170,36 @@
         categories[cat].forEach(item => {
           html += `<li class='menu-item-card' data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
           // Pizza: show sizes/prices
-          if((cat === 'Pizza' || cat === 'pizza') && item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+          if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
             html += '<ul style="list-style:none;padding:0;">';
             item.sizes.forEach(size => {
               html += `<li class='menu-size-option' style="cursor:pointer;" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}'><span>${size.name}: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span></span></li>`;
             });
             html += '</ul>';
-            // Toppings UI
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-              html += `<small><b>Remove Toppings:</b></small><br>`;
-              item.toppings.forEach(topping => {
-                html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
-              });
-            }
-            // Add Extra Toppings: all master toppings (not already on pizza)
-            html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
-            masterToppings.forEach(mt => {
+          }
+          // Toppings UI (add/remove, like live menu)
+          html += `<form class='toppings-form' data-name='${item.name}'>`;
+          if(item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+            html += `<small><b>Remove Toppings:</b></small><br>`;
+            item.toppings.forEach(topping => {
+              html += `<label style='margin-right:8px'><input type='checkbox' class='remove-topping' value='${topping}' checked> ${topping}</label>`;
+            });
+          }
+          // Add Extra Toppings: all master toppings (not already on pizza)
+          html += `<br><small><b>Add Extra Toppings:</b></small><br>`;
+          if(masterToppings.toppings && Array.isArray(masterToppings.toppings)) {
+            masterToppings.toppings.forEach(mt => {
               let price = mt.price !== undefined ? parseFloat(mt.price).toFixed(2) : '0.00';
-              const alreadyOnPizza = item.toppings && item.toppings.includes(mt.topping);
-              html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.topping}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.topping}`;
-              html += ` <span style='font-size:0.9em;color:#888'>(${mt.type ? mt.type.charAt(0).toUpperCase() + mt.type.slice(1) : 'Other'} • £${price})</span>`;
+              const alreadyOnPizza = item.toppings && item.toppings.includes(mt.name);
+              html += `<label style='margin-right:8px'><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'` + (alreadyOnPizza ? ' disabled' : '') + `> ${mt.name}`;
+              html += ` <span style='font-size:0.9em;color:#888'>(${mt.category ? mt.category.charAt(0).toUpperCase() + mt.category.slice(1) : 'Other'} • £${price})</span>`;
               html += `</label>`;
             });
-            html += `</form>`;
-          } else {
+          }
+          html += `</form>`;
+          if(typeof item.price === 'number' && (!item.sizes || !item.sizes.length)) {
             html += `<span class='price'>£${parseFloat(item.price).toFixed(2)}</span>`;
           }
-          // No add button; clicking the card will add the item if not a pizza with sizes
           html += `</li>`;
         });
         html += '</ul>';
