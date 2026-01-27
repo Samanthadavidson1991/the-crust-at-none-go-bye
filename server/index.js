@@ -868,7 +868,6 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
 
 
     // --- Dough Stock API ---
-    const DoughStock = require('./dough-stock.model');
     app.get('/api/dough-stock', async (req, res) => {
       try {
         let doc = await DoughStock.findOne({ type: 'normal' });
