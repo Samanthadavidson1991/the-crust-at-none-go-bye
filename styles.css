@@ -1,3 +1,26 @@
+/* Moved from inline styles */
+.nav-margin {
+    margin-bottom: 24px;
+}
+.styled-offers-section {
+    background: #fffbe6;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(233,196,106,0.08);
+    padding: 24px 18px;
+    margin: 18px auto;
+    max-width: 600px;
+}
+.selected-offer-banner {
+    display: none;
+}
+.voucher-balance {
+    display: none;
+}
+.payment-method-error {
+    color: #b9472e;
+    display: none;
+    margin-left: 10px;
+}
 /* User-friendly Stripe card input area */
 .card-element-container {
     display: none;

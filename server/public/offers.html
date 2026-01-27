@@ -43,41 +43,46 @@
           sectionDropdown.onchange = function() {
             const selectedSection = sectionDropdown.value;
             const items = menuItems.filter(item => item.section === selectedSection);
-            menuItemDropdown.innerHTML = '<option value="">(Any item in section)</option>';
-            items.forEach(item => {
-              const opt = document.createElement('option');
-              opt.value = item._id;
-              opt.textContent = item.name;
-              menuItemDropdown.appendChild(opt);
-            });
-            sizeDropdown.innerHTML = '<option value="">(None)</option>';
-
-            // Blocked items checklist and extra price UI
-            let blockDiv = document.getElementById(`block-items-div-${i}`);
-            if (!blockDiv) {
-              blockDiv = document.createElement('div');
-              blockDiv.id = `block-items-div-${i}`;
-              blockDiv.style.margin = '8px 0 8px 0';
-              menuItemDropdown.parentNode.parentNode.appendChild(blockDiv);
+            // Hide old dropdowns
+            menuItemDropdown.style.display = 'none';
+            sizeDropdown.style.display = 'none';
+            // Items and sizes UI
+            let itemsDiv = document.getElementById(`offer-items-div-${i}`);
+            if (!itemsDiv) {
+              itemsDiv = document.createElement('div');
+              itemsDiv.id = `offer-items-div-${i}`;
+              itemsDiv.style.margin = '8px 0 8px 0';
+              menuItemDropdown.parentNode.parentNode.appendChild(itemsDiv);
             }
             if (!selectedSection) {
-              blockDiv.innerHTML = '';
+              itemsDiv.innerHTML = '';
               return;
             }
-            // Section-wide extra price input
-            blockDiv.innerHTML = `<b>Block these items from offer:</b><br>
-              <label style='display:inline-block;margin-bottom:8px;'>
-                <span style='color:#b9472e;font-weight:bold;'>Section extra price (all items):</span>
-                <input type='number' min='0' step='0.01' placeholder='Extra £' style='width:70px;margin-left:4px;' class='section-extra-price-input' id='section-extra-price-${i}' title='Optional extra price for all items in this section'>
-              </label><br>`;
-            // Per-item extra price inputs
+            itemsDiv.innerHTML = '<b>Select items for offer:</b><br>';
             items.forEach(item => {
-              const id = `block-item-${i}-${item._id}`;
-              const priceId = `extra-price-${i}-${item._id}`;
-              blockDiv.innerHTML += `<label style='margin-right:12px;display:inline-block;'>
-                <input type='checkbox' class='block-item-cb' id='${id}' value='${item._id}'> ${item.name}
-                <input type='number' min='0' step='0.01' placeholder='Override £' style='width:70px;margin-left:4px;' class='extra-price-input' id='${priceId}' title='Optional extra price for this item (overrides section)'>
-              </label>`;
+              const itemId = item._id;
+              const cbId = `offer-item-cb-${i}-${itemId}`;
+              const priceId = `offer-item-extra-${i}-${itemId}`;
+              let sizesHtml = '';
+              if (item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+                sizesHtml = '<div style="margin-left:24px;">Sizes:';
+                item.sizes.forEach(sizeObj => {
+                  const sizeCbId = `offer-size-cb-${i}-${itemId}-${sizeObj.name}`;
+                  const sizePriceId = `offer-size-extra-${i}-${itemId}-${sizeObj.name}`;
+                  sizesHtml += `<label style='margin-right:8px;display:inline-block;'>
+                    <input type='checkbox' class='offer-size-cb' id='${sizeCbId}' value='${sizeObj.name}'> ${sizeObj.name}
+                    <input type='number' min='0' step='0.01' placeholder='Extra £' style='width:60px;margin-left:2px;' class='offer-size-extra-input' id='${sizePriceId}' title='Optional extra price for this size'>
+                  </label>`;
+                });
+                sizesHtml += '</div>';
+              }
+              itemsDiv.innerHTML += `<div style='margin-bottom:8px;'>
+                <label style='margin-right:8px;display:inline-block;'>
+                  <input type='checkbox' class='offer-item-cb' id='${cbId}' value='${itemId}'> ${item.name}
+                  <input type='number' min='0' step='0.01' placeholder='Extra £' style='width:70px;margin-left:4px;' class='offer-item-extra-input' id='${priceId}' title='Optional extra price for this item'>
+                </label>
+                ${sizesHtml}
+              </div>`;
             });
           };
           // Populate sizes on menu item change
@@ -288,24 +293,28 @@
       const desc = document.getElementById('offerDesc').value.trim();
       const sectionInputs = [1,2,3,4].map(i => document.getElementById(`section-dropdown-${i}`));
       const sections = sectionInputs.map(i => i.value.trim()).filter(Boolean);
-      const blockedItems = [1,2,3,4].map(i => {
-        const blockDiv = document.getElementById(`block-items-div-${i}`);
-        if (!blockDiv) return [];
-        return Array.from(blockDiv.querySelectorAll('.block-item-cb:checked')).map(cb => cb.value);
-      });
-      // Collect extra prices for each item in each section
-      const extraPrices = [1,2,3,4].map(i => {
-        const blockDiv = document.getElementById(`block-items-div-${i}`);
-        if (!blockDiv) return {};
-        const priceInputs = Array.from(blockDiv.querySelectorAll('.extra-price-input'));
-        const priceMap = {};
-        priceInputs.forEach(input => {
-          const itemId = input.id.split('-').slice(-1)[0];
-          const val = input.value.trim();
-          if (val && !isNaN(val)) priceMap[itemId] = parseFloat(val);
+      // Collect selected items, per-item extra, selected sizes, per-size extra for each section
+      const offerItems = [1,2,3,4].map(i => {
+        const section = document.getElementById(`section-dropdown-${i}`).value.trim();
+        if (!section) return null;
+        const itemsDiv = document.getElementById(`offer-items-div-${i}`);
+        if (!itemsDiv) return null;
+        const itemCbs = Array.from(itemsDiv.querySelectorAll('.offer-item-cb:checked'));
+        return itemCbs.map(cb => {
+          const itemId = cb.value;
+          const extraInput = document.getElementById(`offer-item-extra-${i}-${itemId}`);
+          const extra = extraInput && extraInput.value && !isNaN(extraInput.value) ? parseFloat(extraInput.value) : undefined;
+          // Sizes
+          const sizeCbs = Array.from(itemsDiv.querySelectorAll(`.offer-size-cb[id^='offer-size-cb-${i}-${itemId}-']:checked`));
+          const sizes = sizeCbs.map(sizeCb => {
+            const sizeName = sizeCb.value;
+            const sizeExtraInput = document.getElementById(`offer-size-extra-${i}-${itemId}-${sizeName}`);
+            const sizeExtra = sizeExtraInput && sizeExtraInput.value && !isNaN(sizeExtraInput.value) ? parseFloat(sizeExtraInput.value) : undefined;
+            return { name: sizeName, extra: sizeExtra };
+          });
+          return { section, itemId, extra, sizes };
         });
-        return priceMap;
-      });
+      }).flat().filter(Boolean);
       const price = document.getElementById('offerPrice').value;
       const startDate = document.getElementById('offerStart').value;
       const endDate = document.getElementById('offerEnd').value;
@@ -314,7 +323,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ title, desc, sections, blockedItems, extraPrices, price, startDate, endDate })
+        body: JSON.stringify({ title, desc, sections, offerItems, price, startDate, endDate })
       });
       fetchOffers();
       this.reset();

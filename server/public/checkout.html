@@ -23,7 +23,7 @@
   </header>
   <main>
     <main id="main-content">
-      <div id="selected-offer-checkout" class="selected-offer-banner" style="display:none;"></div>
+      <div id="selected-offer-checkout" class="selected-offer-banner"></div>
     <section class="container">
       <h2>Order Summary</h2>
   <div class="flex-between">
@@ -51,7 +51,7 @@
         <label for="voucher">Voucher Code:</label><br>
         <input type="text" id="voucher" name="voucher" placeholder="Enter voucher code"><br>
         <button type="button" id="check-voucher-btn">Check Voucher</button>
-        <span id="voucher-balance" style="display:none;"></span>
+        <span id="voucher-balance" class="voucher-balance"></span>
         <span id="voucher-error" class="text-error"></span><br><br>
         <label for="date">Preferred Date:</label><br>
         <input type="date" id="date" name="date" required><br><br>
@@ -71,7 +71,7 @@
         <div class="payment-buttons">
           <button type="button" class="pay-card" id="pay-card-btn">Pay with Card</button>
           <button type="button" class="pay-cash" id="pay-cash-btn">Pay with Cash</button>
-          <span id="payment-method-error" style="color:#b9472e;display:none;margin-left:10px;"></span>
+          <span id="payment-method-error" class="payment-method-error"></span>
         </div>
         <div id="card-element-container" class="card-element-container">
           <label for="card-element">Card Details:</label>
@@ -128,31 +128,34 @@
           const offer = offers.find(o => o._id === selectedId);
           if (offer) {
             document.getElementById('selected-offer-checkout').style.display = 'block';
-            // Show selected item and extra price if set
+            // Show selected item, size, and extra price if set
             const selectedItemId = localStorage.getItem('selectedOfferItem');
+            const selectedSize = localStorage.getItem('selectedOfferItemSize');
             const extra = localStorage.getItem('selectedOfferItemExtra');
             let itemName = '';
             if (selectedItemId && window.globalMenu) {
               const item = window.globalMenu.find(i => i._id === selectedItemId);
               if (item) itemName = item.name;
             }
+            let sizeText = '';
+            if (selectedSize) sizeText = ` <span class='selected-size'>[${selectedSize}]</span>`;
             let extraText = '';
             if (extra && !isNaN(extra) && Number(extra) > 0) {
               extraText = ` <span style='color:#b9472e'>(+£${Number(extra).toFixed(2)} extra)</span>`;
             }
-            document.getElementById('selected-offer-checkout').innerHTML = `<b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}${itemName ? '<br><b>Item:</b> ' + itemName : ''}${extraText}`;
+            document.getElementById('selected-offer-checkout').innerHTML = `<b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}${itemName ? '<br><b>Item:</b> ' + itemName : ''}${sizeText}${extraText}`;
           } else {
             document.getElementById('selected-offer-checkout').style.display = 'none';
           }
-            // Fetch menu for item name lookup in offer banner
-            window.globalMenu = [];
-            (async function() {
-              try {
-                const res = await fetch('/api/menu');
-                const menuData = await res.json();
-                window.globalMenu = menuData.items || [];
-              } catch {}
-            })();
+          // Fetch menu for item name lookup in offer banner
+          window.globalMenu = [];
+          (async function() {
+            try {
+              const res = await fetch('/api/menu');
+              const menuData = await res.json();
+              window.globalMenu = menuData.items || [];
+            } catch {}
+          })();
         }
         showSelectedOfferCheckout();
       // --- POSTCODE DISTANCE CHECK ---
@@ -219,11 +222,31 @@
       function renderOrderSummary() {
         const order = JSON.parse(localStorage.getItem('order') || '[]');
         const summaryDiv = document.getElementById('order-summary');
-        if (!order.length) {
+        // Offer selection
+        const selectedOfferId = localStorage.getItem('selectedOffer');
+        const selectedOfferItemId = localStorage.getItem('selectedOfferItem');
+        const selectedOfferItemSize = localStorage.getItem('selectedOfferItemSize');
+        const selectedOfferItemExtra = localStorage.getItem('selectedOfferItemExtra');
+        let offerHtml = '';
+        if (selectedOfferId && selectedOfferItemId) {
+          let itemName = '';
+          if (window.globalMenu) {
+            const item = window.globalMenu.find(i => i._id === selectedOfferItemId);
+            if (item) itemName = item.name;
+          }
+          let sizeText = selectedOfferItemSize ? ` <span class='selected-size'>[${selectedOfferItemSize}]</span>` : '';
+          let extraText = '';
+          if (selectedOfferItemExtra && !isNaN(selectedOfferItemExtra) && Number(selectedOfferItemExtra) > 0) {
+            extraText = ` <span style='color:#b9472e'>(+£${Number(selectedOfferItemExtra).toFixed(2)} extra)</span>`;
+          }
+          offerHtml = `<li><b>Special Offer Item:</b> ${itemName}${sizeText}${extraText}</li>`;
+        }
+        if (!order.length && !offerHtml) {
           summaryDiv.innerHTML = '<p>Your order is currently empty.</p>';
           return;
         }
         let html = '<ul class="unstyled-list">';
+        if (offerHtml) html += offerHtml;
         order.forEach((item, idx) => {
           let line = `<b>${item.name}</b>`;
           if (item.selectedSize) line += ` <span class='selected-size'>[${item.selectedSize.name}]</span>`;
@@ -334,13 +357,27 @@
         // Optionally, you can require a payment method before submitting the order
         // Intercept form submit for postcode check
         document.querySelector('.checkout-form').onsubmit = async function(e) {
-                // If voucher is present, check and apply
-                if (voucherData && voucherData.price) {
-                  // Deduct voucher value from total
-                  orderData.voucherCode = voucherData.code;
-                  orderData.voucherAmount = voucherData.price;
-                  orderData.total = Math.max(0, orderData.total - voucherData.price);
-                }
+          // If special offer is selected, add to orderData
+          const selectedOfferId = localStorage.getItem('selectedOffer');
+          const selectedOfferItemId = localStorage.getItem('selectedOfferItem');
+          const selectedOfferItemSize = localStorage.getItem('selectedOfferItemSize');
+          const selectedOfferItemExtra = localStorage.getItem('selectedOfferItemExtra');
+          if (selectedOfferId && selectedOfferItemId) {
+            orderData.specialOffer = {
+              offerId: selectedOfferId,
+              itemId: selectedOfferItemId,
+              size: selectedOfferItemSize || '',
+              extra: selectedOfferItemExtra ? Number(selectedOfferItemExtra) : 0
+            };
+            orderData.total += orderData.specialOffer.extra || 0;
+          }
+          // If voucher is present, check and apply
+          if (voucherData && voucherData.price) {
+            // Deduct voucher value from total
+            orderData.voucherCode = voucherData.code;
+            orderData.voucherAmount = voucherData.price;
+            orderData.total = Math.max(0, orderData.total - voucherData.price);
+          }
           e.preventDefault();
           document.getElementById('postcode-error').textContent = '';
           // Require payment method

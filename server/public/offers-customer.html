@@ -8,7 +8,7 @@
 </head>
 <body class="offers-page">
 <body class="offers-page app-body" id="offers-customer-page">
-  <nav class="main-nav" style="margin-bottom: 24px;">
+  <nav class="main-nav nav-margin">
     <a href="index.html">Home</a>
     <a href="menu.html">Menu</a>
     <a href="checkout.html">Checkout</a>
@@ -16,7 +16,7 @@
   </nav>
   <main id="main-content">
     <h1 class="main-heading underline">Special Offers</h1>
-    <section class="offers-section" style="background: #fffbe6; border-radius: 12px; box-shadow: 0 2px 12px rgba(233,196,106,0.08); padding: 24px 18px; margin: 18px auto; max-width: 600px;">
+    <section class="offers-section styled-offers-section">
       <div id="customer-offer-list"></div>
     </section>
       <style>
@@ -84,31 +84,22 @@
     }
     window.chooseOffer = function(idx) {
       const offer = globalOffers[idx];
-      // Find eligible items for the first section (can be extended for multi-section offers)
-      const section = (offer.sections && offer.sections[0]) || null;
-      const blocked = (offer.blockedItems && offer.blockedItems[0]) || [];
-      const extraPrices = (offer.extraPrices && offer.extraPrices[0]) || {};
-      const eligibleItems = globalMenu.filter(item => item.section === section && !blocked.includes(item._id));
-      if (!section || eligibleItems.length === 0) {
+      if (!offer.offerItems || !offer.offerItems.length) {
         alert('No eligible items for this offer.');
         return;
       }
-      // Show a prompt to pick an item, showing extra price if set
-      let itemList = eligibleItems.map(i => {
-        let extra = '';
-        if (extraPrices && typeof extraPrices === 'object' && extraPrices[i._id] !== undefined) {
-          const val = parseFloat(extraPrices[i._id]);
-          if (!isNaN(val) && val > 0) extra = ` (+£${val.toFixed(2)})`;
-        }
-        return `<option value='${i._id}'>${i.name}${extra}</option>`;
+      // Build eligible items from offerItems
+      let itemList = offer.offerItems.map((oi, i) => {
+        const menuItem = globalMenu.find(m => m._id === oi.itemId);
+        let extra = oi.extra && !isNaN(oi.extra) ? ` (+£${parseFloat(oi.extra).toFixed(2)})` : '';
+        return `<option value='${i}'>${menuItem ? menuItem.name : oi.itemId}${extra}</option>`;
       }).join('');
-      const html = `
-        <div style='padding:18px;'>
-          <b>Choose your item from section: ${section}</b><br>
-          <select id='offer-item-select'>${itemList}</select>
-          <button id='confirm-offer-item-btn'>Confirm</button>
-        </div>
-      `;
+      let html = `<div style='padding:18px;'>
+        <b>Choose your item for this offer:</b><br>
+        <select id='offer-item-select'>${itemList}</select>
+        <div id='offer-size-select-div' style='margin-top:12px;'></div>
+        <button id='confirm-offer-item-btn'>Confirm</button>
+      </div>`;
       const modal = document.createElement('div');
       modal.style.position = 'fixed';
       modal.style.top = '0';
@@ -122,17 +113,47 @@
       modal.style.zIndex = '9999';
       modal.innerHTML = `<div style='background:#fff;padding:32px;border-radius:10px;box-shadow:0 2px 12px #0002;'>${html}</div>`;
       document.body.appendChild(modal);
+
+      // Size selection logic
+      function renderSizes(idx) {
+        const oi = offer.offerItems[idx];
+        if (!oi || !oi.sizes || !oi.sizes.length) {
+          document.getElementById('offer-size-select-div').innerHTML = '';
+          return;
+        }
+        let sizeList = oi.sizes.map((sz, j) => {
+          let extra = sz.extra && !isNaN(sz.extra) ? ` (+£${parseFloat(sz.extra).toFixed(2)})` : '';
+          return `<option value='${j}'>${sz.name}${extra}</option>`;
+        }).join('');
+        document.getElementById('offer-size-select-div').innerHTML = `<b>Choose size:</b><br><select id='offer-size-select'>${sizeList}</select>`;
+      }
+      // Initial render
+      renderSizes(0);
+      modal.querySelector('#offer-item-select').onchange = function() {
+        renderSizes(this.value);
+      };
       modal.querySelector('#confirm-offer-item-btn').onclick = function() {
-        const selectedId = modal.querySelector('#offer-item-select').value;
-        let extra = '';
-        if (extraPrices && typeof extraPrices === 'object' && extraPrices[selectedId] !== undefined) {
-          const val = parseFloat(extraPrices[selectedId]);
-          if (!isNaN(val) && val > 0) extra = val;
+        const itemIdx = modal.querySelector('#offer-item-select').value;
+        const oi = offer.offerItems[itemIdx];
+        let extra = oi.extra && !isNaN(oi.extra) ? parseFloat(oi.extra) : 0;
+        let selectedSize = null;
+        let sizeExtra = 0;
+        if (oi.sizes && oi.sizes.length) {
+          const sizeIdx = modal.querySelector('#offer-size-select').value;
+          if (sizeIdx !== undefined && oi.sizes[sizeIdx]) {
+            selectedSize = oi.sizes[sizeIdx].name;
+            if (oi.sizes[sizeIdx].extra && !isNaN(oi.sizes[sizeIdx].extra)) {
+              sizeExtra = parseFloat(oi.sizes[sizeIdx].extra);
+            }
+          }
         }
         localStorage.setItem('selectedOffer', offer._id);
-        localStorage.setItem('selectedOfferItem', selectedId);
-        if (extra) {
-          localStorage.setItem('selectedOfferItemExtra', extra);
+        localStorage.setItem('selectedOfferItem', oi.itemId);
+        if (selectedSize) localStorage.setItem('selectedOfferItemSize', selectedSize);
+        else localStorage.removeItem('selectedOfferItemSize');
+        const totalExtra = (extra || 0) + (sizeExtra || 0);
+        if (totalExtra > 0) {
+          localStorage.setItem('selectedOfferItemExtra', totalExtra);
         } else {
           localStorage.removeItem('selectedOfferItemExtra');
         }

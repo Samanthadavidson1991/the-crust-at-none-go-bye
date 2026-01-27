@@ -11,14 +11,13 @@ router.get('/', async (req, res) => {
 
 // Add a new offer
 router.post('/', async (req, res) => {
-  const { title, desc, sections, blockedItems, extraPrices, price, startDate, endDate, voucherCodes } = req.body;
+  const { title, desc, sections, offerItems, price, startDate, endDate, voucherCodes } = req.body;
   if (!title || !desc) return res.status(400).json({ error: 'Title and description required.' });
   const offer = new SpecialOffer({
     title,
     desc,
     sections: Array.isArray(sections) ? sections.slice(0, 4) : [],
-    blockedItems: Array.isArray(blockedItems) ? blockedItems.slice(0, 4) : [],
-    extraPrices: Array.isArray(extraPrices) ? extraPrices.slice(0, 4).map(map => (map && typeof map === 'object' ? map : {})) : [],
+    offerItems: Array.isArray(offerItems) ? offerItems : [],
     price: price ? Number(price) : undefined,
     startDate: startDate ? new Date(startDate) : undefined,
     endDate: endDate ? new Date(endDate) : undefined,
