@@ -128,26 +128,30 @@
           const offer = offers.find(o => o._id === selectedId);
           if (offer) {
             document.getElementById('selected-offer-checkout').style.display = 'block';
-            // Show selected item, size, and extra price if set
-            const selectedItemId = localStorage.getItem('selectedOfferItem');
-            const selectedSize = localStorage.getItem('selectedOfferItemSize');
-            const extra = localStorage.getItem('selectedOfferItemExtra');
-            let itemName = '';
-            if (selectedItemId && window.globalMenu) {
-              const item = window.globalMenu.find(i => i._id === selectedItemId);
-              if (item) itemName = item.name;
+            // Show all selected items (one per section)
+            let selections = [];
+            try {
+              selections = JSON.parse(localStorage.getItem('selectedOfferSelections') || '[]');
+            } catch {}
+            let html = `<a href="#" id="edit-offer-banner" style="text-decoration:none;color:inherit;cursor:pointer;"><b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}`;
+            if (selections.length) {
+              html += '<ul style="margin:8px 0 0 0;">';
+              selections.forEach(sel => {
+                let itemName = '';
+                if (sel.itemId && window.globalMenu) {
+                  const item = window.globalMenu.find(i => i._id === sel.itemId);
+                  if (item) itemName = item.name;
+                }
+                let sizeText = sel.size ? ` <span class='selected-size'>[${sel.size}]</span>` : '';
+                let extraText = sel.extra && !isNaN(sel.extra) && Number(sel.extra) > 0 ? ` <span style='color:#b9472e'>(+£${Number(sel.extra).toFixed(2)} extra)</span>` : '';
+                html += `<li><b>${sel.section}:</b> ${itemName}${sizeText}${extraText}</li>`;
+              });
+              html += '</ul>';
             }
-            let sizeText = '';
-            if (selectedSize) sizeText = ` <span class='selected-size'>[${selectedSize}]</span>`;
-            let extraText = '';
-            if (extra && !isNaN(extra) && Number(extra) > 0) {
-              extraText = ` <span style='color:#b9472e'>(+£${Number(extra).toFixed(2)} extra)</span>`;
-            }
-            // Make banner clickable
-            document.getElementById('selected-offer-checkout').innerHTML = `<a href="#" id="edit-offer-banner" style="text-decoration:none;color:inherit;cursor:pointer;"><b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}${itemName ? '<br><b>Item:</b> ' + itemName : ''}${sizeText}${extraText}<br><span style='font-size:0.95em;color:#b9472e;text-decoration:underline;'>Click to change</span></a>`;
+            html += `<br><span style='font-size:0.95em;color:#b9472e;text-decoration:underline;'>Click to change</span></a>`;
+            document.getElementById('selected-offer-checkout').innerHTML = html;
             document.getElementById('edit-offer-banner').onclick = function(e) {
               e.preventDefault();
-              // Open offer selection modal (reuse logic from offers-customer.html)
               chooseOfferById(offer._id);
             };
           } else {
@@ -316,22 +320,22 @@ function chooseOfferById(offerId) {
         const summaryDiv = document.getElementById('order-summary');
         // Offer selection
         const selectedOfferId = localStorage.getItem('selectedOffer');
-        const selectedOfferItemId = localStorage.getItem('selectedOfferItem');
-        const selectedOfferItemSize = localStorage.getItem('selectedOfferItemSize');
-        const selectedOfferItemExtra = localStorage.getItem('selectedOfferItemExtra');
         let offerHtml = '';
-        if (selectedOfferId && selectedOfferItemId) {
-          let itemName = '';
-          if (window.globalMenu) {
-            const item = window.globalMenu.find(i => i._id === selectedOfferItemId);
-            if (item) itemName = item.name;
-          }
-          let sizeText = selectedOfferItemSize ? ` <span class='selected-size'>[${selectedOfferItemSize}]</span>` : '';
-          let extraText = '';
-          if (selectedOfferItemExtra && !isNaN(selectedOfferItemExtra) && Number(selectedOfferItemExtra) > 0) {
-            extraText = ` <span style='color:#b9472e'>(+£${Number(selectedOfferItemExtra).toFixed(2)} extra)</span>`;
-          }
-          offerHtml = `<li><b>Special Offer Item:</b> ${itemName}${sizeText}${extraText}</li>`;
+        let selections = [];
+        try {
+          selections = JSON.parse(localStorage.getItem('selectedOfferSelections') || '[]');
+        } catch {}
+        if (selectedOfferId && selections.length) {
+          offerHtml = selections.map(sel => {
+            let itemName = '';
+            if (window.globalMenu) {
+              const item = window.globalMenu.find(i => i._id === sel.itemId);
+              if (item) itemName = item.name;
+            }
+            let sizeText = sel.size ? ` <span class='selected-size'>[${sel.size}]</span>` : '';
+            let extraText = sel.extra && !isNaN(sel.extra) && Number(sel.extra) > 0 ? ` <span style='color:#b9472e'>(+£${Number(sel.extra).toFixed(2)} extra)</span>` : '';
+            return `<li><b>Special Offer (${sel.section}):</b> ${itemName}${sizeText}${extraText}</li>`;
+          }).join('');
         }
         if (!order.length && !offerHtml) {
           summaryDiv.innerHTML = '<p>Your order is currently empty.</p>';
@@ -451,17 +455,21 @@ function chooseOfferById(offerId) {
         document.querySelector('.checkout-form').onsubmit = async function(e) {
           // If special offer is selected, add to orderData
           const selectedOfferId = localStorage.getItem('selectedOffer');
-          const selectedOfferItemId = localStorage.getItem('selectedOfferItem');
-          const selectedOfferItemSize = localStorage.getItem('selectedOfferItemSize');
-          const selectedOfferItemExtra = localStorage.getItem('selectedOfferItemExtra');
-          if (selectedOfferId && selectedOfferItemId) {
+          let selections = [];
+          try {
+            selections = JSON.parse(localStorage.getItem('selectedOfferSelections') || '[]');
+          } catch {}
+          if (selectedOfferId && selections.length) {
             orderData.specialOffer = {
               offerId: selectedOfferId,
-              itemId: selectedOfferItemId,
-              size: selectedOfferItemSize || '',
-              extra: selectedOfferItemExtra ? Number(selectedOfferItemExtra) : 0
+              selections
             };
-            orderData.total += orderData.specialOffer.extra || 0;
+            // Add up all extras
+            let totalExtra = 0;
+            selections.forEach(sel => {
+              if (sel.extra && !isNaN(sel.extra)) totalExtra += Number(sel.extra);
+            });
+            orderData.total += totalExtra;
           }
           // If voucher is present, check and apply
           if (voucherData && voucherData.price) {

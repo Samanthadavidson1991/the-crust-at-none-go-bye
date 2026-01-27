@@ -88,18 +88,31 @@
         alert('No eligible items for this offer.');
         return;
       }
-      // Build eligible items from offerItems
-      let itemList = offer.offerItems.map((oi, i) => {
-        const menuItem = globalMenu.find(m => m._id === oi.itemId);
-        let extra = oi.extra && !isNaN(oi.extra) ? ` (+£${parseFloat(oi.extra).toFixed(2)})` : '';
-        return `<option value='${i}'>${menuItem ? menuItem.name : oi.itemId}${extra}</option>`;
-      }).join('');
-      let html = `<div style='padding:18px;'>
-        <b>Choose your item for this offer:</b><br>
-        <select id='offer-item-select'>${itemList}</select>
-        <div id='offer-size-select-div' style='margin-top:12px;'></div>
-        <button id='confirm-offer-item-btn'>Confirm</button>
-      </div>`;
+      // Group offerItems by section
+      const sectionMap = {};
+      offer.offerItems.forEach(oi => {
+        if (!sectionMap[oi.section]) sectionMap[oi.section] = [];
+        sectionMap[oi.section].push(oi);
+      });
+      let html = `<div style='padding:18px;'>`;
+      let sectionKeys = Object.keys(sectionMap);
+      if (sectionKeys.length > 1) {
+        html += `<b>Choose one item from each section:</b><br>`;
+      } else {
+        html += `<b>Choose your item for this offer:</b><br>`;
+      }
+      sectionKeys.forEach((section, sIdx) => {
+        html += `<div style='margin-bottom:16px;'><b>${section}</b><br>`;
+        let itemList = sectionMap[section].map((oi, i) => {
+          const menuItem = globalMenu.find(m => m._id === oi.itemId);
+          let extra = oi.extra && !isNaN(oi.extra) ? ` (+£${parseFloat(oi.extra).toFixed(2)})` : '';
+          return `<option value='${i}'>${menuItem ? menuItem.name : oi.itemId}${extra}</option>`;
+        }).join('');
+        html += `<select class='offer-item-select' data-section='${section}' id='offer-item-select-${sIdx}'>${itemList}</select>`;
+        html += `<div class='offer-size-select-div' id='offer-size-select-div-${sIdx}' style='margin-top:12px;'></div>`;
+        html += `</div>`;
+      });
+      html += `<button id='confirm-offer-item-btn'>Confirm</button></div>`;
       const modal = document.createElement('div');
       modal.style.position = 'fixed';
       modal.style.top = '0';
@@ -114,51 +127,59 @@
       modal.innerHTML = `<div style='background:#fff;padding:32px;border-radius:10px;box-shadow:0 2px 12px #0002;'>${html}</div>`;
       document.body.appendChild(modal);
 
-      // Size selection logic
-      function renderSizes(idx) {
-        const oi = offer.offerItems[idx];
-        if (!oi || !oi.sizes || !oi.sizes.length) {
-          document.getElementById('offer-size-select-div').innerHTML = '';
-          return;
+      // Size selection logic for each section
+      sectionKeys.forEach((section, sIdx) => {
+        function renderSizes(idx) {
+          const oi = sectionMap[section][idx];
+          const sizeDiv = modal.querySelector(`#offer-size-select-div-${sIdx}`);
+          if (!oi || !oi.sizes || !oi.sizes.length) {
+            sizeDiv.innerHTML = '';
+            return;
+          }
+          let sizeList = oi.sizes.map((sz, j) => {
+            let extra = sz.extra && !isNaN(sz.extra) ? ` (+£${parseFloat(sz.extra).toFixed(2)})` : '';
+            return `<option value='${j}'>${sz.name}${extra}</option>`;
+          }).join('');
+          sizeDiv.innerHTML = `<b>Choose size:</b><br><select class='offer-size-select' data-section='${section}' id='offer-size-select-${sIdx}'>${sizeList}</select>`;
         }
-        let sizeList = oi.sizes.map((sz, j) => {
-          let extra = sz.extra && !isNaN(sz.extra) ? ` (+£${parseFloat(sz.extra).toFixed(2)})` : '';
-          return `<option value='${j}'>${sz.name}${extra}</option>`;
-        }).join('');
-        document.getElementById('offer-size-select-div').innerHTML = `<b>Choose size:</b><br><select id='offer-size-select'>${sizeList}</select>`;
-      }
-      // Initial render
-      renderSizes(0);
-      modal.querySelector('#offer-item-select').onchange = function() {
-        renderSizes(this.value);
-      };
+        // Initial render
+        renderSizes(0);
+        modal.querySelector(`#offer-item-select-${sIdx}`).onchange = function() {
+          renderSizes(this.value);
+        };
+      });
+
       modal.querySelector('#confirm-offer-item-btn').onclick = function() {
-        const itemIdx = modal.querySelector('#offer-item-select').value;
-        const oi = offer.offerItems[itemIdx];
-        let extra = oi.extra && !isNaN(oi.extra) ? parseFloat(oi.extra) : 0;
-        let selectedSize = null;
-        let sizeExtra = 0;
-        if (oi.sizes && oi.sizes.length) {
-          const sizeIdx = modal.querySelector('#offer-size-select').value;
-          if (sizeIdx !== undefined && oi.sizes[sizeIdx]) {
-            selectedSize = oi.sizes[sizeIdx].name;
-            if (oi.sizes[sizeIdx].extra && !isNaN(oi.sizes[sizeIdx].extra)) {
-              sizeExtra = parseFloat(oi.sizes[sizeIdx].extra);
+        // For each section, get selected item and size
+        let selected = [];
+        sectionKeys.forEach((section, sIdx) => {
+          const itemIdx = modal.querySelector(`#offer-item-select-${sIdx}`).value;
+          const oi = sectionMap[section][itemIdx];
+          let extra = oi.extra && !isNaN(oi.extra) ? parseFloat(oi.extra) : 0;
+          let selectedSize = null;
+          let sizeExtra = 0;
+          const sizeSel = modal.querySelector(`#offer-size-select-${sIdx}`);
+          if (oi.sizes && oi.sizes.length && sizeSel) {
+            const sizeIdx = sizeSel.value;
+            if (sizeIdx !== undefined && oi.sizes[sizeIdx]) {
+              selectedSize = oi.sizes[sizeIdx].name;
+              if (oi.sizes[sizeIdx].extra && !isNaN(oi.sizes[sizeIdx].extra)) {
+                sizeExtra = parseFloat(oi.sizes[sizeIdx].extra);
+              }
             }
           }
-        }
+          selected.push({
+            section,
+            itemId: oi.itemId,
+            size: selectedSize,
+            extra: (extra || 0) + (sizeExtra || 0)
+          });
+        });
+        // Store as JSON in localStorage
         localStorage.setItem('selectedOffer', offer._id);
-        localStorage.setItem('selectedOfferItem', oi.itemId);
-        if (selectedSize) localStorage.setItem('selectedOfferItemSize', selectedSize);
-        else localStorage.removeItem('selectedOfferItemSize');
-        const totalExtra = (extra || 0) + (sizeExtra || 0);
-        if (totalExtra > 0) {
-          localStorage.setItem('selectedOfferItemExtra', totalExtra);
-        } else {
-          localStorage.removeItem('selectedOfferItemExtra');
-        }
+        localStorage.setItem('selectedOfferSelections', JSON.stringify(selected));
         document.body.removeChild(modal);
-        alert('Offer and item selected! You can now use it at checkout.');
+        alert('Offer selections saved! You can now use them at checkout.');
       };
     }
     fetchOffers();
