@@ -735,24 +735,6 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
         }
       });
     // --- Opening Times Model ---
-    const OpeningTimesSchema = new mongoose.Schema({
-      friday: { open: String, close: String },
-      saturday: { open: String, close: String },
-      sunday: { open: String, close: String }
-    }, { collection: 'opening_times' });
-    const OpeningTimes = mongoose.models.OpeningTimes || mongoose.model('OpeningTimes', OpeningTimesSchema);
-
-    // --- Delivery Distance Model ---
-    const DeliveryDistanceSchema = new mongoose.Schema({ miles: Number }, { collection: 'delivery_distance' });
-    const DeliveryDistance = mongoose.models.DeliveryDistance || mongoose.model('DeliveryDistance', DeliveryDistanceSchema);
-
-    // --- Timeslot Model ---
-    const TimeslotSchema = new mongoose.Schema({
-      time: String,
-      doughLimit: { type: Number, default: 0 }, // total dough (normal + gluten free)
-      deliveryAmount: { type: Number, default: 0 }
-    }, { collection: 'timeslots' });
-    const Timeslot = mongoose.models.Timeslot || mongoose.model('Timeslot', TimeslotSchema);
 
     // --- Opening Times API ---
     app.get('/api/opening-times', async (req, res) => {
