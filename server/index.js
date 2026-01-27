@@ -945,3 +945,11 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
 
 // End of API and server setup
 module.exports = app;
+
+// Start server if run directly (not required as a module)
+const PORT = process.env.PORT || 3000;
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
