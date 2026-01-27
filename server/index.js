@@ -431,7 +431,7 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
       }
     });
 
-    // const Order = require('./order.model');
+  const Order = require('./order.model');
     app.get('/api/orders', async (req, res) => {
       try {
         let filter = {};
