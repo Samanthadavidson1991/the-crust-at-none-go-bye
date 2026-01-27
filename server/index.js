@@ -17,8 +17,19 @@ require('./topping.model');
 require('./section.model');
 
 const MenuItem = require('./menu-item.model');
+
+const cors = require('cors');
 const session = require('express-session');
 const app = express();
+
+// Enable CORS for admin frontend and backend domains
+app.use(cors({
+  origin: [
+    'https://admin.thecrustatngb.co.uk',
+    'https://the-crust-at-none-go-bye-admin.onrender.com'
+  ],
+  credentials: true
+}));
 
 
 // Enable JSON body parsing for API requests
