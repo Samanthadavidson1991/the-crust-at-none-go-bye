@@ -143,9 +143,100 @@
             if (extra && !isNaN(extra) && Number(extra) > 0) {
               extraText = ` <span style='color:#b9472e'>(+£${Number(extra).toFixed(2)} extra)</span>`;
             }
-            document.getElementById('selected-offer-checkout').innerHTML = `<b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}${itemName ? '<br><b>Item:</b> ' + itemName : ''}${sizeText}${extraText}`;
+            // Make banner clickable
+            document.getElementById('selected-offer-checkout').innerHTML = `<a href="#" id="edit-offer-banner" style="text-decoration:none;color:inherit;cursor:pointer;"><b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}${itemName ? '<br><b>Item:</b> ' + itemName : ''}${sizeText}${extraText}<br><span style='font-size:0.95em;color:#b9472e;text-decoration:underline;'>Click to change</span></a>`;
+            document.getElementById('edit-offer-banner').onclick = function(e) {
+              e.preventDefault();
+              // Open offer selection modal (reuse logic from offers-customer.html)
+              chooseOfferById(offer._id);
+            };
           } else {
             document.getElementById('selected-offer-checkout').style.display = 'none';
+          }
+          // Helper to open offer selection modal by offerId (copied from offers-customer.html logic)
+          function chooseOfferById(offerId) {
+            fetch('/api/offers').then(r => r.json()).then(offers => {
+              const offer = offers.find(o => o._id === offerId);
+              if (!offer || !offer.offerItems || !offer.offerItems.length) {
+                alert('No eligible items for this offer.');
+                return;
+              }
+              fetch('/api/menu').then(r => r.json()).then(menuData => {
+                const globalMenu = menuData.items || [];
+                let itemList = offer.offerItems.map((oi, i) => {
+                  const menuItem = globalMenu.find(m => m._id === oi.itemId);
+                  let extra = oi.extra && !isNaN(oi.extra) ? ` (+£${parseFloat(oi.extra).toFixed(2)})` : '';
+                  return `<option value='${i}'>${menuItem ? menuItem.name : oi.itemId}${extra}</option>`;
+                }).join('');
+                let html = `<div style='padding:18px;'>
+                  <b>Choose your item for this offer:</b><br>
+                  <select id='offer-item-select'>${itemList}</select>
+                  <div id='offer-size-select-div' style='margin-top:12px;'></div>
+                  <button id='confirm-offer-item-btn'>Confirm</button>
+                </div>`;
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100vw';
+                modal.style.height = '100vh';
+                modal.style.background = 'rgba(0,0,0,0.3)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '9999';
+                modal.innerHTML = `<div style='background:#fff;padding:32px;border-radius:10px;box-shadow:0 2px 12px #0002;'>${html}</div>`;
+                document.body.appendChild(modal);
+                // Size selection logic
+                function renderSizes(idx) {
+                  const oi = offer.offerItems[idx];
+                  if (!oi || !oi.sizes || !oi.sizes.length) {
+                    document.getElementById('offer-size-select-div').innerHTML = '';
+                    return;
+                  }
+                  let sizeList = oi.sizes.map((sz, j) => {
+                    let extra = sz.extra && !isNaN(sz.extra) ? ` (+£${parseFloat(sz.extra).toFixed(2)})` : '';
+                    return `<option value='${j}'>${sz.name}${extra}</option>`;
+                  }).join('');
+                  document.getElementById('offer-size-select-div').innerHTML = `<b>Choose size:</b><br><select id='offer-size-select'>${sizeList}</select>`;
+                }
+                // Initial render
+                renderSizes(0);
+                modal.querySelector('#offer-item-select').onchange = function() {
+                  renderSizes(this.value);
+                };
+                modal.querySelector('#confirm-offer-item-btn').onclick = function() {
+                  const itemIdx = modal.querySelector('#offer-item-select').value;
+                  const oi = offer.offerItems[itemIdx];
+                  let extra = oi.extra && !isNaN(oi.extra) ? parseFloat(oi.extra) : 0;
+                  let selectedSize = null;
+                  let sizeExtra = 0;
+                  if (oi.sizes && oi.sizes.length) {
+                    const sizeIdx = modal.querySelector('#offer-size-select').value;
+                    if (sizeIdx !== undefined && oi.sizes[sizeIdx]) {
+                      selectedSize = oi.sizes[sizeIdx].name;
+                      if (oi.sizes[sizeIdx].extra && !isNaN(oi.sizes[sizeIdx].extra)) {
+                        sizeExtra = parseFloat(oi.sizes[sizeIdx].extra);
+                      }
+                    }
+                  }
+                  localStorage.setItem('selectedOffer', offer._id);
+                  localStorage.setItem('selectedOfferItem', oi.itemId);
+                  if (selectedSize) localStorage.setItem('selectedOfferItemSize', selectedSize);
+                  else localStorage.removeItem('selectedOfferItemSize');
+                  const totalExtra = (extra || 0) + (sizeExtra || 0);
+                  if (totalExtra > 0) {
+                    localStorage.setItem('selectedOfferItemExtra', totalExtra);
+                  } else {
+                    localStorage.removeItem('selectedOfferItemExtra');
+                  }
+                  document.body.removeChild(modal);
+                  showSelectedOfferCheckout();
+                  renderOrderSummary();
+                  alert('Offer and item selected! You can now use it at checkout.');
+                };
+              });
+            });
           }
           // Fetch menu for item name lookup in offer banner
           window.globalMenu = [];
