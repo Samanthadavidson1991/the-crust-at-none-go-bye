@@ -43,7 +43,7 @@
           sectionDropdown.onchange = function() {
             const selectedSection = sectionDropdown.value;
             const items = menuItems.filter(item => item.section === selectedSection);
-            menuItemDropdown.innerHTML = '<option value="">(None)</option>';
+            menuItemDropdown.innerHTML = '<option value="">(Any item in section)</option>';
             items.forEach(item => {
               const opt = document.createElement('option');
               opt.value = item._id;
@@ -51,6 +51,28 @@
               menuItemDropdown.appendChild(opt);
             });
             sizeDropdown.innerHTML = '<option value="">(None)</option>';
+
+            // Blocked items checklist
+            let blockDiv = document.getElementById(`block-items-div-${i}`);
+            if (!blockDiv) {
+              blockDiv = document.createElement('div');
+              blockDiv.id = `block-items-div-${i}`;
+              blockDiv.style.margin = '8px 0 8px 0';
+              menuItemDropdown.parentNode.parentNode.appendChild(blockDiv);
+            }
+            if (!selectedSection) {
+              blockDiv.innerHTML = '';
+              return;
+            }
+            blockDiv.innerHTML = '<b>Block these items from offer:</b><br>';
+            items.forEach(item => {
+              const id = `block-item-${i}-${item._id}`;
+              const priceId = `extra-price-${i}-${item._id}`;
+              blockDiv.innerHTML += `<label style='margin-right:12px;display:inline-block;'>
+                <input type='checkbox' class='block-item-cb' id='${id}' value='${item._id}'> ${item.name}
+                <input type='number' min='0' step='0.01' placeholder='Extra £' style='width:70px;margin-left:4px;' class='extra-price-input' id='${priceId}' title='Optional extra price for this item'>
+              </label>`;
+            });
           };
           // Populate sizes on menu item change
           menuItemDropdown.onchange = function() {
@@ -258,8 +280,26 @@
       e.preventDefault();
       const title = document.getElementById('offerTitle').value.trim();
       const desc = document.getElementById('offerDesc').value.trim();
-      const sectionInputs = Array.from(document.querySelectorAll('.offer-section'));
+      const sectionInputs = [1,2,3,4].map(i => document.getElementById(`section-dropdown-${i}`));
       const sections = sectionInputs.map(i => i.value.trim()).filter(Boolean);
+      const blockedItems = [1,2,3,4].map(i => {
+        const blockDiv = document.getElementById(`block-items-div-${i}`);
+        if (!blockDiv) return [];
+        return Array.from(blockDiv.querySelectorAll('.block-item-cb:checked')).map(cb => cb.value);
+      });
+      // Collect extra prices for each item in each section
+      const extraPrices = [1,2,3,4].map(i => {
+        const blockDiv = document.getElementById(`block-items-div-${i}`);
+        if (!blockDiv) return {};
+        const priceInputs = Array.from(blockDiv.querySelectorAll('.extra-price-input'));
+        const priceMap = {};
+        priceInputs.forEach(input => {
+          const itemId = input.id.split('-').slice(-1)[0];
+          const val = input.value.trim();
+          if (val && !isNaN(val)) priceMap[itemId] = parseFloat(val);
+        });
+        return priceMap;
+      });
       const price = document.getElementById('offerPrice').value;
       const startDate = document.getElementById('offerStart').value;
       const endDate = document.getElementById('offerEnd').value;
@@ -268,7 +308,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ title, desc, sections, price, startDate, endDate })
+        body: JSON.stringify({ title, desc, sections, blockedItems, extraPrices, price, startDate, endDate })
       });
       fetchOffers();
       this.reset();

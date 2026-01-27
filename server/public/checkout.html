@@ -128,10 +128,31 @@
           const offer = offers.find(o => o._id === selectedId);
           if (offer) {
             document.getElementById('selected-offer-checkout').style.display = 'block';
-            document.getElementById('selected-offer-checkout').innerHTML = `<b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}`;
+            // Show selected item and extra price if set
+            const selectedItemId = localStorage.getItem('selectedOfferItem');
+            const extra = localStorage.getItem('selectedOfferItemExtra');
+            let itemName = '';
+            if (selectedItemId && window.globalMenu) {
+              const item = window.globalMenu.find(i => i._id === selectedItemId);
+              if (item) itemName = item.name;
+            }
+            let extraText = '';
+            if (extra && !isNaN(extra) && Number(extra) > 0) {
+              extraText = ` <span style='color:#b9472e'>(+£${Number(extra).toFixed(2)} extra)</span>`;
+            }
+            document.getElementById('selected-offer-checkout').innerHTML = `<b>Selected Offer:</b> ${offer.title} - ${offer.desc} ${offer.price ? '£'+parseFloat(offer.price).toFixed(2) : ''}${itemName ? '<br><b>Item:</b> ' + itemName : ''}${extraText}`;
           } else {
             document.getElementById('selected-offer-checkout').style.display = 'none';
           }
+            // Fetch menu for item name lookup in offer banner
+            window.globalMenu = [];
+            (async function() {
+              try {
+                const res = await fetch('/api/menu');
+                const menuData = await res.json();
+                window.globalMenu = menuData.items || [];
+              } catch {}
+            })();
         }
         showSelectedOfferCheckout();
       // --- POSTCODE DISTANCE CHECK ---

@@ -5,6 +5,8 @@ const offerSchema = new mongoose.Schema({
   title: String,
   desc: String, // main offer wording
   sections: [String], // up to 4 sections (e.g. 'Pizzas', 'Sides')
+  blockedItems: [[String]], // Array of arrays: blockedItems[i] = array of item IDs blocked for sections[i]
+  extraPrices: [{ type: Map, of: Number }], // Array of maps: extraPrices[i][itemId] = extra price for item in sections[i]
   price: Number,
   startDate: Date,
   endDate: Date,

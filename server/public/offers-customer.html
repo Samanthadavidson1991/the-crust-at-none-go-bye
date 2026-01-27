@@ -50,10 +50,17 @@
       </style>
   </main>
   <script>
+    let globalOffers = [];
+    let globalMenu = [];
     async function fetchOffers() {
-      const res = await fetch('/api/offers');
-      const offers = await res.json();
-      renderOffers(offers);
+      const [offersRes, menuRes] = await Promise.all([
+        fetch('/api/offers'),
+        fetch('/api/menu')
+      ]);
+      globalOffers = await offersRes.json();
+      const menuData = await menuRes.json();
+      globalMenu = menuData.items || [];
+      renderOffers(globalOffers);
     }
     function renderOffers(offers) {
       const list = document.getElementById('customer-offer-list');
@@ -61,7 +68,7 @@
         list.innerHTML = '<em>No special offers available.</em>';
         return;
       }
-      list.innerHTML = offers.map(offer => {
+      list.innerHTML = offers.map((offer, idx) => {
         let price = offer.price ? `£${parseFloat(offer.price).toFixed(2)}` : '';
         let dateStr = '';
         if (offer.startDate || offer.endDate) {
@@ -70,14 +77,68 @@
         return `
           <div class='offer-item'>
             <span><b>${offer.title}</b> - ${offer.desc}${price ? ' <b>'+price+'</b>' : ''} ${dateStr}</span>
-            <button onclick='chooseOffer("${offer._id}")'>Choose</button>
+            <button onclick='chooseOffer(${idx})'>Choose</button>
           </div>
         `;
       }).join('');
     }
-    window.chooseOffer = function(id) {
-      localStorage.setItem('selectedOffer', id);
-      alert('Offer selected! You can now use it at checkout.');
+    window.chooseOffer = function(idx) {
+      const offer = globalOffers[idx];
+      // Find eligible items for the first section (can be extended for multi-section offers)
+      const section = (offer.sections && offer.sections[0]) || null;
+      const blocked = (offer.blockedItems && offer.blockedItems[0]) || [];
+      const extraPrices = (offer.extraPrices && offer.extraPrices[0]) || {};
+      const eligibleItems = globalMenu.filter(item => item.section === section && !blocked.includes(item._id));
+      if (!section || eligibleItems.length === 0) {
+        alert('No eligible items for this offer.');
+        return;
+      }
+      // Show a prompt to pick an item, showing extra price if set
+      let itemList = eligibleItems.map(i => {
+        let extra = '';
+        if (extraPrices && typeof extraPrices === 'object' && extraPrices[i._id] !== undefined) {
+          const val = parseFloat(extraPrices[i._id]);
+          if (!isNaN(val) && val > 0) extra = ` (+£${val.toFixed(2)})`;
+        }
+        return `<option value='${i._id}'>${i.name}${extra}</option>`;
+      }).join('');
+      const html = `
+        <div style='padding:18px;'>
+          <b>Choose your item from section: ${section}</b><br>
+          <select id='offer-item-select'>${itemList}</select>
+          <button id='confirm-offer-item-btn'>Confirm</button>
+        </div>
+      `;
+      const modal = document.createElement('div');
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.width = '100vw';
+      modal.style.height = '100vh';
+      modal.style.background = 'rgba(0,0,0,0.3)';
+      modal.style.display = 'flex';
+      modal.style.justifyContent = 'center';
+      modal.style.alignItems = 'center';
+      modal.style.zIndex = '9999';
+      modal.innerHTML = `<div style='background:#fff;padding:32px;border-radius:10px;box-shadow:0 2px 12px #0002;'>${html}</div>`;
+      document.body.appendChild(modal);
+      modal.querySelector('#confirm-offer-item-btn').onclick = function() {
+        const selectedId = modal.querySelector('#offer-item-select').value;
+        let extra = '';
+        if (extraPrices && typeof extraPrices === 'object' && extraPrices[selectedId] !== undefined) {
+          const val = parseFloat(extraPrices[selectedId]);
+          if (!isNaN(val) && val > 0) extra = val;
+        }
+        localStorage.setItem('selectedOffer', offer._id);
+        localStorage.setItem('selectedOfferItem', selectedId);
+        if (extra) {
+          localStorage.setItem('selectedOfferItemExtra', extra);
+        } else {
+          localStorage.removeItem('selectedOfferItemExtra');
+        }
+        document.body.removeChild(modal);
+        alert('Offer and item selected! You can now use it at checkout.');
+      };
     }
     fetchOffers();
   </script>
