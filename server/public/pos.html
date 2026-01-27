@@ -142,7 +142,7 @@
       try {
         const [menuRes, toppingsRes] = await Promise.all([
           fetch('/api/menu', { credentials: 'include' }),
-          fetch('/api/pizza-topping-stock', { credentials: 'include' })
+          fetch('/api/master-toppings', { credentials: 'include' })
         ]);
         const menuJson = await menuRes.json();
         posMenu = Array.isArray(menuJson.items) ? menuJson.items : [];
