@@ -6,8 +6,6 @@ const mongoose = require('mongoose');
 
 // Connect to MongoDB using environment variable
 mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
 }).then(() => {
   console.log('MongoDB connected');
 }).catch((err) => {
@@ -20,6 +18,7 @@ const MenuItem = require('./menu-item.model');
 
 const cors = require('cors');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const app = express();
 
 // Enable CORS for admin frontend and backend domains
@@ -40,6 +39,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'changeme',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+    ttl: 60 * 60 * 24, // 1 day
+  }),
   cookie: { secure: false } // Set to true if using HTTPS only
 }));
 

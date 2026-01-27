@@ -23,7 +23,7 @@ const toppings = [
 ];
 
 async function seedToppings() {
-  await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
+  await mongoose.connect(mongoUri);
   await Topping.deleteMany({});
   await Topping.insertMany(toppings);
   console.log('Toppings seeded!');
