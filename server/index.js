@@ -237,6 +237,8 @@ app.get('/running-orders.html', requireAdminAuth, (req, res) => {
     });
 
     // Mock API endpoints for admin dashboard
+    // --- Vouchers API ---
+    app.use('/api/vouchers', require('./vouchers.js'));
     // Use MenuItem model for menu endpoints
     require('./topping.model');
     const Section = require('./section.model');
