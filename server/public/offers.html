@@ -266,7 +266,13 @@
         list.innerHTML = '<em>No special offers set.</em>';
         return;
       }
-      list.innerHTML = offers.map((offer, idx) => {
+      // Filter out offers with no title or description
+      const validOffers = offers.filter(offer => offer.title && offer.desc);
+      if (!validOffers.length) {
+        list.innerHTML = '<em>No special offers set.</em>';
+        return;
+      }
+      list.innerHTML = validOffers.map((offer, idx) => {
         let sections = (offer.sections || []).filter(Boolean).join(', ');
         let price = offer.price ? `£${parseFloat(offer.price).toFixed(2)}` : '';
         let dateStr = '';
