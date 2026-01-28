@@ -318,6 +318,24 @@ app.patch('/api/orders/:orderId', async (req, res) => {
 // --- Sales Counts API ---
 app.use('/api/sales-counts', require('./sales-counts'));
 
+// --- DEBUG: Admin Login Endpoint ---
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  console.log('Login attempt:', { username, password });
+  try {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      req.session.isAdmin = true;
+      console.log('Login success:', username);
+      return res.json({ success: true });
+    }
+    console.log('Login failed:', { username, password });
+    res.status(401).json({ error: 'Invalid credentials' });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
 // End of API and server setup
 module.exports = app;
 
