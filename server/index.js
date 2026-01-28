@@ -336,11 +336,22 @@ app.post('/api/admin/login', (req, res) => {
   }
 });
 
+
 // Register API routes for admin menu functionality
 app.use('/api/master-toppings', require('./master-toppings'));
 app.use('/api/sections', require('./section-topping-assignments'));
-// If you have a dedicated menu API handler, use it here. Otherwise, this is a placeholder:
-// app.use('/api/menu', require('./menu-api-handler'));
+
+// Basic /api/menu endpoint to return all menu items
+const MenuItem = require('./menu-item.model');
+app.get('/api/menu', async (req, res) => {
+  try {
+    const items = await MenuItem.find({});
+    res.json(items);
+  } catch (err) {
+    console.error('Error fetching menu items:', err);
+    res.status(500).json({ error: 'Failed to fetch menu items' });
+  }
+});
 
 // End of API and server setup
 module.exports = app;
