@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Sales Tracking</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-page">
+  <nav class="admin-nav" style="margin-bottom: 24px;">
+    <a href="admin-menu.html" class="admin-link">Menu Editor</a>
+    <a href="stock-management.html" class="admin-link">Stock Management</a>
+    <a href="timeslots.html" class="admin-link">Time Slots</a>
+    <a href="orders.html" class="admin-link">Orders</a>
+    <a href="running-orders.html" class="admin-link">Running Orders</a>
+    <a href="takings.html" class="admin-link">Takings</a>
+    <a href="pos.html" class="admin-link">POS Manual Order</a>
+    <a href="offers.html" class="admin-link">Special Offers</a>
+    <a href="admin-sales.html" class="admin-link admin-link-active">Sales Tracking</a>
+  </nav>
+  <h1>Sales Tracking</h1>
+  <section>
+    <h2>Items Sold</h2>
+    <button id="refresh-sales-btn" style="margin-bottom:12px;">Refresh</button>
+    <div id="sales-table-container">
+      <em>Loading sales data...</em>
+    </div>
+  </section>
+  <script src="admin-sales.js"></script>
+</body>
+</html>
