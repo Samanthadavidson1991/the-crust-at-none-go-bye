@@ -342,7 +342,6 @@ app.use('/api/master-toppings', require('./master-toppings'));
 app.use('/api/sections', require('./section-topping-assignments'));
 
 // Basic /api/menu endpoint to return all menu items
-const MenuItem = require('./menu-item.model');
 app.get('/api/menu', async (req, res) => {
   try {
     const items = await MenuItem.find({});
