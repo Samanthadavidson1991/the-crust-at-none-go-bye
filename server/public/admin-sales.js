@@ -1,3 +1,26 @@
+// Load and display master toppings and allow price entry
+async function loadMasterToppings() {
+  const container = document.getElementById('master-toppings-container');
+  container.innerHTML = '<em>Loading master toppings...</em>';
+  try {
+    const res = await fetch('/api/master-toppings');
+    if (!res.ok) throw new Error('Failed to fetch master toppings');
+    const data = await res.json();
+    const toppings = data.toppings || [];
+    if (!toppings.length) {
+      container.innerHTML = '<em>No master toppings found.</em>';
+      return;
+    }
+    let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Price (this week)</th></tr></thead><tbody>';
+    toppings.forEach(t => {
+      html += `<tr><td>${t.name}</td><td>${t.category}</td><td><input type="number" step="0.01" min="0" value="${t.price !== undefined ? t.price : ''}" data-topping="${t.name}" class="topping-price-input"></td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  } catch (err) {
+    container.innerHTML = `<span style='color:red'>Error: ${err.message}</span>`;
+  }
+}
 // admin-sales.js
 // Fetches and displays sales counts per menu item
 
@@ -36,4 +59,5 @@ async function loadSalesTable() {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('refresh-sales-btn').onclick = loadSalesTable;
   loadSalesTable();
+  loadMasterToppings();
 });
