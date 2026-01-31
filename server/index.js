@@ -1,3 +1,4 @@
+app.use('/api/section-toppings', require('./section-toppings'));
 const path = require('path');
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
