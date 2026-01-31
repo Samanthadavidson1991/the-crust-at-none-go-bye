@@ -6,8 +6,6 @@ const mongoose = require('mongoose');
 
 
 
-// Register /api/section-toppings endpoint after app is defined
-app.use('/api/section-toppings', require('./section-toppings'));
 
 // Connect to MongoDB using environment variable
 mongoose.connect(process.env.MONGODB_URI, {
