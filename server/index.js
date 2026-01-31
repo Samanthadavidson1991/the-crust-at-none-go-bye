@@ -5,7 +5,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 
-const MongoStore = require('connect-mongo');
 const app = express();
 
 // Register /api/section-toppings endpoint after app is defined
