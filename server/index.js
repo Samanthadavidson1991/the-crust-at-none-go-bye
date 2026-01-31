@@ -4,6 +4,12 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
 
+
+const cors = require('cors');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const app = express();
+
 // Register /api/section-toppings endpoint after app is defined
 app.use('/api/section-toppings', require('./section-toppings'));
 
