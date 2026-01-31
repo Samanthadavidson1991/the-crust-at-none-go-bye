@@ -337,9 +337,14 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 
-// Register API routes for admin menu functionality
+
+// Register API routes for admin menu and customer menu functionality
 app.use('/api/master-toppings', require('./master-toppings'));
 app.use('/api/sections', require('./section-topping-assignments'));
+app.use('/api/offers', require('./offers'));
+app.use('/api/section-topping-assignments', require('./section-topping-assignments'));
+// Dummy pizza-topping-stock endpoint for now (returns empty array)
+app.get('/api/pizza-topping-stock', (req, res) => res.json([]));
 
 // Basic /api/menu endpoint to return all menu items
 app.get('/api/menu', async (req, res) => {
