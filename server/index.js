@@ -345,7 +345,7 @@ app.use('/api/sections', require('./section-topping-assignments'));
 app.get('/api/menu', async (req, res) => {
   try {
     const items = await MenuItem.find({});
-    res.json(items);
+    res.json({ items });
   } catch (err) {
     console.error('Error fetching menu items:', err);
     res.status(500).json({ error: 'Failed to fetch menu items' });
