@@ -20,6 +20,36 @@ async function loadMasterToppings() {
   } catch (err) {
     container.innerHTML = `<span style='color:red'>Error: ${err.message}</span>`;
   }
+
+  // Attach save logic to button
+  const saveBtn = document.getElementById('save-topping-prices-btn');
+  if (saveBtn) {
+    saveBtn.onclick = async function() {
+      const inputs = document.querySelectorAll('.topping-price-input');
+      let success = true;
+      for (const input of inputs) {
+        const name = input.getAttribute('data-topping');
+        const price = parseFloat(input.value);
+        if (isNaN(price)) continue;
+        try {
+          const res = await fetch('/api/master-toppings/update-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, price })
+          });
+          if (!res.ok) success = false;
+        } catch {
+          success = false;
+        }
+      }
+      if (success) {
+        alert('Topping prices saved!');
+        await loadMasterToppings();
+      } else {
+        alert('Some prices may not have saved.');
+      }
+    };
+  }
 }
 // admin-sales.js
 // Fetches and displays sales counts per menu item
