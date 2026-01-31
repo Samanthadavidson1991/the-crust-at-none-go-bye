@@ -57,11 +57,47 @@ async function loadSalesTable(weekStr) {
     // Build a map of sales counts by item name
     const salesMap = {};
     sales.forEach(row => { salesMap[row.name] = row.count; });
+
+    // Fetch master toppings for price calculation
+    let masterToppings = [];
+    try {
+      const toppingsRes = await fetch('/api/master-toppings');
+      if (toppingsRes.ok) {
+        const toppingsData = await toppingsRes.json();
+        masterToppings = toppingsData.toppings || [];
+      }
+    } catch {}
+
+    // Build a map of topping name to price
+    const toppingPriceMap = {};
+    masterToppings.forEach(t => {
+      if (typeof t.price === 'number') toppingPriceMap[t.name] = t.price;
+    });
+
+    // Count how many pizzas use each topping
+    const toppingUsage = {};
+    menuItems.forEach(item => {
+      if (Array.isArray(item.toppings)) {
+        item.toppings.forEach(t => {
+          toppingUsage[t] = (toppingUsage[t] || 0) + (salesMap[item.name] || 0);
+        });
+      }
+    });
+
     // Show all menu items, even those with zero sales
-    let html = '<table class="admin-table"><thead><tr><th>Item</th><th>Sold</th></tr></thead><tbody>';
+    let html = '<table class="admin-table"><thead><tr><th>Item</th><th>Sold</th><th>Estimated Cost per Pizza</th></tr></thead><tbody>';
     menuItems.forEach(item => {
       const count = salesMap[item.name] || 0;
-      html += `<tr><td>${item.name}</td><td>${count}</td></tr>`;
+      // Calculate estimated cost per pizza
+      let estCost = 0;
+      if (Array.isArray(item.toppings)) {
+        item.toppings.forEach(t => {
+          const price = toppingPriceMap[t] || 0;
+          const usage = toppingUsage[t] || 1; // avoid div by zero
+          estCost += price / usage;
+        });
+      }
+      html += `<tr><td>${item.name}</td><td>${count}</td><td>£${estCost.toFixed(2)}</td></tr>`;
     });
     html += '</tbody></table>';
     container.innerHTML = html;
