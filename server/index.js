@@ -1,3 +1,7 @@
+// --- TEST ROUTE FOR DEPLOYMENT DEBUGGING ---
+app.get('/api/test-route', (req, res) => {
+  res.json({ success: true, message: 'Test route is active', timestamp: new Date().toISOString() });
+});
 const path = require('path');
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
