@@ -21,7 +21,11 @@
   <h1>Sales Tracking</h1>
   <section>
     <h2>Items Sold</h2>
-    <button id="refresh-sales-btn" style="margin-bottom:12px;">Refresh</button>
+    <form id="week-form" style="margin-bottom:12px;display:flex;gap:12px;align-items:center;">
+      <label for="week-picker">Week:</label>
+      <input type="week" id="week-picker" name="week">
+      <button type="submit" id="refresh-sales-btn">Refresh</button>
+    </form>
     <div id="sales-table-container">
       <em>Loading sales data...</em>
     </div>

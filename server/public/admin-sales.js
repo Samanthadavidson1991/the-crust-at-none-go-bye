@@ -25,29 +25,43 @@ async function loadMasterToppings() {
 // Fetches and displays sales counts per menu item
 
 
-async function loadSalesTable() {
+async function loadSalesTable(weekStr) {
   const container = document.getElementById('sales-table-container');
   container.innerHTML = '<em>Loading sales data...</em>';
   try {
+    // Calculate start and end date from week string (YYYY-Wxx)
+    let startDate, endDate;
+    if (weekStr) {
+      const [year, week] = weekStr.split('-W');
+      // Week starts on Monday
+      const firstDayOfYear = new Date(year, 0, 1);
+      const daysOffset = ((parseInt(week) - 1) * 7) + (firstDayOfYear.getDay() <= 4 ? 1 - firstDayOfYear.getDay() : 8 - firstDayOfYear.getDay());
+      startDate = new Date(year, 0, 1 + daysOffset);
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+    }
     // Fetch both sales and live menu
+    const salesUrl = weekStr && startDate && endDate
+      ? `/api/sales-counts?start=${startDate.toISOString()}&end=${endDate.toISOString()}`
+      : '/api/sales-counts';
     const [salesRes, menuRes] = await Promise.all([
-      fetch('/api/sales-counts', { credentials: 'include' }),
+      fetch(salesUrl, { credentials: 'include' }),
       fetch('/api/menu')
     ]);
     if (!salesRes.ok) throw new Error('Failed to fetch sales data');
     if (!menuRes.ok) throw new Error('Failed to fetch menu data');
     const sales = await salesRes.json();
     const menu = await menuRes.json();
-    const liveNames = new Set((menu.items || []).map(i => i.name));
-    // Only show sales for items currently on the live menu
-    const filteredSales = sales.filter(row => liveNames.has(row.name));
-    if (!filteredSales.length) {
-      container.innerHTML = '<em>No sales data for current menu items.</em>';
-      return;
-    }
+    // menu may be an array or {items: [...]}, support both
+    const menuItems = Array.isArray(menu) ? menu : (menu.items || []);
+    // Build a map of sales counts by item name
+    const salesMap = {};
+    sales.forEach(row => { salesMap[row.name] = row.count; });
+    // Show all menu items, even those with zero sales
     let html = '<table class="admin-table"><thead><tr><th>Item</th><th>Sold</th></tr></thead><tbody>';
-    filteredSales.forEach(row => {
-      html += `<tr><td>${row.name}</td><td>${row.count}</td></tr>`;
+    menuItems.forEach(item => {
+      const count = salesMap[item.name] || 0;
+      html += `<tr><td>${item.name}</td><td>${count}</td></tr>`;
     });
     html += '</tbody></table>';
     container.innerHTML = html;
@@ -57,7 +71,22 @@ async function loadSalesTable() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('refresh-sales-btn').onclick = loadSalesTable;
-  loadSalesTable();
+  const weekInput = document.getElementById('week-picker');
+  const weekForm = document.getElementById('week-form');
+  // Set default week to current week
+  const now = new Date();
+  const weekNum = ((d) => {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    return `${d.getUTCFullYear()}-W${weekNo.toString().padStart(2,'0')}`;
+  })(now);
+  weekInput.value = weekNum;
+  weekForm.onsubmit = (e) => {
+    e.preventDefault();
+    loadSalesTable(weekInput.value);
+  };
+  loadSalesTable(weekInput.value);
   loadMasterToppings();
 });
