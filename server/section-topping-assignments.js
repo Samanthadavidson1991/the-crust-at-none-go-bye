@@ -7,7 +7,7 @@ const { MasterTopping } = require('./master-topping.model');
 router.get('/', async (req, res) => {
   try {
     const docs = await SectionToppingAssignment.find({}).populate('toppings');
-    res.json(docs);
+    res.json({ sections: docs });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch section assignments', details: err.message });
   }
