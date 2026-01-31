@@ -6,9 +6,14 @@ const SectionToppingAssignment = require('./section-topping-assignments.model');
 // Get all master toppings and settings
 // Update price for an 'Other' master topping by name
 router.post('/update-price', async (req, res) => {
-  const { name, price } = req.body;
-  if (!name || typeof price !== 'number') {
-    return res.status(400).json({ error: 'Name and price required' });
+  let { name, price } = req.body;
+  console.log('Update price request:', req.body);
+  if (!name) {
+    return res.status(400).json({ error: 'Name required' });
+  }
+  price = parseFloat(price);
+  if (isNaN(price)) {
+    return res.status(400).json({ error: 'Valid price required' });
   }
   const topping = await MasterTopping.findOne({ name, category: 'Other' });
   if (!topping) {
@@ -16,6 +21,7 @@ router.post('/update-price', async (req, res) => {
   }
   topping.price = price;
   await topping.save();
+  console.log('Saved topping:', topping);
   res.json({ success: true, topping });
 });
 router.get('/', async (req, res) => {
