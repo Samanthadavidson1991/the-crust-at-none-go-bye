@@ -11,12 +11,39 @@ async function loadMasterToppings() {
       container.innerHTML = '<em>No master toppings found.</em>';
       return;
     }
-    let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Price (this week)</th></tr></thead><tbody>';
+    let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Price (this week)</th><th></th></tr></thead><tbody>';
     toppings.forEach(t => {
-      html += `<tr><td>${t.name}</td><td>${t.category}</td><td><input type="number" step="0.01" min="0" value="${t.price !== undefined ? t.price : ''}" data-topping="${t.name}" class="topping-price-input"></td></tr>`;
+      html += `<tr><td>${t.name}</td><td>${t.category}</td><td><input type="number" step="0.01" min="0" value="${t.price !== undefined ? t.price : ''}" data-topping="${t.name}" class="topping-price-input"></td><td><button class="save-topping-price-btn" data-topping="${t.name}">Save</button></td></tr>`;
     });
     html += '</tbody></table>';
     container.innerHTML = html;
+
+    // Add event listeners to save buttons
+    container.querySelectorAll('.save-topping-price-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const topping = btn.getAttribute('data-topping');
+        const input = container.querySelector(`.topping-price-input[data-topping='${topping}']`);
+        const price = parseFloat(input.value) || 0;
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        try {
+          const res = await fetch('/api/master-toppings/update-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: topping, price })
+          });
+          if (!res.ok) throw new Error('Failed to save price');
+          btn.textContent = 'Saved!';
+          setTimeout(() => { btn.textContent = 'Save'; btn.disabled = false; }, 1000);
+          // Reload sales table to update price per pizza
+          const weekInput = document.getElementById('week-picker');
+          if (weekInput) loadSalesTable(weekInput.value);
+        } catch (err) {
+          btn.textContent = 'Error';
+          setTimeout(() => { btn.textContent = 'Save'; btn.disabled = false; }, 1500);
+        }
+      });
+    });
   } catch (err) {
     container.innerHTML = `<span style='color:red'>Error: ${err.message}</span>`;
   }
