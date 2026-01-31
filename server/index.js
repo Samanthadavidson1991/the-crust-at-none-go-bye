@@ -1,9 +1,11 @@
-app.use('/api/section-toppings', require('./section-toppings'));
 const path = require('path');
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
 const mongoose = require('mongoose');
+
+// Register /api/section-toppings endpoint after app is defined
+app.use('/api/section-toppings', require('./section-toppings'));
 
 // Connect to MongoDB using environment variable
 mongoose.connect(process.env.MONGODB_URI, {
