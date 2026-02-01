@@ -45,6 +45,9 @@ async function loadMasterToppings() {
       if (success) {
         alert('Topping prices saved!');
         await loadMasterToppings();
+        // Also reload the sales table to reflect new prices
+        const weekInput = document.getElementById('week-picker');
+        if (weekInput) await loadSalesTable(weekInput.value);
       } else {
         alert('Some prices may not have saved.');
       }
