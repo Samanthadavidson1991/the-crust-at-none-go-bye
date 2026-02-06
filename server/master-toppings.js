@@ -15,7 +15,7 @@ router.post('/update-price', async (req, res) => {
   if (isNaN(price)) {
     return res.status(400).json({ error: 'Valid price required' });
   }
-  const topping = await MasterTopping.findOne({ name, category: 'Other' });
+  const topping = await MasterTopping.findOne({ name });
   if (!topping) {
     return res.status(404).json({ error: 'Topping not found' });
   }
