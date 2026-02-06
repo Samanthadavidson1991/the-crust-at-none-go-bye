@@ -428,7 +428,12 @@ function chooseOfferById(offerId) {
         renderOrderSummary();
         document.getElementById('clear-checkout-btn').onclick = function() {
           localStorage.removeItem('order');
+          localStorage.removeItem('selectedOffer');
+          localStorage.removeItem('selectedOfferSelections');
           renderOrderSummary();
+          // Also hide the offer banner if present
+          const offerBanner = document.getElementById('selected-offer-checkout');
+          if (offerBanner) offerBanner.style.display = 'none';
         };
         // Payment button highlight logic
         window.selectedPayment = null;
