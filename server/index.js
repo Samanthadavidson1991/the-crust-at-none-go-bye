@@ -24,13 +24,16 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const app = express();
 
-// Enable CORS for admin frontend and backend domains
+// Enable CORS for admin and public domains
 app.use(cors({
   origin: [
     'https://admin.thecrustatngb.co.uk',
+    'https://thecrustatngb.co.uk',
     'https://the-crust-at-none-go-bye-admin.onrender.com'
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
