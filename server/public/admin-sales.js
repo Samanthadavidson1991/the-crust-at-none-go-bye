@@ -2,7 +2,6 @@
 async function loadMasterToppings() {
   const container = document.getElementById('master-toppings-container');
   container.innerHTML = '<em>Loading master toppings...</em>';
-  let masterVegPrice = 0, masterMeatPrice = 0;
   try {
     const res = await fetch('/api/master-toppings');
     if (!res.ok) throw new Error('Failed to fetch master toppings');
@@ -18,13 +17,6 @@ async function loadMasterToppings() {
     });
     html += '</tbody></table>';
     container.innerHTML = html;
-    // Set master prices if available
-    if (data.settings) {
-      masterVegPrice = data.settings.masterVegPrice || 0;
-      masterMeatPrice = data.settings.masterMeatPrice || 0;
-    }
-    document.getElementById('master-veg-price').value = masterVegPrice;
-    document.getElementById('master-meat-price').value = masterMeatPrice;
   } catch (err) {
     container.innerHTML = `<span style='color:red'>Error: ${err.message}</span>`;
   }
@@ -62,29 +54,6 @@ async function loadMasterToppings() {
     };
   }
 
-  // Save Meat & Veg prices
-  const saveMasterBtn = document.getElementById('save-master-topping-prices');
-  if (saveMasterBtn) {
-    saveMasterBtn.onclick = async function() {
-      const veg = parseFloat(document.getElementById('master-veg-price').value) || 0;
-      const meat = parseFloat(document.getElementById('master-meat-price').value) || 0;
-      try {
-        const res = await fetch('/api/master-toppings/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ masterVegPrice: veg, masterMeatPrice: meat })
-        });
-        if (!res.ok) throw new Error('Failed to save prices');
-        alert('Meat & Veg prices saved!');
-        await loadMasterToppings();
-        // Also reload the sales table to reflect new prices
-        const weekInput = document.getElementById('week-picker');
-        if (weekInput) await loadSalesTable(weekInput.value);
-      } catch (err) {
-        alert('Error saving prices: ' + err.message);
-      }
-    };
-  }
 }
 // admin-sales.js
 // Fetches and displays sales counts per menu item
