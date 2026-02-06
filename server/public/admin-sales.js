@@ -12,9 +12,9 @@ async function loadMasterToppings() {
       container.innerHTML = '<em>No master toppings found.</em>';
       return;
     }
-    let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Price (this week)</th></tr></thead><tbody>';
+    let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Total Spent This Week (£)</th></tr></thead><tbody>';
     toppings.forEach(t => {
-      html += `<tr><td>${t.name}</td><td>${t.category}</td><td><input type="number" step="0.01" min="0" value="${t.price !== undefined ? t.price : ''}" data-topping="${t.name}" class="topping-price-input"></td></tr>`;
+      html += `<tr><td>${t.name}</td><td>${t.category}</td><td><input type="number" step="0.01" min="0" value="${t.price !== undefined ? t.price : ''}" data-topping="${t.name}" class="topping-price-input" placeholder="Total Spent"></td></tr>`;
     });
     html += '</tbody></table>';
     container.innerHTML = html;
@@ -133,10 +133,10 @@ async function loadSalesTable(weekStr) {
       }
     } catch {}
 
-    // Build a map of topping name to price
-    const toppingPriceMap = {};
+    // Build a map of topping name to total spent
+    const toppingSpentMap = {};
     masterToppings.forEach(t => {
-      if (typeof t.price === 'number') toppingPriceMap[t.name] = t.price;
+      if (typeof t.price === 'number') toppingSpentMap[t.name] = t.price;
     });
 
     // Count how many pizzas use each topping
@@ -157,9 +157,9 @@ async function loadSalesTable(weekStr) {
       let estCost = 0;
       if (Array.isArray(item.toppings)) {
         item.toppings.forEach(t => {
-          const price = toppingPriceMap[t] || 0;
+          const spent = toppingSpentMap[t] || 0;
           const usage = toppingUsage[t] || 1; // avoid div by zero
-          estCost += price / usage;
+          estCost += spent / usage;
         });
       }
       html += `<tr><td>${item.name}</td><td>${count}</td><td>£${estCost.toFixed(2)}</td></tr>`;
