@@ -305,6 +305,18 @@ app.patch('/api/menu/:name/hide', async (req, res) => {
 });
 
 // --- PATCH order status endpoint ---
+// --- POST order creation endpoint ---
+app.post('/api/orders', async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const orderData = req.body;
+    const order = new Order(orderData);
+    await order.save();
+    res.status(201).json({ success: true, orderId: order._id });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create order', details: err.message });
+  }
+});
 // (Placed after all app and middleware setup to avoid ReferenceError)
 app.patch('/api/orders/:orderId', async (req, res) => {
   try {
