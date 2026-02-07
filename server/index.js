@@ -103,8 +103,8 @@ app.get('/', (req, res) => {
     // Otherwise, go to login page
     return res.redirect('/login.html');
   }
-  // For public site, serve index.html
-  return res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  // For public site, serve coming-soon.html
+  return res.sendFile(path.join(__dirname, 'public', 'coming-soon.html'));
 });
 
 // Serve all static files from public directory (must be after admin and root routes)
