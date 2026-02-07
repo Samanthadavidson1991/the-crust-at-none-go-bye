@@ -370,6 +370,25 @@ app.patch('/api/menu/:name/hide', async (req, res) => {
 // --- PATCH order status endpoint ---
 // --- POST order creation endpoint ---
 app.post('/api/orders', async (req, res) => {
+// --- Update price for a pizza/menu item by name ---
+app.post('/api/menu-item/update-price', async (req, res) => {
+  try {
+    const { name, price } = req.body;
+    if (!name || typeof price !== 'number') {
+      return res.status(400).json({ error: 'Name and valid price required' });
+    }
+    const MenuItem = require('./menu-item.model');
+    const item = await MenuItem.findOne({ name });
+    if (!item) {
+      return res.status(404).json({ error: 'Menu item not found' });
+    }
+    item.price = price;
+    await item.save();
+    res.json({ success: true, item });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update menu item price', details: err.message });
+  }
+});
   try {
     const Order = require('./order.model');
     const orderData = req.body;
