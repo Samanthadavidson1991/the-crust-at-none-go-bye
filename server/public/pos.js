@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadToppings() {
     try {
       // Use full backend URL for topping stock
-      const backendBase = 'https://the-crust-at-none-go-bye-admin.onrender.com';
+      const backendBase = 'https://admin.thecrustatngb.co.uk';
       const res = await fetch(backendBase + '/api/pizza-topping-stock', { credentials: 'include' });
       const data = await res.json();
       availableToppings = (data.toppings || []).map(t => t.name);

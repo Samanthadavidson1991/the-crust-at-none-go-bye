@@ -36,7 +36,7 @@
     document.getElementById('order-toast-close').onclick = () => toast.remove();
     document.getElementById('order-toast-accept').onclick = async () => {
       try {
-        await fetch(`https://the-crust-at-none-go-bye-admin.onrender.com/api/orders/${order._id}`, {
+        await fetch(`https://admin.thecrustatngb.co.uk/api/orders/${order._id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'Accepted' }),
@@ -47,7 +47,7 @@
     };
     document.getElementById('order-toast-decline').onclick = async () => {
       try {
-        await fetch(`https://the-crust-at-none-go-bye-admin.onrender.com/api/orders/${order._id}`, {
+        await fetch(`https://admin.thecrustatngb.co.uk/api/orders/${order._id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'Declined' }),
@@ -62,7 +62,7 @@
     if (polling) return;
     polling = true;
     try {
-      const res = await fetch('https://the-crust-at-none-go-bye-admin.onrender.com/api/orders', { credentials: 'include' });
+      const res = await fetch('https://admin.thecrustatngb.co.uk/api/orders', { credentials: 'include' });
       if (!res.ok) return;
       const orders = await res.json();
       const ids = Array.isArray(orders) ? orders.map(o => o._id) : [];

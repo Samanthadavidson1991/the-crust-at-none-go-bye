@@ -5,7 +5,7 @@ const MongoStore = require('connect-mongo');
 const cors = require('cors');
 const app = express();
 
-app.use(cors({ origin: 'https://the-crust-at-none-go-bye-admin.onrender.com', credentials: true }));
+
 app.use(express.json());
 
 app.use(session({
