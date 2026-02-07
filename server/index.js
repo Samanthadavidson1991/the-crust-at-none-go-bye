@@ -116,6 +116,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Admin authentication middleware
 // Admin session check endpoint for frontend
+// GET /api/orders - Return all orders for admin
+app.get('/api/orders', requireAdminAuth, async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const orders = await Order.find({}).sort({ createdAt: -1 }).limit(100);
+    res.json(orders);
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
 app.get('/api/admin/check', (req, res) => {
   if (req.session && req.session.isAdmin) {
     return res.json({ ok: true, admin: true });
