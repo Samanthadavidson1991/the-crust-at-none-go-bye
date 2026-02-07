@@ -116,11 +116,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Admin authentication middleware
 function requireAdminAuth(req, res, next) {
-  // Debug: Log session info
+  // Enhanced debug logging for admin access troubleshooting
   console.log('requireAdminAuth:', {
+    url: req.originalUrl,
+    method: req.method,
     sessionID: req.sessionID,
     session: req.session,
-    cookies: req.headers.cookie
+    cookies: req.headers.cookie,
+    headers: req.headers,
+    remoteAddress: req.connection && req.connection.remoteAddress
   });
   if (req.session && req.session.isAdmin) return next();
   // Serve a custom 401 page if it exists, otherwise send a simple message
