@@ -54,6 +54,9 @@ app.use(session({
 }));
 
 // Protect admin-only HTML pages (must be before express.static)
+app.get('/orders.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'orders.html'));
+});
 app.get('/admin-menu.html', requireAdminAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin-menu.html'));
 });
