@@ -50,7 +50,11 @@ app.use(session({
     collectionName: 'sessions',
     ttl: 60 * 60 * 24, // 1 day
   }),
-  cookie: { secure: false } // Set to true if using HTTPS only
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // true if in production (HTTPS)
+    sameSite: 'lax',
+    httpOnly: true
+  }
 }));
 
 // Protect admin-only HTML pages (must be before express.static)
