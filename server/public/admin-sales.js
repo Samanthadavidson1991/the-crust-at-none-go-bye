@@ -137,24 +137,6 @@ async function loadSalesTable(weekStr) {
     });
     html += '</tbody></table>';
     container.innerHTML = html;
-
-    // Show all menu items, even those with zero sales
-    let html = '<table class="admin-table"><thead><tr><th>Item</th><th>Sold</th><th>Estimated Cost per Pizza</th></tr></thead><tbody>';
-    menuItems.forEach(item => {
-      const count = salesMap[item.name] || 0;
-      // Calculate estimated cost per pizza
-      let estCost = 0;
-      if (Array.isArray(item.toppings)) {
-        item.toppings.forEach(t => {
-          const spent = toppingSpentMap[t] || 0;
-          const usage = toppingUsage[t] || 1; // avoid div by zero
-          estCost += spent / usage;
-        });
-      }
-      html += `<tr><td>${item.name}</td><td>${count}</td><td>£${estCost.toFixed(2)}</td></tr>`;
-    });
-    html += '</tbody></table>';
-    container.innerHTML = html;
   } catch (err) {
     container.innerHTML = `<span style='color:red'>Error: ${err.message}</span>`;
   }
