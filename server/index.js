@@ -51,7 +51,7 @@ app.use(session({
     ttl: 60 * 60 * 24, // 1 day
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // true if in production (HTTPS)
+    secure: false, // Force false for local/dev to allow cookies over HTTP
     sameSite: 'lax',
     httpOnly: true
   }
