@@ -108,8 +108,22 @@ async function loadSalesTable(weekStr) {
 
     // Build a map of topping name to total spent
     const toppingSpentMap = {};
+    let masterMeatPrice = 0, masterVegPrice = 0;
+    if (masterToppings.length && masterToppings[0].category) {
+      // Try to get global prices from settings
+      if (typeof masterToppings.settings === 'object') {
+        masterMeatPrice = masterToppings.settings.masterMeatPrice || 0;
+        masterVegPrice = masterToppings.settings.masterVegPrice || 0;
+      }
+    }
     masterToppings.forEach(t => {
-      if (typeof t.price === 'number') toppingSpentMap[t.name] = t.price;
+      if (typeof t.price === 'number') {
+        toppingSpentMap[t.name] = t.price;
+      } else if (t.category === 'Meat') {
+        toppingSpentMap[t.name] = masterMeatPrice;
+      } else if (t.category === 'Veg') {
+        toppingSpentMap[t.name] = masterVegPrice;
+      }
     });
 
     // Count how many pizzas use each topping
