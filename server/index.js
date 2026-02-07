@@ -383,11 +383,10 @@ app.post('/api/orders', async (req, res) => {
 // (Placed after all app and middleware setup to avoid ReferenceError)
 app.patch('/api/orders/:orderId', async (req, res) => {
   try {
+    const Order = require('./order.model');
     const { orderId } = req.params;
     const { status } = req.body;
     if (!status) return res.status(400).json({ error: 'Status is required' });
-    // Update order status in MongoDB
-    // const Order = require('./order.model');
     const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json({ success: true, status: order.status });
