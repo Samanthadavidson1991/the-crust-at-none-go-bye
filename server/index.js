@@ -115,6 +115,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Admin authentication middleware
+// Admin session check endpoint for frontend
+app.get('/api/admin/check', (req, res) => {
+  if (req.session && req.session.isAdmin) {
+    return res.json({ ok: true, admin: true });
+  }
+  return res.status(401).json({ ok: false, admin: false });
+});
 function requireAdminAuth(req, res, next) {
   // Enhanced debug logging for admin access troubleshooting
   console.log('requireAdminAuth:', {
