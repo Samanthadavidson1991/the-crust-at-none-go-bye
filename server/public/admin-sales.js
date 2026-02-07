@@ -118,23 +118,56 @@ async function loadSalesTable(weekStr) {
       }
     });
 
-    // Show all menu items, even those with zero sales
-    let html = '<table class="admin-table"><thead><tr><th>Item</th><th>Sold</th><th>Estimated Cost per Pizza</th></tr></thead><tbody>';
+    // Show all menu items, even those with zero sales, and allow price editing
+    let html = '<table class="admin-table"><thead><tr><th>Item</th><th>Sold</th><th>Estimated Cost per Pizza</th><th>Price (£)</th></tr></thead><tbody>';
     menuItems.forEach(item => {
       const count = salesMap[item.name] || 0;
-      // Calculate estimated cost per pizza
       let estCost = 0;
       if (Array.isArray(item.toppings)) {
         item.toppings.forEach(t => {
           const spent = toppingSpentMap[t] || 0;
-          const usage = toppingUsage[t] || 1; // avoid div by zero
+          const usage = toppingUsage[t] || 1;
           estCost += spent / usage;
         });
       }
-      html += `<tr><td>${item.name}</td><td>${count}</td><td>£${estCost.toFixed(2)}</td></tr>`;
+      html += `<tr><td>${item.name}</td><td>${count}</td><td>£${estCost.toFixed(2)}</td><td><input type="number" step="0.01" min="0" value="${typeof item.price === 'number' ? item.price : ''}" data-menu-item="${item.name}" class="menu-item-price-input" placeholder="Price"></td></tr>`;
     });
     html += '</tbody></table>';
     container.innerHTML = html;
+    // Attach save logic for menu item prices
+    let saveMenuBtn = document.getElementById('save-menu-item-prices-btn');
+    if (!saveMenuBtn) {
+      saveMenuBtn = document.createElement('button');
+      saveMenuBtn.id = 'save-menu-item-prices-btn';
+      saveMenuBtn.textContent = "Save Menu Item Prices";
+      saveMenuBtn.style.marginTop = "10px";
+      container.parentNode.insertBefore(saveMenuBtn, container.nextSibling);
+    }
+    saveMenuBtn.onclick = async function() {
+      const inputs = document.querySelectorAll('.menu-item-price-input');
+      let success = true;
+      for (const input of inputs) {
+        const name = input.getAttribute('data-menu-item');
+        const price = parseFloat(input.value);
+        if (isNaN(price)) continue;
+        try {
+          const res = await fetch('/api/menu-item/update-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, price })
+          });
+          if (!res.ok) success = false;
+        } catch {
+          success = false;
+        }
+      }
+      if (success) {
+        alert('Menu item prices saved!');
+        await loadSalesTable(weekStr);
+      } else {
+        alert('Some menu item prices may not have saved.');
+      }
+    };
   } catch (err) {
     container.innerHTML = `<span style='color:red'>Error: ${err.message}</span>`;
   }
