@@ -117,6 +117,31 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Admin authentication middleware
 // Admin session check endpoint for frontend
 // GET /api/orders - Return all orders for admin
+// POST /api/orders/:id/accept - Accept an order
+app.post('/api/orders/:id/accept', requireAdminAuth, async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const order = await Order.findByIdAndUpdate(req.params.id, { status: 'accepted' }, { new: true });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ ok: true, order });
+  } catch (err) {
+    console.error('Error accepting order:', err);
+    res.status(500).json({ error: 'Failed to accept order' });
+  }
+});
+
+// POST /api/orders/:id/decline - Decline an order
+app.post('/api/orders/:id/decline', requireAdminAuth, async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const order = await Order.findByIdAndUpdate(req.params.id, { status: 'declined' }, { new: true });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ ok: true, order });
+  } catch (err) {
+    console.error('Error declining order:', err);
+    res.status(500).json({ error: 'Failed to decline order' });
+  }
+});
 app.get('/api/orders', requireAdminAuth, async (req, res) => {
   try {
     const Order = require('./order.model');
