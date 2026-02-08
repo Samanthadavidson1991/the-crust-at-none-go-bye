@@ -447,92 +447,93 @@ document.addEventListener('DOMContentLoaded', () => {
         sizesList.innerHTML = '';
 
                         // Render section list with delete buttons
-                        async function renderSectionsList() {
-                            const sectionsListDiv = document.getElementById('sections-list');
-                            sectionsListDiv.innerHTML = '<em>Loading sections...</em>';
-                            try {
-                                const res = await fetch('/api/sections');
-                                if (!res.ok) throw new Error('Failed to fetch sections');
-                                const data = await res.json();
-                                const sections = data.sections || [];
-                                if (!sections.length) {
-                                    sectionsListDiv.innerHTML = '<em>No sections found.</em>';
-                                    return;
-                                }
-                                let html = '<ul style="list-style:none;padding-left:0;">';
-                                sections.forEach((sec, idx) => {
-                                    html += `<li style="margin-bottom:6px;">`
-                                        + `<b>${sec.name}</b> `
-                                        + `<button data-id="${sec._id}" class="move-section-up-btn" ${idx === 0 ? 'disabled' : ''}>↑</button> `
-                                        + `<button data-id="${sec._id}" class="move-section-down-btn" ${idx === sections.length - 1 ? 'disabled' : ''}>↓</button> `
-                                        + `<button data-id="${sec._id}" class="delete-section-btn" style="color:red;">Delete</button>`
-                                        + `</li>`;
-                                });
-                                html += '</ul>';
-                                sectionsListDiv.innerHTML = html;
+    // --- Render Sections List (moved to top-level) ---
+    async function renderSectionsList() {
+        const sectionsListDiv = document.getElementById('sections-list');
+        sectionsListDiv.innerHTML = '<em>Loading sections...</em>';
+        try {
+            const res = await fetch('/api/sections');
+            if (!res.ok) throw new Error('Failed to fetch sections');
+            const data = await res.json();
+            const sections = data.sections || [];
+            if (!sections.length) {
+                sectionsListDiv.innerHTML = '<em>No sections found.</em>';
+                return;
+            }
+            let html = '<ul style="list-style:none;padding-left:0;">';
+            sections.forEach((sec, idx) => {
+                html += `<li style="margin-bottom:6px;">`
+                    + `<b>${sec.name}</b> `
+                    + `<button data-id="${sec._id}" class="move-section-up-btn" ${idx === 0 ? 'disabled' : ''}>↑</button> `
+                    + `<button data-id="${sec._id}" class="move-section-down-btn" ${idx === sections.length - 1 ? 'disabled' : ''}>↓</button> `
+                    + `<button data-id="${sec._id}" class="delete-section-btn" style="color:red;">Delete</button>`
+                    + `</li>`;
+            });
+            html += '</ul>';
+            sectionsListDiv.innerHTML = html;
 
-                                // Attach move up/down handlers
-                                document.querySelectorAll('.move-section-up-btn').forEach(btn => {
-                                    btn.onclick = async function() {
-                                        const id = btn.getAttribute('data-id');
-                                        const idx = sections.findIndex(s => s._id === id);
-                                        if (idx > 0) {
-                                            // Swap order with previous
-                                            const prev = sections[idx - 1];
-                                            const curr = sections[idx];
-                                            await updateSectionOrder([ { id: prev._id, order: idx }, { id: curr._id, order: idx - 1 } ]);
-                                            await renderSectionsList();
-                                            await populateSectionDropdown();
-                                        }
-                                    };
-                                });
-                                document.querySelectorAll('.move-section-down-btn').forEach(btn => {
-                                    btn.onclick = async function() {
-                                        const id = btn.getAttribute('data-id');
-                                        const idx = sections.findIndex(s => s._id === id);
-                                        if (idx < sections.length - 1) {
-                                            // Swap order with next
-                                            const next = sections[idx + 1];
-                                            const curr = sections[idx];
-                                            await updateSectionOrder([ { id: next._id, order: idx }, { id: curr._id, order: idx + 1 } ]);
-                                            await renderSectionsList();
-                                            await populateSectionDropdown();
-                                        }
-                                    };
-                                });
-                                // Attach delete handlers
-                                document.querySelectorAll('.delete-section-btn').forEach(btn => {
-                                    btn.onclick = async function() {
-                                        if (!confirm('Are you sure you want to delete this section?')) return;
-                                        const id = btn.getAttribute('data-id');
-                                        try {
-                                            const res = await fetch(`/api/sections/${id}`, { method: 'DELETE' });
-                                            if (!res.ok) throw new Error('Failed to delete section');
-                                            await populateSectionDropdown();
-                                            await renderSectionsList();
-                                        } catch (err) {
-                                            alert('Error deleting section: ' + err.message);
-                                        }
-                                    };
-                                });
+            // Attach move up/down handlers
+            document.querySelectorAll('.move-section-up-btn').forEach(btn => {
+                btn.onclick = async function() {
+                    const id = btn.getAttribute('data-id');
+                    const idx = sections.findIndex(s => s._id === id);
+                    if (idx > 0) {
+                        // Swap order with previous
+                        const prev = sections[idx - 1];
+                        const curr = sections[idx];
+                        await updateSectionOrder([ { id: prev._id, order: idx }, { id: curr._id, order: idx - 1 } ]);
+                        await renderSectionsList();
+                        await populateSectionDropdown();
+                    }
+                };
+            });
+            document.querySelectorAll('.move-section-down-btn').forEach(btn => {
+                btn.onclick = async function() {
+                    const id = btn.getAttribute('data-id');
+                    const idx = sections.findIndex(s => s._id === id);
+                    if (idx < sections.length - 1) {
+                        // Swap order with next
+                        const next = sections[idx + 1];
+                        const curr = sections[idx];
+                        await updateSectionOrder([ { id: next._id, order: idx }, { id: curr._id, order: idx + 1 } ]);
+                        await renderSectionsList();
+                        await populateSectionDropdown();
+                    }
+                };
+            });
+            // Attach delete handlers
+            document.querySelectorAll('.delete-section-btn').forEach(btn => {
+                btn.onclick = async function() {
+                    if (!confirm('Are you sure you want to delete this section?')) return;
+                    const id = btn.getAttribute('data-id');
+                    try {
+                        const res = await fetch(`/api/sections/${id}`, { method: 'DELETE' });
+                        if (!res.ok) throw new Error('Failed to delete section');
+                        await populateSectionDropdown();
+                        await renderSectionsList();
+                    } catch (err) {
+                        alert('Error deleting section: ' + err.message);
+                    }
+                };
+            });
 
-                                // Helper to update section order
-                                async function updateSectionOrder(updates) {
-                                    for (const u of updates) {
-                                        await fetch(`/api/sections/${u.id}/order`, {
-                                            method: 'PATCH',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ order: u.order })
-                                        });
-                                    }
-                                }
-                            } catch (err) {
-                                sectionsListDiv.innerHTML = `<span style="color:red;">Error loading sections: ${err.message}</span>`;
-                            }
-                        }
+            // Helper to update section order
+            async function updateSectionOrder(updates) {
+                for (const u of updates) {
+                    await fetch(`/api/sections/${u.id}/order`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order: u.order })
+                    });
+                }
+            }
+        } catch (err) {
+            sectionsListDiv.innerHTML = `<span style="color:red;">Error loading sections: ${err.message}</span>`;
+        }
+    }
 
-                        // Initial render
-                        renderSectionsList();
+    // Initial render
+    renderSectionsList();
 
         sizes.forEach((obj, idx) => {
             const div = document.createElement('div');
