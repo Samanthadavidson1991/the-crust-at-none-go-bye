@@ -401,45 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <input type="text" id="modal-size-input" placeholder="e.g. Small, Medium, Large"><br><br>
         <label>Price (£):</label><br>
         <input type="number" id="modal-price-input" placeholder="e.g. 9.99" step="0.01" min="0"><br><br>
-        <hr>
-        <label>Toppings (type and press Add):</label><br>
-        <div id="toppings-list"></div>
-        <input type="text" id="topping-input" placeholder="e.g. Pepperoni">
-        <button type="button" id="add-topping-btn">Add Topping</button>
-        <br><br>
         <button id="modal-add-btn">Add</button>
         <button id="modal-cancel-btn">Cancel</button>
     `;
 
-    function renderToppings() {
-        const toppingsList = modal.querySelector('#toppings-list');
-        toppingsList.innerHTML = '';
-        toppings.forEach((topping, idx) => {
-            const span = document.createElement('span');
-            span.textContent = topping;
-            span.style.marginRight = '8px';
-            const removeBtn = document.createElement('button');
-            removeBtn.style.marginLeft = '4px';
-            removeBtn.textContent = 'x';
-            removeBtn.onclick = () => {
-                toppings.splice(idx, 1);
-                renderToppings();
-                renderPreview();
-            };
-            span.appendChild(removeBtn);
-            toppingsList.appendChild(span);
-        });
-    }
-
-    modal.querySelector('#add-topping-btn').onclick = function() {
-        const topping = modal.querySelector('#topping-input').value.trim();
-        if (topping && !toppings.includes(topping)) {
-            toppings.push(topping);
-            modal.querySelector('#topping-input').value = '';
-            renderToppings();
-            renderPreview();
-        }
-    };
+    // Topping input and logic removed: toppings are now only selected from master list in main form.
 
     function showModal() {
         modalBg.style.display = 'flex';
