@@ -612,7 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sizes = [];
             toppings = [];
             renderSizes();
-            renderToppings();
             renderPreview();
         })
         .catch(err => {
@@ -632,7 +631,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial render
     renderSizes();
-    renderToppings();
     renderPreview();
     // Always load menu preview on page load
     fetchAndRenderAdminMenuPreview();
