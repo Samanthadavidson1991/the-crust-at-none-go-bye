@@ -137,12 +137,8 @@ async function loadSalesTable(weekStr) {
     let html = '<table class="admin-table"><thead><tr><th>Item</th><th>Sold</th><th>Estimated Cost per Pizza</th><th>Estimated Cost per Week</th></tr></thead><tbody>';
     menuItems.forEach(item => {
       const count = salesMap[item.name] || 0;
-      // Calculate estimated cost per pizza
+      // Calculate estimated cost per pizza (topping costs only)
       let estCost = 0;
-      // Add pizza base price (first size if available)
-      if (Array.isArray(item.sizes) && item.sizes.length > 0) {
-        estCost += item.sizes[0].price || 0;
-      }
       if (Array.isArray(item.toppings)) {
         item.toppings.forEach(t => {
           const spent = toppingSpentMap[t] || 0;
