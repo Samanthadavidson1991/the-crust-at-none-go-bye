@@ -321,10 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                             sectionNameInput.value = '';
                             await populateSectionDropdown();
+                            await renderSectionsList();
                         } catch (err) {
                             alert('Error adding section: ' + err.message);
                         }
                     });
+                    // Ensure sections list is rendered on page load
+                    renderSectionsList();
                 // Refresh Preview button
                 const refreshPreviewBtn = document.getElementById('refresh-menu-preview-btn');
                 if (refreshPreviewBtn) {
