@@ -98,24 +98,21 @@ async function loadSalesTable(weekStr) {
 
     // Fetch master toppings for price calculation
     let masterToppings = [];
+    let masterMeatPrice = 0, masterVegPrice = 0;
     try {
       const toppingsRes = await fetch('/api/master-toppings');
       if (toppingsRes.ok) {
         const toppingsData = await toppingsRes.json();
         masterToppings = toppingsData.toppings || [];
+        if (toppingsData.settings) {
+          masterMeatPrice = toppingsData.settings.masterMeatPrice || 0;
+          masterVegPrice = toppingsData.settings.masterVegPrice || 0;
+        }
       }
     } catch {}
 
     // Build a map of topping name to total spent
     const toppingSpentMap = {};
-    let masterMeatPrice = 0, masterVegPrice = 0;
-    if (masterToppings.length && masterToppings[0].category) {
-      // Try to get global prices from settings
-      if (typeof masterToppings.settings === 'object') {
-        masterMeatPrice = masterToppings.settings.masterMeatPrice || 0;
-        masterVegPrice = masterToppings.settings.masterVegPrice || 0;
-      }
-    }
     masterToppings.forEach(t => {
       if (typeof t.price === 'number') {
         toppingSpentMap[t.name] = t.price;
