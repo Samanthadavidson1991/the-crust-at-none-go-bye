@@ -153,6 +153,15 @@
             if (!res.ok) throw new Error('Failed to save prices');
             alert('Master topping prices saved!');
             await loadMasterToppingsAndPrices();
+            // Force reload of sales tracker if present
+            if (window.loadSalesTable) {
+                const weekInput = document.getElementById('week-picker');
+                if (weekInput && weekInput.value) {
+                    await window.loadSalesTable(weekInput.value);
+                } else {
+                    await window.loadSalesTable();
+                }
+            }
         } catch (err) {
             alert('Error saving prices: ' + err.message);
         }
