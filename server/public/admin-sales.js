@@ -141,9 +141,7 @@ async function loadSalesTable(weekStr) {
       let estCost = 0;
       if (Array.isArray(item.toppings)) {
         item.toppings.forEach(t => {
-          const spent = toppingSpentMap[t] || 0;
-          const usage = toppingUsage[t] || 1; // avoid div by zero
-          estCost += spent / usage;
+          estCost += toppingSpentMap[t] || 0;
         });
       }
       // Estimated cost per week = estCost * count
