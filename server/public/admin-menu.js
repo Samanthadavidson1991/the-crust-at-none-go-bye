@@ -169,6 +169,37 @@
 
     // Initial render
     loadMasterToppingsAndPrices();
+    // Populate toppings select for pizza form
+    async function populatePizzaToppingsSelect() {
+        try {
+            const res = await fetch('/api/master-toppings');
+            const data = await res.json();
+            const toppings = data.toppings || [];
+            const select = document.getElementById('pizza-toppings-select');
+            if (!select) return;
+            select.innerHTML = '';
+            toppings.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t.name;
+                option.textContent = t.name + ' (' + t.category + ')';
+                select.appendChild(option);
+            });
+        } catch (err) {
+            console.error('Failed to load toppings for pizza form:', err);
+        }
+    }
+    populatePizzaToppingsSelect();
+
+    // Use selected toppings when adding pizza
+    const addPizzaForm = document.getElementById('add-pizza-form');
+    addPizzaForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        // ...existing code for name, section, etc...
+        const toppingsSelect = document.getElementById('pizza-toppings-select');
+        const selectedToppings = Array.from(toppingsSelect.selectedOptions).map(opt => opt.value);
+        // Use selectedToppings in pizza creation logic
+        // ...existing code...
+    });
 document.addEventListener('DOMContentLoaded', () => {
                         // --- Admin Menu Preview ---
                         async function fetchAndRenderAdminMenuPreview() {
