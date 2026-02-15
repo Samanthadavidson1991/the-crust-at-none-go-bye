@@ -19,6 +19,7 @@
 </head>
 <body class="admin-page">
     <!-- Removed duplicate nav -->
+    <div id="calendar-error" style="display:none;color:#b9472e;font-weight:bold;margin:12px 0;"></div>
     <!-- Login redirect removed for dashboard access -->
     <script src="/admin-order-toast.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -104,10 +105,29 @@
 
     async function setupFlatpickr() {
       await fetchOrderDates();
-      if (window.flatpickrInstance) {
-        window.flatpickrInstance.destroy();
+      try {
+        if (window.flatpickrInstance) {
+          window.flatpickrInstance.destroy();
+        }
+        window.flatpickrInstance = flatpickr('#order-date-picker', {
+          dateFormat: 'Y-m-d',
+          defaultDate: new Date(),
+          disableMobile: true,
+          onDayCreate: function(dObj, dStr, fp, dayElem) {
+            const date = dayElem.dateObj;
+            if (highlightDates(date)) {
+              dayElem.classList.add('has-orders');
+            }
+          },
+          onChange: function(selectedDates, dateStr) {
+            fetchOrders(dateStr);
+          }
+        });
+        document.getElementById('calendar-error').style.display = 'none';
+      } catch (e) {
+        document.getElementById('calendar-error').textContent = 'Calendar failed to load: ' + (e && e.message ? e.message : e);
+        document.getElementById('calendar-error').style.display = 'block';
       }
-      window.flatpickrInstance = flatpickr('#order-date-picker', {
         dateFormat: 'Y-m-d',
         defaultDate: new Date(),
         disableMobile: true,
