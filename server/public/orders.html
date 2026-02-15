@@ -128,19 +128,6 @@
         document.getElementById('calendar-error').textContent = 'Calendar failed to load: ' + (e && e.message ? e.message : e);
         document.getElementById('calendar-error').style.display = 'block';
       }
-        dateFormat: 'Y-m-d',
-        defaultDate: new Date(),
-        disableMobile: true,
-        onDayCreate: function(dObj, dStr, fp, dayElem) {
-          const date = dayElem.dateObj;
-          if (highlightDates(date)) {
-            dayElem.classList.add('has-orders');
-          }
-        },
-        onChange: function(selectedDates, dateStr) {
-          fetchOrders(dateStr);
-        }
-      });
     }
     document.addEventListener('DOMContentLoaded', setupFlatpickr);
     // --- Lock Page Logic ---
