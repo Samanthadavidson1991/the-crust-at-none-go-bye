@@ -1,3 +1,5 @@
+// ...existing code...
+// Place this after app and middleware setup:
 // GET /api/orders/dates - Return all unique order dates (YYYY-MM-DD) for calendar highlighting
 app.get('/api/orders/dates', requireAdminAuth, async (req, res) => {
   try {
