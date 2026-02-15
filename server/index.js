@@ -1,6 +1,7 @@
 // ...existing code...
-// Place this after app and middleware setup:
+// Place this after all app and middleware setup, before module.exports or app.listen:
 // GET /api/orders/dates - Return all unique order dates (YYYY-MM-DD) for calendar highlighting
+
 app.get('/api/orders/dates', requireAdminAuth, async (req, res) => {
   try {
     const Order = require('./order.model');
