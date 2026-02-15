@@ -42,7 +42,7 @@
       <h2>All Orders</h2>
       <div class="mb-16 flex align-center gap-12">
         <button id="prev-day-btn">&#8592; Previous</button>
-        <input type="text" id="order-date-picker" class="order-date-input" title="Order date" placeholder="Select date">
+        <input type="text" id="order-date-picker" class="order-date-input" title="Order date" placeholder="Select date" readonly>
         <button id="next-day-btn">Next &#8594;</button>
       </div>
       <div class="dough-counters">
@@ -104,6 +104,9 @@
 
     async function setupFlatpickr() {
       await fetchOrderDates();
+      if (window.flatpickrInstance) {
+        window.flatpickrInstance.destroy();
+      }
       window.flatpickrInstance = flatpickr('#order-date-picker', {
         dateFormat: 'Y-m-d',
         defaultDate: new Date(),
