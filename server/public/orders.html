@@ -141,6 +141,17 @@
       // selectedDate: string YYYY-MM-DD
       // Fetch order counts by name (removed: /api/order-counts endpoint does not exist)
       orderCountsByName = {};
+      // Check if selectedDate is today
+      const todayStr = formatDateInput(new Date());
+      const isToday = selectedDate === todayStr;
+      const tbody = document.getElementById('orders-tbody');
+      if (!isToday) {
+        // Clear table and counters for non-today dates
+        tbody.innerHTML = '';
+        document.getElementById('dough-count').textContent = '0';
+        document.getElementById('gf-count').textContent = '0';
+        return;
+      }
       // Fetch delivery distance limit
       let deliveryLimit = 5;
       try {
@@ -148,7 +159,6 @@
         const distData = await distRes.json();
         if (distData && typeof distData.miles === 'number') deliveryLimit = distData.miles;
       } catch {}
-      const tbody = document.getElementById('orders-tbody');
       tbody.innerHTML = '<tr><td colspan="12">Loading orders...</td></tr>';
       let doughCount = 0;
       let gfCount = 0;
@@ -168,22 +178,6 @@
         // Removed invalid block that referenced 'order' before it was defined
         tbody.innerHTML = '';
         // Count dough/gluten free for all orders
-        for (const order of orders) {
-          if (Array.isArray(order.items)) {
-            for (const item of order.items) {
-              const nameLower = item.name ? item.name.toLowerCase() : '';
-              const size = item.size ? item.size.toLowerCase() : '';
-              if (size === 'gluten free') {
-                gfCount += Number(item.quantity) || 1;
-              } else if (size === '12in' || size === '8in' || nameLower.includes('doughball')) {
-                doughCount += Number(item.quantity) || 1;
-              }
-            }
-          }
-        }
-        document.getElementById('dough-count').textContent = doughCount;
-        document.getElementById('gf-count').textContent = gfCount;
-        // Render each order row
         for (const order of orders) {
           // --- Per-order rendering ---
           // Refund status display
