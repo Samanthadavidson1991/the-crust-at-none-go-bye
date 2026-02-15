@@ -55,6 +55,7 @@
       <table class="order-table">
         <thead>
           <tr>
+            <th>Date</th>
             <th>Name</th>
             <th>Type</th>
             <th>Time Slot</th>
@@ -147,7 +148,7 @@
       const tbody = document.getElementById('orders-tbody');
       if (!isToday) {
         // Clear table and counters for non-today dates
-        tbody.innerHTML = '';
+        tbody.innerHTML = '<tr><td colspan="13">No orders for this day.</td></tr>';
         document.getElementById('dough-count').textContent = '0';
         document.getElementById('gf-count').textContent = '0';
         return;
@@ -349,22 +350,25 @@
                 modal.id = 'refund-modal';
                 modal.style = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0008;z-index:1000;align-items:center;justify-content:center;';
                                 modal.className = 'modal-bg';
-                modal.innerHTML = `
-                  <div class="modal-content modal-small">
-                    <button id="close-refund-modal" class="modal-close-btn">&times;</button>
-                    <h3>Refund Order</h3>
-                    <div id="refund-modal-content"></div>
-                  </div>
+                // Date column value
+                let dateCol = order.createdAt ? formatDateInput(new Date(order.createdAt)) : '';
+                tbody.innerHTML += `
+                  <tr${highlight}>
+                    <td>${dateCol}</td>
+                    <td>${nameDisplay}</td>
+                    <td>${order.type || ''}</td>
+                    <td>${slotDisplay}</td>
+                    <td>${order.address ? order.address.full : ''}${customerNotes}</td>
+                    <td>${itemsHtml}</td>
+                    <td>${allergensHtml}</td>
+                    <td>£${total.toFixed(2)}</td>
+                    <td>${paymentType}</td>
+                    <td>${changeHtml}</td>
+                    <td>${distanceInfo}</td>
+                    <td>${durationInfo}</td>
+                    <td><span class="order-status">${order.status || ''}</span>${actionBtns}</td>
+                  </tr>
                 `;
-                document.body.appendChild(modal);
-              }
-              document.querySelectorAll('.refund-btn').forEach(btn => {
-                btn.onclick = function() {
-                  const total = parseFloat(btn.getAttribute('data-total'));
-                  const orderId = btn.getAttribute('data-id');
-                  showRefundModal(total, orderId);
-                };
-              });
               // --- Edit Order Modal Logic ---
               if (!document.getElementById('edit-order-modal')) {
                 const modal = document.createElement('div');
