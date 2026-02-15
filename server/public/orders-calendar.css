@@ -1,0 +1,8 @@
+// Flatpickr CSS for calendar styling
+@import url("https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css");
+
+.flatpickr-day.has-orders {
+  color: #a10000 !important;
+  font-weight: bold;
+  border-bottom: 2px solid #a10000;
+}
