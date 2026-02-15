@@ -104,7 +104,7 @@
 
     async function setupFlatpickr() {
       await fetchOrderDates();
-      flatpickr('#order-date-picker', {
+      window.flatpickrInstance = flatpickr('#order-date-picker', {
         dateFormat: 'Y-m-d',
         defaultDate: new Date(),
         disableMobile: true,
@@ -119,7 +119,7 @@
         }
       });
     }
-    setupFlatpickr();
+    document.addEventListener('DOMContentLoaded', setupFlatpickr);
     // --- Lock Page Logic ---
     function lockAdminPage() {
       fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })
