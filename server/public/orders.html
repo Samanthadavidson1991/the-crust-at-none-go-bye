@@ -85,6 +85,41 @@
       .then(r => {
         if (!r.ok) window.location.href = 'login.html';
       });
+
+    // --- Flatpickr calendar initialization and highlight logic ---
+    let orderDates = [];
+    async function fetchOrderDates() {
+      try {
+        const res = await fetch('/api/orders/dates', { credentials: 'include' });
+        orderDates = await res.json();
+      } catch {
+        orderDates = [];
+      }
+    }
+
+    function highlightDates(date) {
+      const d = date.toISOString().slice(0, 10);
+      return orderDates.includes(d) ? 'has-orders' : '';
+    }
+
+    async function setupFlatpickr() {
+      await fetchOrderDates();
+      flatpickr('#order-date-picker', {
+        dateFormat: 'Y-m-d',
+        defaultDate: new Date(),
+        disableMobile: true,
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+          const date = dayElem.dateObj;
+          if (highlightDates(date)) {
+            dayElem.classList.add('has-orders');
+          }
+        },
+        onChange: function(selectedDates, dateStr) {
+          fetchOrders(dateStr);
+        }
+      });
+    }
+    setupFlatpickr();
     // --- Lock Page Logic ---
     function lockAdminPage() {
       fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })
@@ -700,24 +735,29 @@
         tbody.innerHTML = '<tr><td colspan="12">Error loading orders.</td></tr>';
       }
     }
-    // Date picker and navigation logic
+
+    // Date navigation logic (prev/next buttons)
     const dateInput = document.getElementById('order-date-picker');
     const prevBtn = document.getElementById('prev-day-btn');
     const nextBtn = document.getElementById('next-day-btn');
 
     function setDateAndFetch(dateObj) {
       const dateStr = formatDateInput(dateObj);
-      dateInput.value = dateStr;
-      fetchOrders(dateStr);
+      if (window.flatpickrInstance) {
+        window.flatpickrInstance.setDate(dateStr, true);
+      } else {
+        dateInput.value = dateStr;
+        fetchOrders(dateStr);
+      }
     }
 
-    // Set default to today
-    const today = new Date();
-    setDateAndFetch(today);
-
-    dateInput.addEventListener('change', () => {
-      fetchOrders(dateInput.value);
+    // Set default to today after flatpickr is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        setDateAndFetch(new Date());
+      }, 300);
     });
+
     prevBtn.addEventListener('click', () => {
       const d = new Date(dateInput.value);
       d.setDate(d.getDate() - 1);
