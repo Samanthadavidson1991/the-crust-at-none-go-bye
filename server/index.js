@@ -1,23 +1,3 @@
-// GET /api/orders/dates - Return all unique order dates (YYYY-MM-DD) for calendar highlighting
-app.get('/api/orders/dates', requireAdminAuth, async (req, res) => {
-  try {
-    const Order = require('./order.model');
-    // Get all unique dates with at least one order
-    const orders = await Order.find({}, { createdAt: 1, _id: 0 });
-    const dateSet = new Set();
-    orders.forEach(order => {
-      if (order.createdAt) {
-        const d = new Date(order.createdAt);
-        const dateStr = d.toISOString().slice(0, 10);
-        dateSet.add(dateStr);
-      }
-    });
-    res.json(Array.from(dateSet));
-  } catch (err) {
-    console.error('Error fetching order dates:', err);
-    res.status(500).json({ error: 'Failed to fetch order dates' });
-  }
-});
 const path = require('path');
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
