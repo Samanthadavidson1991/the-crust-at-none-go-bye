@@ -95,8 +95,7 @@
         orderDates = await res.json();
       } catch {
         orderDates = [];
-      }
-    }
+	  }
 
     function highlightDates(date) {
       const d = date.toISOString().slice(0, 10);
