@@ -741,9 +741,9 @@
             }
           }
         }
-      } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="12">Error loading orders.</td></tr>';
       }
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="12">Error loading orders.</td></tr>';
     }
 
     // Date navigation logic (prev/next buttons)
