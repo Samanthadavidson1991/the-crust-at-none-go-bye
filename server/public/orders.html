@@ -42,9 +42,7 @@
     <section class="admin-section">
       <h2>All Orders</h2>
       <div class="mb-16 flex align-center gap-12">
-        <button id="prev-day-btn">&#8592; Previous</button>
-        <input type="text" id="order-date-picker" class="order-date-input" title="Order date" placeholder="Select date" readonly>
-        <button id="next-day-btn">Next &#8594;</button>
+        <input type="text" id="order-date-picker" placeholder="Select date" readonly>
       </div>
       <div class="dough-counters">
         <div><b>Dough Used:</b> <span id="dough-count">0</span></div>
@@ -87,48 +85,14 @@
         if (!r.ok) window.location.href = 'login.html';
       });
 
-    // --- Flatpickr calendar initialization and highlight logic ---
-    let orderDates = [];
-    async function fetchOrderDates() {
-      try {
-        const res = await fetch('/api/orders/dates', { credentials: 'include' });
-        orderDates = await res.json();
-      } catch {
-        orderDates = [];
-	  }
-
-    function highlightDates(date) {
-      const d = date.toISOString().slice(0, 10);
-      return orderDates.includes(d) ? 'has-orders' : '';
-    }
-
-    async function setupFlatpickr() {
-      await fetchOrderDates();
-      try {
-        if (window.flatpickrInstance) {
-          window.flatpickrInstance.destroy();
-        }
-        window.flatpickrInstance = flatpickr('#order-date-picker', {
-          dateFormat: 'Y-m-d',
-          defaultDate: new Date(),
-          disableMobile: true,
-          onDayCreate: function(dObj, dStr, fp, dayElem) {
-            const date = dayElem.dateObj;
-            if (highlightDates(date)) {
-              dayElem.classList.add('has-orders');
-            }
-          },
-          onChange: function(selectedDates, dateStr) {
-            fetchOrders(dateStr);
-          }
-        });
-        document.getElementById('calendar-error').style.display = 'none';
-      } catch (e) {
-        document.getElementById('calendar-error').textContent = 'Calendar failed to load: ' + (e && e.message ? e.message : e);
-        document.getElementById('calendar-error').style.display = 'block';
-      }
-    }
-    document.addEventListener('DOMContentLoaded', setupFlatpickr);
+    // Minimal Flatpickr calendar setup
+    document.addEventListener('DOMContentLoaded', function() {
+      flatpickr('#order-date-picker', {
+        dateFormat: 'Y-m-d',
+        defaultDate: new Date(),
+        disableMobile: true
+      });
+    });
     // --- Lock Page Logic ---
     function lockAdminPage() {
       fetch('/api/admin/lock', { method: 'POST', credentials: 'include' })

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flatpickr Calendar Demo</title>
+  <link rel="stylesheet" href="flatpickr.min.css">
+</head>
+<body>
+  <h2>Choose a Date</h2>
+  <input type="text" id="calendar-input" placeholder="Select date" readonly>
+
+  <script src="flatpickr.min.js"></script>
+  <script>
+    flatpickr("#calendar-input", {
+      dateFormat: "Y-m-d",
+      defaultDate: new Date(),
+      disableMobile: true
+    });
+  </script>
+</body>
+</html>
