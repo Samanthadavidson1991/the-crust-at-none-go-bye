@@ -175,6 +175,7 @@ app.get('/api/orders', requireAdminAuth, async (req, res) => {
       query.createdAt = { $gte: start, $lt: end };
     }
     const orders = await Order.find(query).sort({ createdAt: -1 }).limit(100);
+    console.log('[ORDERS API DEBUG] Query:', query, '| Found:', orders.length, '| Date param:', req.query.date);
     res.json(orders);
   } catch (err) {
     console.error('Error fetching orders:', err);
