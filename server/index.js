@@ -123,15 +123,19 @@ app.get('/api/orders/dates', requireAdminAuth, async (req, res) => {
     const Order = require('./order.model');
     const orders = await Order.find({}, { createdAt: 1 });
     const dateSet = new Set();
+    const debugDates = [];
     for (const order of orders) {
       if (order.createdAt) {
         const date = new Date(order.createdAt);
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, '0');
         const dd = String(date.getDate()).padStart(2, '0');
-        dateSet.add(`${yyyy}-${mm}-${dd}`);
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        dateSet.add(dateStr);
+        debugDates.push({ createdAt: order.createdAt, dateStr });
       }
     }
+    console.log('[ORDER DATES DEBUG]', debugDates);
     res.json(Array.from(dateSet));
   } catch (err) {
     console.error('Error fetching order dates:', err);
