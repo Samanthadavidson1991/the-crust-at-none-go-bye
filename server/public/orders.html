@@ -86,13 +86,35 @@
       });
 
     // Minimal Flatpickr calendar setup
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Fetch dates with orders
+      let datesWithOrders = [];
+      try {
+        const res = await fetch('/api/orders/dates', { credentials: 'include' });
+        datesWithOrders = await res.json(); // Expect array of YYYY-MM-DD strings
+      } catch (err) {
+        console.error('[CALENDAR DEBUG] Failed to fetch dates with orders:', err);
+      }
+
       flatpickr('#order-date-picker', {
         dateFormat: 'Y-m-d',
         defaultDate: new Date(),
         disableMobile: true,
         onChange: function(selectedDates, dateStr) {
           fetchOrders(dateStr);
+        },
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+          // Highlight dates with orders
+          const date = dayElem.dateObj;
+          const yyyy = date.getFullYear();
+          const mm = String(date.getMonth() + 1).padStart(2, '0');
+          const dd = String(date.getDate()).padStart(2, '0');
+          const dateStr = `${yyyy}-${mm}-${dd}`;
+          if (datesWithOrders.includes(dateStr)) {
+            dayElem.style.fontWeight = 'bold';
+            dayElem.style.background = '#ffe6b3';
+            dayElem.style.borderRadius = '6px';
+          }
         }
       });
       // Call fetchOrders with today's date on page load

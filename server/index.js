@@ -117,6 +117,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Admin authentication middleware
 // Admin session check endpoint for frontend
 // GET /api/orders - Return all orders for admin
+// GET /api/orders/dates - Return unique dates with orders (YYYY-MM-DD)
+app.get('/api/orders/dates', requireAdminAuth, async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const orders = await Order.find({}, { createdAt: 1 });
+    const dateSet = new Set();
+    for (const order of orders) {
+      if (order.createdAt) {
+        const date = new Date(order.createdAt);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        dateSet.add(`${yyyy}-${mm}-${dd}`);
+      }
+    }
+    res.json(Array.from(dateSet));
+  } catch (err) {
+    console.error('Error fetching order dates:', err);
+    res.status(500).json({ error: 'Failed to fetch order dates' });
+  }
+});
 // POST /api/orders/:id/accept - Accept an order
 app.post('/api/orders/:id/accept', requireAdminAuth, async (req, res) => {
   try {
