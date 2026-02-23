@@ -172,15 +172,28 @@ app.get('/api/orders', requireAdminAuth, async (req, res) => {
     const Order = require('./order.model');
     let query = {};
     if (req.query.date) {
-      // Filter orders by date (YYYY-MM-DD)
-      const start = new Date(req.query.date);
-      const end = new Date(start);
-      end.setDate(end.getDate() + 1);
-      query.createdAt = { $gte: start, $lt: end };
+      // Filter orders by date (YYYY-MM-DD), ignoring time (works across timezones)
+      const dateStr = req.query.date;
+      // Use MongoDB aggregation to match only the date part
+      const orders = await Order.aggregate([
+        {
+          $addFields: {
+            createdAtDate: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "UTC" }
+            }
+          }
+        },
+        { $match: { createdAtDate: dateStr } },
+        { $sort: { createdAt: -1 } },
+        { $limit: 100 }
+      ]);
+      console.log('[ORDERS API DEBUG] Aggregation for date', dateStr, '| Found:', orders.length, '| createdAt values:', orders.map(o => o.createdAt));
+      return res.json(orders);
+    } else {
+      const orders = await Order.find({}).sort({ createdAt: -1 }).limit(100);
+      console.log('[ORDERS API DEBUG] No date filter | Found:', orders.length);
+      return res.json(orders);
     }
-    const orders = await Order.find(query).sort({ createdAt: -1 }).limit(100);
-    console.log('[ORDERS API DEBUG] Query:', query, '| Found:', orders.length, '| Date param:', req.query.date);
-    res.json(orders);
   } catch (err) {
     console.error('Error fetching orders:', err);
     res.status(500).json({ error: 'Failed to fetch orders' });
