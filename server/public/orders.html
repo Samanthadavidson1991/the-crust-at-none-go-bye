@@ -90,8 +90,14 @@
       flatpickr('#order-date-picker', {
         dateFormat: 'Y-m-d',
         defaultDate: new Date(),
-        disableMobile: true
+        disableMobile: true,
+        onChange: function(selectedDates, dateStr) {
+          fetchOrders(dateStr);
+        }
       });
+      // Call fetchOrders with today's date on page load
+      const todayStr = new Date().toISOString().slice(0, 10);
+      fetchOrders(todayStr);
     });
     // --- Lock Page Logic ---
     function lockAdminPage() {
