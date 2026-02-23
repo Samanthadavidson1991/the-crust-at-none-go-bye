@@ -145,7 +145,15 @@ app.post('/api/orders/:id/decline', requireAdminAuth, async (req, res) => {
 app.get('/api/orders', requireAdminAuth, async (req, res) => {
   try {
     const Order = require('./order.model');
-    const orders = await Order.find({}).sort({ createdAt: -1 }).limit(100);
+    let query = {};
+    if (req.query.date) {
+      // Filter orders by date (YYYY-MM-DD)
+      const start = new Date(req.query.date);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 1);
+      query.createdAt = { $gte: start, $lt: end };
+    }
+    const orders = await Order.find(query).sort({ createdAt: -1 }).limit(100);
     res.json(orders);
   } catch (err) {
     console.error('Error fetching orders:', err);
