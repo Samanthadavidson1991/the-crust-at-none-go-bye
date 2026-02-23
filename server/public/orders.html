@@ -212,6 +212,7 @@
       try {
         let url = '/api/orders';
         if (selectedDate) url += `?date=${selectedDate}`;
+        console.log('[ORDERS DEBUG] Fetching orders from:', url);
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
         console.log('[ORDERS DEBUG] Orders data received:', orders);

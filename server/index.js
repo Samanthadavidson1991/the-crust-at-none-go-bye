@@ -168,6 +168,7 @@ app.post('/api/orders/:id/decline', requireAdminAuth, async (req, res) => {
   }
 });
 app.get('/api/orders', requireAdminAuth, async (req, res) => {
+    console.log('[ORDERS API DEBUG] req.query:', req.query);
   try {
     const Order = require('./order.model');
     let query = {};
