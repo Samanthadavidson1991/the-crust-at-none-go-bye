@@ -41,6 +41,10 @@ app.use(cors({
 app.use(express.json());
 
 // Enable session support for admin authentication
+// Set default MongoDB URI if not present
+if (!process.env.MONGODB_URI) {
+  process.env.MONGODB_URI = 'mongodb+srv://sammiuser:Sammi-1991@cluster0.qec8gul.mongodb.net/?appName=Cluster0';
+}
 app.use(session({
   secret: process.env.SESSION_SECRET || 'changeme',
   resave: false,
@@ -168,6 +172,7 @@ app.post('/api/orders/:id/decline', requireAdminAuth, async (req, res) => {
   }
 });
 app.get('/api/orders', requireAdminAuth, async (req, res) => {
+      console.log('[ORDERS API DEBUG] req.url:', req.url);
     console.log('[ORDERS API DEBUG] req.query:', req.query);
   try {
     const Order = require('./order.model');
