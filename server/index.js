@@ -1,4 +1,4 @@
-const cors = require('cors');
+// ...existing code...
 app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true
@@ -25,7 +25,7 @@ require('./section.model');
 
 const MenuItem = require('./menu-item.model');
 
-const cors = require('cors');
+// Removed duplicate cors declaration
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const app = express();
