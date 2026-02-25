@@ -43,7 +43,7 @@ app.use(express.json());
 // Enable session support for admin authentication
 // Set default MongoDB URI if not present
 if (!process.env.MONGODB_URI) {
-  process.env.MONGODB_URI = 'mongodb+srv://sammiuser:Sammi-1991@cluster0.qec8gul.mongodb.net/?appName=Cluster0';
+  console.warn('WARNING: MONGODB_URI environment variable is not set. Please set it in your .env file.');
 }
 app.use(session({
   secret: process.env.SESSION_SECRET || 'changeme',
