@@ -1,17 +1,27 @@
-// ...existing code...
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
+
 require('dotenv').config();
 const path = require('path');
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const app = express();
 
-
-
+// Enable CORS for admin, public, and local domains
+app.use(cors({
+  origin: [
+    'https://admin.thecrustatngb.co.uk',
+    'https://thecrustatngb.co.uk',
+    'https://the-crust-at-none-go-bye-admin.onrender.com',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Connect to MongoDB using environment variable
 mongoose.connect(process.env.MONGODB_URI, {
@@ -24,23 +34,6 @@ require('./topping.model');
 require('./section.model');
 
 const MenuItem = require('./menu-item.model');
-
-// Removed duplicate cors declaration
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const app = express();
-
-// Enable CORS for admin and public domains
-app.use(cors({
-  origin: [
-    'https://admin.thecrustatngb.co.uk',
-    'https://thecrustatngb.co.uk',
-    'https://the-crust-at-none-go-bye-admin.onrender.com'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 
 // Enable JSON body parsing for API requests
