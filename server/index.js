@@ -1,3 +1,4 @@
+// ...existing code...
 // GET /api/orders/date/:date - Return orders for a specific date (YYYY-MM-DD) via path param
 app.get('/api/orders/date/:date', requireAdminAuth, async (req, res) => {
   try {
