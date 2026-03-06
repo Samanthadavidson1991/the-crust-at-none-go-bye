@@ -1,3 +1,28 @@
+// GET /api/orders/date/:date - Return orders for a specific date (YYYY-MM-DD) via path param
+app.get('/api/orders/date/:date', requireAdminAuth, async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const dateStr = req.params.date;
+    // Use MongoDB aggregation to match only the date part
+    const orders = await Order.aggregate([
+      {
+        $addFields: {
+          createdAtDate: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "UTC" }
+          }
+        }
+      },
+      { $match: { createdAtDate: dateStr } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 100 }
+    ]);
+    console.log('[ORDERS API DEBUG] Path param date', dateStr, '| Found:', orders.length, '| createdAt values:', orders.map(o => o.createdAt));
+    res.json(orders);
+  } catch (err) {
+    console.error('Error fetching orders by path param:', err);
+    res.status(500).json({ error: 'Failed to fetch orders by date' });
+  }
+});
 
 require('dotenv').config();
 const path = require('path');

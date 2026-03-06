@@ -211,7 +211,9 @@
       } catch {}
       try {
         let url = '/api/orders';
-        if (selectedDate) url += `?date=${selectedDate}`;
+        if (selectedDate) {
+          url = `/api/orders/date/${selectedDate}`;
+        }
         console.log('[ORDERS DEBUG] Fetching orders from:', url);
         const res = await fetch(url, { credentials: 'include' });
         const orders = await res.json();
