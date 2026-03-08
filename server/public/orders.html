@@ -181,17 +181,7 @@
       // selectedDate: string YYYY-MM-DD
       // Fetch order counts by name (removed: /api/order-counts endpoint does not exist)
       orderCountsByName = {};
-      // Check if selectedDate is today
-      const todayStr = formatDateInput(new Date());
-      const isToday = selectedDate === todayStr;
       const tbody = document.getElementById('orders-tbody');
-      if (!isToday) {
-        // Clear table and counters for non-today dates
-        tbody.innerHTML = '<tr><td colspan="13">No orders for this day.</td></tr>';
-        document.getElementById('dough-count').textContent = '0';
-        document.getElementById('gf-count').textContent = '0';
-        return;
-      }
       // Fetch delivery distance limit
       let deliveryLimit = 5;
       try {
