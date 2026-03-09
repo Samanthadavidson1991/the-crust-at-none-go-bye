@@ -1,26 +1,5 @@
 // ...existing code...
 // GET /api/orders/date/:date - Return orders for a specific date (YYYY-MM-DD)
-app.get('/api/orders/date/:date', requireAdminAuth, async (req, res) => {
-  try {
-    const Order = require('./order.model');
-    const dateStr = req.params.date;
-    const orders = await Order.aggregate([
-      {
-        $addFields: {
-          createdAtDate: {
-            $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "UTC" }
-          }
-        }
-      },
-      { $match: { createdAtDate: dateStr } },
-      { $sort: { createdAt: -1 } },
-      { $limit: 100 }
-    ]);
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch orders for date' });
-  }
-});
 
 require('dotenv').config();
 const path = require('path');
