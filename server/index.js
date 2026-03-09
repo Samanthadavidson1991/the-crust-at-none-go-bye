@@ -1,4 +1,5 @@
 
+// ...existing code...
 // --- GET all menu sections ---
 const Section = require('./section.model');
 app.get('/api/sections', async (req, res) => {
