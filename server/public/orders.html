@@ -266,11 +266,18 @@
           let startBy = '';
           // Count doughs for this order
           let orderDoughCount = 0;
+          let orderGfCount = 0;
           if (Array.isArray(order.items)) {
             for (const item of order.items) {
-              orderDoughCount += Number(item.quantity) || 1;
+              const qty = Number(item.quantity) || 1;
+              orderDoughCount += qty;
+              if (item.name && glutenFreeNames.includes(item.name.toLowerCase())) {
+                orderGfCount += qty;
+              }
             }
           }
+          doughCount += orderDoughCount;
+          gfCount += orderGfCount;
           // Estimate travel time (sync call for UI, fallback to '?')
           let travelTime = '?';
           if (order.address && order.address.postcode) {
@@ -643,6 +650,9 @@
                 };
               }
         }
+        // Update dough and gluten free counters
+        document.getElementById('dough-count').textContent = doughCount;
+        document.getElementById('gf-count').textContent = gfCount;
         // Accept/Decline order status
         window.updateOrderStatus = async function(orderId, newStatus) {
           try {

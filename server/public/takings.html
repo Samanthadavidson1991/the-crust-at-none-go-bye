@@ -77,7 +77,38 @@
         }
       } catch (err) {}
       // If no archive, fallback to live orders
-      // ...existing code...
+      try {
+        const res = await fetch(`/api/orders/date/${selectedDate}`, { credentials: 'include' });
+        if (res.ok) {
+          const orders = await res.json();
+          let total = 0, card = 0, cash = 0, refund = 0;
+          for (const order of orders) {
+            let orderTotal = (typeof order.total === 'number' && !isNaN(order.total)) ? order.total : 0;
+            if ((!orderTotal || orderTotal === 0) && Array.isArray(order.items)) {
+              order.items.forEach(item => {
+                orderTotal += (parseFloat(item.price) || 0) * (item.quantity || 1);
+              });
+            }
+            total += orderTotal;
+            if (order.paymentType && order.paymentType.toLowerCase() === 'cash') cash += orderTotal;
+            else card += orderTotal;
+            if (order.refundAmount && !isNaN(order.refundAmount)) refund += order.refundAmount;
+          }
+          document.getElementById('takings-summary').innerHTML = `
+            <b>Total Taken:</b> £${formatMoney(total)}<br>
+            <b>Card:</b> £${formatMoney(card)}<br>
+            <b>Cash:</b> £${formatMoney(cash)}<br>
+            <b>Refunded:</b> £${formatMoney(refund)}<br>
+          `;
+          document.getElementById('running-totals').innerHTML = '';
+        } else {
+          document.getElementById('takings-summary').innerHTML = '<em>No orders found for this date.</em>';
+          document.getElementById('running-totals').innerHTML = '';
+        }
+      } catch (err) {
+        document.getElementById('takings-summary').innerHTML = '<em>Error loading takings.</em>';
+        document.getElementById('running-totals').innerHTML = '';
+      }
     }
     // Date picker and navigation logic
     const dateInput = document.getElementById('takings-date-picker');
