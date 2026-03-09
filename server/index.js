@@ -1,3 +1,4 @@
+// ...existing code...
 // GET /api/orders/date/:date - Return orders for a specific date (YYYY-MM-DD)
 app.get('/api/orders/date/:date', requireAdminAuth, async (req, res) => {
   try {
