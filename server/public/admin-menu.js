@@ -330,8 +330,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderSectionsList();
                 // Refresh Preview button
                 const refreshPreviewBtn = document.getElementById('refresh-menu-preview-btn');
+                console.log('Looking for Refresh Preview button:', refreshPreviewBtn);
                 if (refreshPreviewBtn) {
-                    refreshPreviewBtn.onclick = fetchAndRenderAdminMenuPreview;
+                    refreshPreviewBtn.onclick = function() {
+                        console.log('Refresh Preview button clicked');
+                        fetchAndRenderAdminMenuPreview();
+                    };
+                    console.log('Refresh Preview button handler set.');
+                } else {
+                    console.error('Refresh Preview button NOT found!');
                 }
             // ...existing code...
         console.log('admin-menu.js loaded and DOMContentLoaded fired');
