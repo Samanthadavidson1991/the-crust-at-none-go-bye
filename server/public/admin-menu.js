@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                     // Ensure sections list is rendered on page load
-                    renderSectionsList();
+                    // renderSectionsList(); // Disabled: function not defined, caused ReferenceError
                 // Refresh Preview button
                 const refreshPreviewBtn = document.getElementById('refresh-menu-preview-btn');
                 console.log('Looking for Refresh Preview button:', refreshPreviewBtn);
