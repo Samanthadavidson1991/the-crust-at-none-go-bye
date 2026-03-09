@@ -1,12 +1,9 @@
 
 // ...existing code...
 // ...existing code...
+// ...existing code...
 // --- GET all menu sections ---
 const Section = require('./section.model');
-
-// ...existing code...
-
-// Place this after app is defined
 app.get('/api/sections', async (req, res) => {
   try {
     const sections = await Section.find({}).sort({ order: 1, name: 1 });
