@@ -1,3 +1,25 @@
+// GET /api/orders/date/:date - Return orders for a specific date (YYYY-MM-DD)
+app.get('/api/orders/date/:date', requireAdminAuth, async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const dateStr = req.params.date;
+    const orders = await Order.aggregate([
+      {
+        $addFields: {
+          createdAtDate: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "UTC" }
+          }
+        }
+      },
+      { $match: { createdAtDate: dateStr } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 100 }
+    ]);
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch orders for date' });
+  }
+});
 
 require('dotenv').config();
 const path = require('path');
@@ -170,9 +192,34 @@ app.post('/api/orders/:id/decline', requireAdminAuth, async (req, res) => {
     res.status(500).json({ error: 'Failed to decline order' });
   }
 });
+
+// GET /api/orders/date/:date - Return orders for a specific date (YYYY-MM-DD)
+app.get('/api/orders/date/:date', requireAdminAuth, async (req, res) => {
+  try {
+    const Order = require('./order.model');
+    const dateStr = req.params.date;
+    const orders = await Order.aggregate([
+      {
+        $addFields: {
+          createdAtDate: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "UTC" }
+          }
+        }
+      },
+      { $match: { createdAtDate: dateStr } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 100 }
+    ]);
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch orders for date' });
+  }
+});
+
+// GET /api/orders - Return all orders for admin (or filter by ?date=YYYY-MM-DD)
 app.get('/api/orders', requireAdminAuth, async (req, res) => {
-      console.log('[ORDERS API DEBUG] req.url:', req.url);
-    console.log('[ORDERS API DEBUG] req.query:', req.query);
+  console.log('[ORDERS API DEBUG] req.url:', req.url);
+  console.log('[ORDERS API DEBUG] req.query:', req.query);
   try {
     const Order = require('./order.model');
     let query = {};
