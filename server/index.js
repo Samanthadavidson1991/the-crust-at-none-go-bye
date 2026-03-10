@@ -3,16 +3,6 @@
 // ...existing code...
 // ...existing code...
 // ...existing code...
-// --- GET all menu sections ---
-const Section = require('./section.model');
-app.get('/api/sections', async (req, res) => {
-  try {
-    const sections = await Section.find({}).sort({ order: 1, name: 1 });
-    res.json({ sections });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch sections', details: err.message });
-  }
-});
 // GET /api/orders/date/:date - Return orders for a specific date (YYYY-MM-DD)
 
 require('dotenv').config();
