@@ -522,7 +522,16 @@ app.post('/api/admin/login', (req, res) => {
 
 // Register API routes for admin menu and customer menu functionality
 app.use('/api/master-toppings', require('./master-toppings'));
-app.use('/api/sections', require('./section-topping-assignments'));
+// Correct /api/sections endpoint for menu sections
+const Section = require('./section.model');
+app.get('/api/sections', async (req, res) => {
+  try {
+    const sections = await Section.find({}).sort({ order: 1, name: 1 });
+    res.json({ sections });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch sections', details: err.message });
+  }
+});
 app.use('/api/offers', require('./offers'));
 app.use('/api/section-topping-assignments', require('./section-topping-assignments'));
 // Dummy pizza-topping-stock endpoint for now (returns empty array)
