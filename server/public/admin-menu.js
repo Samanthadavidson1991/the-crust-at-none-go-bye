@@ -1,3 +1,205 @@
+                // --- Admin Menu Preview ---
+                async function fetchAndRenderAdminMenuPreview() {
+                    const previewDiv = document.getElementById('admin-menu-preview');
+                    // State
+                    let sizes = [];
+                    let toppings = [];
+                    // Elements
+                    const addSizeBtn = document.getElementById('add-size-btn');
+                    const sizesList = document.getElementById('sizes-list');
+                    // Modal for size/price and toppings
+                    let modalBg = document.createElement('div');
+                    modalBg.style.position = 'fixed';
+                    let modal = document.createElement('div');
+                    modal.style.background = '#fff';
+                    modal.style.padding = '24px';
+                    modal.innerHTML = `
+                    <h3>Add Pizza Size</h3>
+                    <label>Size:</label><br>
+                    <input type="text" id="modal-size-input" placeholder="e.g. Small, Medium, Large"><br><br>
+                    <label>Price (£):</label><br>
+                    <input type="number" id="modal-price-input" placeholder="e.g. 9.99" step="0.01" min="0"><br><br>
+                    <button id="modal-add-btn">Add</button>
+                    <button id="modal-cancel-btn">Cancel</button>
+                    `;
+                    // Topping input and logic removed: toppings are now only selected from master list in main form.
+                    function showModal() {
+                    modalBg.style.display = 'flex';
+                    modal.querySelector('#modal-size-input').value = '';
+                    modal.querySelector('#modal-price-input').value = '';
+                    // Do NOT reset toppings here
+                    renderToppings();
+                    }
+                    function hideModal() {
+                    modalBg.style.display = 'none';
+                    }
+                    addSizeBtn.addEventListener('click', () => {
+                    console.log('Add Size button clicked');
+                    showModal();
+                    });
+                    modal.querySelector('#modal-cancel-btn').onclick = hideModal;
+                    modal.querySelector('#modal-add-btn').onclick = function() {
+                    const size = modal.querySelector('#modal-size-input').value.trim();
+                    const price = modal.querySelector('#modal-price-input').value.trim();
+                    if (!size || !price || isNaN(price)) {
+                            alert('Please enter both size and price.');
+                            return;
+                    }
+                    if (sizes.some(s => s.name === size)) {
+                            alert('This size already exists.');
+                            return;
+                    }
+                    sizes.push({ name: size, price: parseFloat(price) });
+                    renderSizes();
+                    renderPreview();
+                    hideModal();
+                    };
+                    function renderSizes() {
+                    sizesList.innerHTML = '';
+                    sizes.forEach((obj, idx) => {
+                            const div = document.createElement('div');
+                            div.textContent = `${obj.size} (£${obj.price.toFixed(2)})`;
+                            const removeBtn = document.createElement('button');
+                            removeBtn.textContent = 'Remove';
+                            removeBtn.onclick = () => {
+                                sizes.splice(idx, 1);
+                                renderSizes();
+                                renderPreview();
+                            };
+                            div.appendChild(removeBtn);
+                            sizesList.appendChild(div);
+                    });
+                    }
+                    function renderPreview() {
+                    const previewText = sizes.map(obj => `${obj.size} (£${obj.price.toFixed(2)})`).join(', ');
+                    let toppingsText = toppings.length ? `<br><strong>Toppings:</strong> ${toppings.join(', ')}` : '';
+                    pizzaPreview.innerHTML = `<strong>Preview:</strong> ${pizzaNameInput.value} (${previewText})${toppingsText}`;
+                    }
+                    pizzaNameInput.addEventListener('input', renderPreview);
+                    addPizzaForm.addEventListener('submit', (e) => {
+                    console.log('Add Pizza form submitted');
+                    // Show a visible message when Add Pizza is pressed
+                    let msg = document.getElementById('add-pizza-feedback');
+                    if (!msg) {
+                            msg = document.createElement('div');
+                            msg.id = 'add-pizza-feedback';
+                            msg.style = 'color: blue; font-weight: bold; margin-top: 10px;';
+                            addPizzaForm.parentNode.insertBefore(msg, addPizzaForm.nextSibling);
+                    }
+                    msg.textContent = 'Add Pizza button pressed!';
+                    setTimeout(() => { if (msg) msg.textContent = ''; }, 2000);
+                    // After adding, refresh the admin menu preview
+                    setTimeout(fetchAndRenderAdminMenuPreview, 500);
+                    e.preventDefault();
+                    const directPrice = document.getElementById('pizza-direct-price')?.value;
+                    if (!pizzaNameInput.value || (sizes.length === 0 && (!directPrice || isNaN(parseFloat(directPrice))))) {
+                            alert('Please enter a pizza name and at least one size or a direct price.');
+                            return;
+                    }
+                    // Send new pizza to backend
+                    const newPizza = {
+                            name: pizzaNameInput.value,
+                            description: pizzaDescriptionInput.value.trim() || undefined,
+                            sizes: sizes,
+                            toppings: toppings,
+                            section: sectionSelect.value || 'Other',
+                            allowMasterToppings: !!includeMasterToppingsCheckbox.checked,
+                            masterToppings: selectedMasterToppings.map(key => {
+                                const [name, category] = key.split('|');
+                                return {
+                                    name,
+                                    category,
+                                    price: selectedMasterToppingPrices[key] || 0
+                                };
+                            })
+                    };
+                    if (sizes.length === 0 && directPrice && !isNaN(parseFloat(directPrice))) {
+                            newPizza.price = parseFloat(directPrice);
+                    }
+                    fetch('/api/menu', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(newPizza)
+                    })
+                    .then(res => {
+                            if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to add pizza'); });
+                            return res.json();
+                    })
+                    .then(data => {
+                            alert('Pizza added to live menu!');
+                            pizzaNameInput.value = '';
+                            pizzaDescriptionInput.value = '';
+                            includeMasterToppingsCheckbox.checked = false;
+                            sizes = [];
+                            toppings = [];
+                            renderSizes();
+                            renderPreview();
+                    })
+                    .catch(err => {
+                            alert('Error adding pizza: ' + err.message);
+                    });
+                    });
+                    // Add direct price input to the form
+                    const priceInput = document.createElement('input');
+                    priceInput.type = 'number';
+                    priceInput.id = 'pizza-direct-price';
+                    priceInput.placeholder = 'Direct price (e.g. 7.99)';
+                    priceInput.step = '0.01';
+                    priceInput.min = '0';
+                    priceInput.style.marginBottom = '8px';
+                    pizzaNameInput.parentNode.insertBefore(priceInput, pizzaDescriptionInput);
+                    // Initial render
+                    renderSizes();
+                    renderPreview();
+                    // Always load menu preview on page load
+                    fetchAndRenderAdminMenuPreview();
+                });
+                // --- Admin Menu Preview ---
+                async function fetchAndRenderAdminMenuPreview() {
+                    const previewDiv = document.getElementById('admin-menu-preview');
+                    // State
+                    let sizes = [];
+                    let toppings = [];
+                    // Elements
+                    const addSizeBtn = document.getElementById('add-size-btn');
+                    const sizesList = document.getElementById('sizes-list');
+                    // Modal for size/price and toppings
+                    let modalBg = document.createElement('div');
+                    modalBg.style.position = 'fixed';
+                    let modal = document.createElement('div');
+                    modal.style.background = '#fff';
+                    modal.style.padding = '24px';
+                    modal.innerHTML = `
+                        <h3>Add Pizza Size</h3>
+                        <label>Size:</label><br>
+                    function showModal() {
+                        modalBg.style.display = 'flex';
+                        modal.querySelector('#modal-size-input').value = '';
+                    addSizeBtn.addEventListener('click', () => {
+                        console.log('Add Size button clicked');
+                        showModal();
+                    modal.querySelector('#modal-cancel-btn').onclick = hideModal;
+                    modal.querySelector('#modal-add-btn').onclick = function() {
+                        const size = modal.querySelector('#modal-size-input').value.trim();
+                    sizes.push({ name: size, price: parseFloat(price) });
+                    renderSizes();
+                    renderPreview();
+                    function renderSizes() {
+                        sizesList.innerHTML = '';
+                        sizes.forEach((obj, idx) => {
+                            const div = document.createElement('div');
+                            div.textContent = `${obj.size} (£${obj.price.toFixed(2)})`;
+                            const removeBtn = document.createElement('button');
+                            div.appendChild(removeBtn);
+                            sizesList.appendChild(div);
+                        });
+                    function renderPreview() {
+                        const previewText = sizes.map(obj => `${obj.size} (£${obj.price.toFixed(2)})`).join(', ');
+                        let toppingsText = toppings.length ? `<br><strong>Toppings:</strong> ${toppings.join(', ')}` : '';
+                        pizzaPreview.innerHTML = `<strong>Preview:</strong> ${pizzaNameInput.value} (${previewText})${toppingsText}`;
+                    }
+
+                    pizzaNameInput.addEventListener('input', renderPreview);
                 // Helper to collect all four sets
                 function getSelectedSets() {
                     const sets = [];
