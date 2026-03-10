@@ -36,7 +36,7 @@
         try {
             const res = await fetch('/api/master-toppings');
             const data = await res.json();
-            masterToppings = (data.toppings || []).map(t => ({ name: t.name, category: t.category, price: t.price }));
+            masterToppings = (data.toppings || []).map(t => ({ _id: t._id, name: t.name, category: t.category, price: t.price }));
             // Map backend settings to local keys
             if (data.settings) {
                 masterToppingPrices.Vegetable = data.settings.masterVegPrice || 0;
