@@ -549,6 +549,20 @@ app.get('/api/menu', async (req, res) => {
 });
 
 // POST /api/menu - Add a new menu item
+// DELETE /api/menu/:id - Delete a menu item by ID
+app.delete('/api/menu/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await MenuItem.findByIdAndDelete(id);
+    if (!result) {
+      return res.status(404).json({ error: 'Menu item not found' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error deleting menu item:', err);
+    res.status(500).json({ error: 'Failed to delete menu item', details: err.message });
+  }
+});
 app.post('/api/menu', async (req, res) => {
   try {
     const data = req.body;
