@@ -432,6 +432,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Topping input and logic removed: toppings are now only selected from master list in main form.
 
+    // Ensure renderToppings is defined (no-op if not present)
+    if (typeof renderToppings !== 'function') {
+        function renderToppings() {}
+    }
     function showModal() {
         modalBg.style.display = 'flex';
         modal.querySelector('#modal-size-input').value = '';
@@ -609,15 +613,15 @@ async function renderSectionsList() {
             sizes: sizes,
             toppings: toppings,
             section: sectionSelect.value || 'Other',
-            allowMasterToppings: !!includeMasterToppingsCheckbox.checked,
-            masterToppings: selectedMasterToppings.map(key => {
+            allowMasterToppings: (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) ? !!includeMasterToppingsCheckbox.checked : false,
+            masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {
                 const [name, category] = key.split('|');
                 return {
                     name,
                     category,
-                    price: selectedMasterToppingPrices[key] || 0
+                    price: selectedMasterToppingPrices && selectedMasterToppingPrices[key] ? selectedMasterToppingPrices[key] : 0
                 };
-            })
+            }) : []
         };
         if (sizes.length === 0 && directPrice && !isNaN(parseFloat(directPrice))) {
             newPizza.price = parseFloat(directPrice);
@@ -635,7 +639,7 @@ async function renderSectionsList() {
             alert('Pizza added to live menu!');
             pizzaNameInput.value = '';
             pizzaDescriptionInput.value = '';
-            includeMasterToppingsCheckbox.checked = false;
+            if (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) includeMasterToppingsCheckbox.checked = false;
             sizes = [];
             toppings = [];
             renderSizes();
