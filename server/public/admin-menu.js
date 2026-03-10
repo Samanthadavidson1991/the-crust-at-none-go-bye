@@ -80,7 +80,8 @@
                         html += ` Price: <input type='number' class='edit-other-topping-price' data-name='${topping.name}' value='${topping.price !== undefined ? topping.price : 0}' step='0.01' min='0' style='width:60px;'>`;
                         html += ` <button data-name='${topping.name}' class='save-other-topping-price-btn' style='color:green;'>Save Price</button> `;
                     }
-                    html += `<button data-idx="${realIdx}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
+                    // Add data-id for deletion
+                    html += `<button data-idx="${realIdx}" data-name="${topping.name}" data-category="${topping.category}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
                         + `</li>`;
                 });
                 html += '</ul>';
@@ -91,10 +92,24 @@
         });
         masterToppingsListDiv.innerHTML = html;
         document.querySelectorAll('.delete-master-topping-btn').forEach(btn => {
-            btn.onclick = function() {
+            btn.onclick = async function() {
+                if (!confirm('Are you sure you want to delete this topping?')) return;
                 const idx = parseInt(btn.getAttribute('data-idx'));
-                masterToppings.splice(idx, 1);
-                renderMasterToppingsList();
+                const name = btn.getAttribute('data-name');
+                const category = btn.getAttribute('data-category');
+                // Find the topping object to get its _id
+                const topping = masterToppings.find(t => t.name === name && t.category === category);
+                if (!topping || !topping._id) {
+                    alert('Could not find topping ID for deletion.');
+                    return;
+                }
+                try {
+                    const res = await fetch(`/api/master-toppings/${topping._id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error('Failed to delete topping');
+                    await loadMasterToppingsAndPrices();
+                } catch (err) {
+                    alert('Error deleting topping: ' + err.message);
+                }
             };
         });
         // Save price for 'Other' toppings
