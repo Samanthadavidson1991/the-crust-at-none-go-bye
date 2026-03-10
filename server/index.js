@@ -548,6 +548,20 @@ app.get('/api/menu', async (req, res) => {
   }
 });
 
+// POST /api/menu - Add a new menu item
+app.post('/api/menu', async (req, res) => {
+  try {
+    const data = req.body;
+    // Create and save new menu item
+    const item = new MenuItem(data);
+    await item.save();
+    res.status(201).json({ success: true, item });
+  } catch (err) {
+    console.error('Error adding menu item:', err);
+    res.status(500).json({ error: 'Failed to add menu item', details: err.message });
+  }
+});
+
 // End of API and server setup
 module.exports = app;
 
