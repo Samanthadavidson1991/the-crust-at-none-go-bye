@@ -211,6 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => alert('Error updating: ' + err.message));
         };
+
+        // Allow adding/removing sizes in edit mode
+        // The addSizeBtn and modal already work for both add and edit, since they use the shared sizes array
+        // Remove button in renderSizes already updates sizes and UI
+
         // Cancel button resets Add button
         const cancelBtn = modal.querySelector('#modal-cancel-btn');
         cancelBtn.onclick = function() {
