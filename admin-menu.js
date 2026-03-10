@@ -176,6 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSizes();
         renderPreview();
 
+        // Show the Add Size button and sizes list in the modal
+        addSizeBtn.style.display = '';
+        sizesList.style.display = '';
+
         // Change Add button to Save
         const addBtn = modal.querySelector('#modal-add-btn');
         addBtn.textContent = 'Save';
@@ -208,13 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderSizes();
                 renderToppings();
                 renderPreview();
+                // Hide Add Size button after editing
+                addSizeBtn.style.display = '';
+                sizesList.style.display = '';
             })
             .catch(err => alert('Error updating: ' + err.message));
         };
-
-        // Allow adding/removing sizes in edit mode
-        // The addSizeBtn and modal already work for both add and edit, since they use the shared sizes array
-        // Remove button in renderSizes already updates sizes and UI
 
         // Cancel button resets Add button
         const cancelBtn = modal.querySelector('#modal-cancel-btn');
@@ -226,6 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
             origBtn.textContent = 'Add';
             origBtn.onclick = origAddHandler;
             saveBtn.parentNode.replaceChild(origBtn, saveBtn);
+            // Hide Add Size button after cancel
+            addSizeBtn.style.display = '';
+            sizesList.style.display = '';
         };
     }
 
