@@ -1,3 +1,7 @@
+                    // Ensure selectedMasterToppings is defined to prevent ReferenceError
+                    if (typeof selectedMasterToppings === 'undefined') {
+                        var selectedMasterToppings = [];
+                    }
                 // Helper to collect all four sets
                 function getSelectedSets() {
                     const sets = [];
