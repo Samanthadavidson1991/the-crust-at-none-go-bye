@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let sizes = [];
     let toppings = [];
 
-    // Elements (generalized for menu items)
+    // Elements
     const addSizeBtn = document.getElementById('add-size-btn');
     if (!addSizeBtn) {
         console.error('Add Size button not found!');
@@ -373,14 +373,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Add Size button found, attaching event');
     }
     const sizesList = document.getElementById('sizes-list');
-    const menuItemPreview = document.getElementById('menu-item-preview');
-    const addMenuItemForm = document.getElementById('add-menu-item-form');
-    const menuItemNameInput = document.getElementById('menu-item-name');
-    const menuItemDescriptionInput = document.getElementById('menu-item-description');
-    const sectionSelect = document.getElementById('menu-item-section-select');
-    const toppingsSelect = document.getElementById('menu-item-toppings-select');
+    const pizzaPreview = document.getElementById('pizza-preview');
+    const addPizzaForm = document.getElementById('add-pizza-form');
+    const pizzaNameInput = document.getElementById('pizza-name');
+    const pizzaDescriptionInput = document.getElementById('pizza-description');
+    const sectionSelect = document.getElementById('pizza-section-select');
 
     // Populate section dropdown
+
+    // Make section dropdown population function global for all handlers
     window.populateSectionDropdown = async function populateSectionDropdown() {
         try {
             const res = await fetch('/api/sections');
@@ -398,26 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     window.populateSectionDropdown();
-
-    // Populate toppings select for menu item form
-    async function populateMenuItemToppingsSelect() {
-        try {
-            const res = await fetch('/api/master-toppings');
-            const data = await res.json();
-            const toppings = data.toppings || [];
-            if (!toppingsSelect) return;
-            toppingsSelect.innerHTML = '';
-            toppings.forEach(t => {
-                const option = document.createElement('option');
-                option.value = t.name;
-                option.textContent = t.name + ' (' + t.category + ')';
-                toppingsSelect.appendChild(option);
-            });
-        } catch (err) {
-            console.error('Failed to load toppings for menu item form:', err);
-        }
-    }
-    populateMenuItemToppingsSelect();
 
     // Modal for size/price and toppings
     let modalBg = document.createElement('div');
@@ -603,77 +584,85 @@ async function renderSectionsList() {
     function renderPreview() {
         const previewText = sizes.map(obj => `${obj.size} (£${obj.price.toFixed(2)})`).join(', ');
         let toppingsText = toppings.length ? `<br><strong>Toppings:</strong> ${toppings.join(', ')}` : '';
-        menuItemPreview.innerHTML = `<strong>Preview:</strong> ${menuItemNameInput.value} (${previewText})${toppingsText}`;
+        pizzaPreview.innerHTML = `<strong>Preview:</strong> ${pizzaNameInput.value} (${previewText})${toppingsText}`;
     }
 
-    menuItemNameInput.addEventListener('input', renderPreview);
+    pizzaNameInput.addEventListener('input', renderPreview);
 
-    addMenuItemForm.addEventListener('submit', (e) => {
-        console.log('Add Menu Item form submitted');
-        // Show a visible message when Add Menu Item is pressed
-        let msg = document.getElementById('add-menu-item-feedback');
-        if (!msg) {
-            msg = document.createElement('div');
-            msg.id = 'add-menu-item-feedback';
-            msg.style = 'color: blue; font-weight: bold; margin-top: 10px;';
-            addMenuItemForm.parentNode.insertBefore(msg, addMenuItemForm.nextSibling);
-        }
-        msg.textContent = 'Add Menu Item button pressed!';
-        setTimeout(() => { if (msg) msg.textContent = ''; }, 2000);
+    addPizzaForm.addEventListener('submit', (e) => {
+                console.log('Add Pizza form submitted');
+                // Show a visible message when Add Pizza is pressed
+                let msg = document.getElementById('add-pizza-feedback');
+                if (!msg) {
+                    msg = document.createElement('div');
+                    msg.id = 'add-pizza-feedback';
+                    msg.style = 'color: blue; font-weight: bold; margin-top: 10px;';
+                    addPizzaForm.parentNode.insertBefore(msg, addPizzaForm.nextSibling);
+                }
+                msg.textContent = 'Add Pizza button pressed!';
+                setTimeout(() => { if (msg) msg.textContent = ''; }, 2000);
 
-        // After adding, refresh the admin menu preview
-        setTimeout(fetchAndRenderAdminMenuPreview, 500);
+                // After adding, refresh the admin menu preview
+                setTimeout(fetchAndRenderAdminMenuPreview, 500);
         e.preventDefault();
-        const directPrice = document.getElementById('menu-item-direct-price')?.value;
-        if (!menuItemNameInput.value || (sizes.length === 0 && (!directPrice || isNaN(parseFloat(directPrice))))) {
-            alert('Please enter an item name and at least one size or a direct price.');
+        const directPrice = document.getElementById('pizza-direct-price')?.value;
+        if (!pizzaNameInput.value || (sizes.length === 0 && (!directPrice || isNaN(parseFloat(directPrice))))) {
+            alert('Please enter a pizza name and at least one size or a direct price.');
             return;
         }
-        // Collect selected toppings
-        const selectedToppings = Array.from(toppingsSelect.selectedOptions).map(opt => opt.value);
-        // Send new menu item to backend
-        const newItem = {
-            name: menuItemNameInput.value,
-            description: menuItemDescriptionInput.value.trim() || undefined,
+        // Send new pizza to backend
+        const newPizza = {
+            name: pizzaNameInput.value,
+            description: pizzaDescriptionInput.value.trim() || undefined,
             sizes: sizes,
-            toppings: selectedToppings,
+            toppings: toppings,
             section: sectionSelect.value || 'Other',
+            allowMasterToppings: (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) ? !!includeMasterToppingsCheckbox.checked : false,
+            masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {
+                const [name, category] = key.split('|');
+                return {
+                    name,
+                    category,
+                    price: selectedMasterToppingPrices && selectedMasterToppingPrices[key] ? selectedMasterToppingPrices[key] : 0
+                };
+            }) : []
         };
         if (sizes.length === 0 && directPrice && !isNaN(parseFloat(directPrice))) {
-            newItem.price = parseFloat(directPrice);
+            newPizza.price = parseFloat(directPrice);
         }
         fetch('/api/menu', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newItem)
+            body: JSON.stringify(newPizza)
         })
         .then(res => {
-            if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to add menu item'); });
+            if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to add pizza'); });
             return res.json();
         })
         .then(data => {
-            alert('Menu item added to live menu!');
-            menuItemNameInput.value = '';
-            menuItemDescriptionInput.value = '';
+            alert('Pizza added to live menu!');
+            pizzaNameInput.value = '';
+            pizzaDescriptionInput.value = '';
+            if (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) includeMasterToppingsCheckbox.checked = false;
             sizes = [];
             toppings = [];
             renderSizes();
             renderPreview();
         })
         .catch(err => {
-            alert('Error adding menu item: ' + err.message);
+            alert('Error adding pizza: ' + err.message);
         });
     });
 
     // Add direct price input to the form
     const priceInput = document.createElement('input');
     priceInput.type = 'number';
-    priceInput.id = 'menu-item-direct-price';
+    priceInput.id = 'pizza-direct-price';
     priceInput.placeholder = 'Direct price (e.g. 7.99)';
     priceInput.step = '0.01';
     priceInput.min = '0';
     priceInput.style.marginBottom = '8px';
-    menuItemNameInput.parentNode.insertBefore(priceInput, menuItemDescriptionInput);
+    pizzaNameInput.parentNode.insertBefore(priceInput, pizzaDescriptionInput);
 
     // Initial render
     renderSizes();

@@ -38,8 +38,8 @@
         </div>
         <div id="master-toppings-list"></div>
     </section>
-    <section id="menu-item-section">
-        <h2>Menu Items</h2>
+    <section id="pizza-section">
+        <h2>Pizzas</h2>
         <section id="menu-section-management" style="margin-bottom:24px;">
             <h3>Add Menu Section</h3>
             <form id="add-section-form" style="margin-bottom:12px;">
@@ -48,21 +48,21 @@
             </form>
             <div id="sections-list"></div>
         </section>
-        <form id="add-menu-item-form">
-            <label for="menu-item-section-select"><b>Section:</b></label>
-            <select id="menu-item-section-select" style="margin-bottom:8px;"></select><br>
-            <input type="text" id="menu-item-name" placeholder="Item Name" required><br>
-            <textarea id="menu-item-description" placeholder="Description (optional)" style="width:100%;margin-top:6px;margin-bottom:8px;" rows="2"></textarea>
+        <form id="add-pizza-form">
+            <label for="pizza-section-select"><b>Section:</b></label>
+            <select id="pizza-section-select" style="margin-bottom:8px;"></select><br>
+            <input type="text" id="pizza-name" placeholder="Pizza Name" required><br>
+            <textarea id="pizza-description" placeholder="Description (optional)" style="width:100%;margin-top:6px;margin-bottom:8px;" rows="2"></textarea>
             <div style="margin:8px 0;">
-                <label for="menu-item-toppings-select"><b>Toppings:</b></label>
-                <select id="menu-item-toppings-select" multiple style="width:100%;min-height:60px;margin-top:4px;"></select>
+                <label for="pizza-toppings-select"><b>Toppings:</b></label>
+                <select id="pizza-toppings-select" multiple style="width:100%;min-height:60px;margin-top:4px;"></select>
                 <small>Select toppings from the master list. Hold Ctrl to select multiple.</small>
             </div>
             <button type="button" id="add-size-btn">Add Size</button>
             <div id="sizes-list"></div>
-            <button type="submit">Add Menu Item</button>
+            <button type="submit">Add Pizza</button>
         </form>
-        <div id="menu-item-preview"></div>
+        <div id="pizza-preview"></div>
         <hr>
         <h3>Live Menu Preview</h3>
         <button id="refresh-menu-preview-btn" type="button" style="margin-bottom:8px;">Refresh Preview</button>
