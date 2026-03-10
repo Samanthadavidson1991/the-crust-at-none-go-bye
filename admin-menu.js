@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const id = btn.getAttribute('data-id');
                 const item = liveMenu.find(i => i._id === id);
                 if (!item) return;
+                // Open the full modal editor for this item (not just toppings prompt)
                 openEditModal(item);
             };
         });
