@@ -332,13 +332,14 @@
     function showMasterToppingsPopup(item, selectedSize) {
       let popupHtml = `<h3>Add Master Toppings</h3>`;
       popupHtml += `<form id='master-toppings-popup-form'>`;
-      masterToppings.forEach(mt => {
-        let price = '0.00';
-        if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
-        else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
-        else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
-        popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-master-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}'> ${mt.name} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
-      });
+        masterToppings.forEach(mt => {
+          let price = '0.00';
+          if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
+          else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
+          else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+          let gfLabel = mt.glutenFree ? " <span class='gf-label' style='color:green;font-weight:bold;font-size:0.95em;'>(GF)</span>" : "";
+          popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-master-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}'> ${mt.name}${gfLabel} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
+        });
       popupHtml += `</form>`;
       popupHtml += `<button id='master-toppings-popup-add'>Add Selected Toppings</button> <button id='master-toppings-popup-cancel'>Cancel</button>`;
       masterToppingsPopup.innerHTML = popupHtml;

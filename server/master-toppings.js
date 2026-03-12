@@ -33,10 +33,26 @@ router.get('/', async (req, res) => {
 
 // Add a master topping
 router.post('/', async (req, res) => {
-  const { name, category, price } = req.body;
-  const topping = new MasterTopping({ name, category, price: category === 'Other' ? price : undefined });
+  const { name, category, price, glutenFree } = req.body;
+  const topping = new MasterTopping({
+    name,
+    category,
+    price: category === 'Other' ? price : undefined,
+    glutenFree: !!glutenFree
+  });
   await topping.save();
   res.json(topping);
+});
+// Update glutenFree property for a master topping
+router.patch('/:id/gluten-free', async (req, res) => {
+  const { glutenFree } = req.body;
+  const topping = await MasterTopping.findByIdAndUpdate(
+    req.params.id,
+    { glutenFree: !!glutenFree },
+    { new: true }
+  );
+  if (!topping) return res.status(404).json({ error: 'Topping not found' });
+  res.json({ success: true, topping });
 });
 
 // Delete a master topping

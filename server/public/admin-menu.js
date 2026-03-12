@@ -40,7 +40,7 @@
         try {
             const res = await fetch('/api/master-toppings');
             const data = await res.json();
-            masterToppings = (data.toppings || []).map(t => ({ _id: t._id, name: t.name, category: t.category, price: t.price }));
+            masterToppings = (data.toppings || []).map(t => ({ _id: t._id, name: t.name, category: t.category, price: t.price, glutenFree: t.glutenFree }));
             // Map backend settings to local keys
             if (data.settings) {
                 masterToppingPrices.Vegetable = data.settings.masterVegPrice || 0;
@@ -80,6 +80,8 @@
                     const realIdx = masterToppings.findIndex(t => t.name === topping.name && t.category === topping.category);
                     html += `<li style="margin-bottom:6px;">`
                         + `<b>${topping.name}</b> `;
+                    // GF Checkbox
+                    html += `<label style='margin-left:8px;font-size:0.95em;'><input type='checkbox' class='gf-checkbox' data-id='${topping._id}' ${topping.glutenFree ? 'checked' : ''}/> GF</label> `;
                     if (cat === 'Other') {
                         html += ` Price: <input type='number' class='edit-other-topping-price' data-name='${topping.name}' value='${topping.price !== undefined ? topping.price : 0}' step='0.01' min='0' style='width:60px;'>`;
                         html += ` <button data-name='${topping.name}' class='save-other-topping-price-btn' style='color:green;'>Save Price</button> `;
@@ -88,6 +90,24 @@
                     html += `<button data-idx="${realIdx}" data-name="${topping.name}" data-category="${topping.category}" class="delete-master-topping-btn" style="color:red;">Delete</button>`
                         + `</li>`;
                 });
+                        // Attach GF checkbox handlers
+                        document.querySelectorAll('.gf-checkbox').forEach(checkbox => {
+                            checkbox.onchange = async function() {
+                                const id = checkbox.getAttribute('data-id');
+                                const checked = checkbox.checked;
+                                try {
+                                    const res = await fetch(`/api/master-toppings/${id}/gluten-free`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ glutenFree: checked })
+                                    });
+                                    if (!res.ok) throw new Error('Failed to update GF status');
+                                } catch (err) {
+                                    alert('Error updating GF status: ' + err.message);
+                                    checkbox.checked = !checked; // revert
+                                }
+                            };
+                        });
                 html += '</ul>';
             } else {
                 html += `<em style='color:#888;'>No ${cat.toLowerCase()} toppings</em>`;
