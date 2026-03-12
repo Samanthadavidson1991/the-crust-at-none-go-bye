@@ -33,6 +33,7 @@ router.get('/', async (req, res) => {
 
 // Add a master topping
 router.post('/', async (req, res) => {
+  console.log('POST /api/master-toppings req.body:', req.body);
   const { name, category, price, glutenFree } = req.body;
   const topping = new MasterTopping({
     name,
