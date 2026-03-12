@@ -102,6 +102,7 @@
                                         body: JSON.stringify({ glutenFree: checked })
                                     });
                                     if (!res.ok) throw new Error('Failed to update GF status');
+                                    await loadMasterToppingsAndPrices(); // reload to reflect DB state
                                 } catch (err) {
                                     alert('Error updating GF status: ' + err.message);
                                     checkbox.checked = !checked; // revert
