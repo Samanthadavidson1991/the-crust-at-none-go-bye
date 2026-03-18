@@ -19,7 +19,14 @@ const toppings = [
   { name: 'Green peppers', category: 'Veg', price: 1 },
   { name: 'Pineapple', category: 'Veg', price: 1 },
   { name: 'Spinach', category: 'Veg', price: 1 },
-  { name: 'Extra cheese', category: 'Other', price: 1 }
+  { name: 'Extra cheese', category: 'Other', price: 1 },
+  // Salad toppings
+  { name: 'Cucumber', category: 'Salad', price: 0.6 },
+  { name: 'Tomato', category: 'Salad', price: 0.6 },
+  { name: 'Red onion', category: 'Salad', price: 0.6 },
+  { name: 'Lettuce', category: 'Salad', price: 0.6 },
+  { name: 'Olives', category: 'Salad', price: 0.6 },
+  { name: 'Feta cheese', category: 'Salad', price: 0.6 }
 ];
 
 async function seedToppings() {
