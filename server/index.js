@@ -1,13 +1,3 @@
-// TEMPORARY: Seed all data via API endpoint (remove after use!)
-app.get('/api/seed-all', async (req, res) => {
-  try {
-    await require('./seed-menu')();
-    await require('./seed-toppings')();
-    res.send('Seeding complete!');
-  } catch (err) {
-    res.status(500).send('Seeding failed: ' + err.message);
-  }
-});
 
 require('dotenv').config();
 const path = require('path');
@@ -525,6 +515,16 @@ app.post('/api/admin/login', (req, res) => {
 
 
 // Register API routes for admin menu and customer menu functionality
+// TEMPORARY: Seed all data via API endpoint (remove after use!)
+app.get('/api/seed-all', async (req, res) => {
+  try {
+    await require('./seed-menu')();
+    await require('./seed-toppings')();
+    res.send('Seeding complete!');
+  } catch (err) {
+    res.status(500).send('Seeding failed: ' + err.message);
+  }
+});
 app.use('/api/master-toppings', require('./master-toppings'));
 // Correct /api/sections endpoint for menu sections
 const Section = require('./section.model');
