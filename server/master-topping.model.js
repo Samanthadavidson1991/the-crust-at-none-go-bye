@@ -12,6 +12,7 @@ const MasterTopping = mongoose.model('MasterTopping', MasterToppingSchema);
 const MasterToppingSettingsSchema = new mongoose.Schema({
   masterMeatPrice: { type: Number, default: 0 },
   masterVegPrice: { type: Number, default: 0 },
+  masterSaladPrice: { type: Number, default: 0 },
 });
 
 const MasterToppingSettings = mongoose.model('MasterToppingSettings', MasterToppingSettingsSchema);

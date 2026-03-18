@@ -66,11 +66,12 @@ router.delete('/:id', async (req, res) => {
 
 // Update master prices
 router.post('/settings', async (req, res) => {
-  const { masterMeatPrice, masterVegPrice } = req.body;
+  const { masterMeatPrice, masterVegPrice, masterSaladPrice } = req.body;
   let settings = await MasterToppingSettings.findOne();
   if (!settings) settings = new MasterToppingSettings();
   settings.masterMeatPrice = masterMeatPrice;
   settings.masterVegPrice = masterVegPrice;
+  settings.masterSaladPrice = masterSaladPrice;
   await settings.save();
   res.json(settings);
 });

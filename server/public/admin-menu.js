@@ -33,7 +33,7 @@
                 // ...existing code...
     // --- Master Toppings Management ---
     let masterToppings = [];
-    let masterToppingPrices = { Vegetable: 0, Meat: 0, Other: 0 };
+    let masterToppingPrices = { Vegetable: 0, Meat: 0, Salad: 0, Other: 0 };
 
     // Load master toppings and prices from backend
     async function loadMasterToppingsAndPrices() {
@@ -45,11 +45,13 @@
             if (data.settings) {
                 masterToppingPrices.Vegetable = data.settings.masterVegPrice || 0;
                 masterToppingPrices.Meat = data.settings.masterMeatPrice || 0;
+                masterToppingPrices.Salad = data.settings.masterSaladPrice || 0;
                 masterToppingPrices.Other = 0; // Only set by individual topping price
             }
             renderMasterToppingsList();
             masterVegPriceInput.value = masterToppingPrices.Vegetable;
             masterMeatPriceInput.value = masterToppingPrices.Meat;
+            masterSaladPriceInput.value = masterToppingPrices.Salad;
             masterOtherPriceInput.value = masterToppingPrices.Other;
         } catch (err) {
             console.error('Failed to load master toppings:', err);
@@ -63,11 +65,12 @@
     const masterVegPriceInput = document.getElementById('master-veg-price');
     const masterMeatPriceInput = document.getElementById('master-meat-price');
     const masterOtherPriceInput = document.getElementById('master-other-price');
+    const masterSaladPriceInput = document.getElementById('master-salad-price');
     const saveMasterToppingPricesBtn = document.getElementById('save-master-topping-prices');
 
     function renderMasterToppingsList() {
         // Group toppings by category
-        const categories = ['Veg', 'Meat', 'Other'];
+        const categories = ['Veg', 'Meat', 'Salad', 'Other'];
         let html = '';
         categories.forEach(cat => {
             html += `<div style="margin-bottom:12px;">
@@ -202,12 +205,13 @@
     saveMasterToppingPricesBtn.onclick = async function() {
         masterToppingPrices.Vegetable = parseFloat(masterVegPriceInput.value) || 0;
         masterToppingPrices.Meat = parseFloat(masterMeatPriceInput.value) || 0;
+        masterToppingPrices.Salad = parseFloat(masterSaladPriceInput.value) || 0;
         // Other price is per-topping, not global
         try {
             const res = await fetch('/api/master-toppings/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ masterVegPrice: masterToppingPrices.Vegetable, masterMeatPrice: masterToppingPrices.Meat })
+                body: JSON.stringify({ masterVegPrice: masterToppingPrices.Vegetable, masterMeatPrice: masterToppingPrices.Meat, masterSaladPrice: masterToppingPrices.Salad })
             });
             if (!res.ok) throw new Error('Failed to save prices');
             alert('Master topping prices saved!');
