@@ -1,3 +1,13 @@
+// TEMPORARY: Seed all data via API endpoint (remove after use!)
+app.get('/api/seed-all', async (req, res) => {
+  try {
+    await require('./seed-menu')();
+    await require('./seed-toppings')();
+    res.send('Seeding complete!');
+  } catch (err) {
+    res.status(500).send('Seeding failed: ' + err.message);
+  }
+});
 
 require('dotenv').config();
 const path = require('path');
