@@ -10,6 +10,7 @@ const menuItemSchema = new mongoose.Schema({
   description: String,
   price: Number,
   toppings: [String],
+  saladToppings: [String],
   sizes: Array,
   sideOptions: Array,
   glutenFree: Boolean,

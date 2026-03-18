@@ -234,17 +234,28 @@
             const res = await fetch('/api/master-toppings');
             const data = await res.json();
             const toppings = data.toppings || [];
-            const select = document.getElementById('pizza-toppings-select');
-            if (!select) return;
-            select.innerHTML = '';
-            toppings.forEach(t => {
-                const option = document.createElement('option');
-                option.value = t.name;
-                option.textContent = t.name + ' (' + t.category + ')';
-                select.appendChild(option);
-            });
+            const pizzaSelect = document.getElementById('pizza-toppings-select');
+            const saladSelect = document.getElementById('salad-toppings-select');
+            if (pizzaSelect) {
+                pizzaSelect.innerHTML = '';
+                toppings.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.name;
+                    option.textContent = t.name + ' (' + t.category + ')';
+                    pizzaSelect.appendChild(option);
+                });
+            }
+            if (saladSelect) {
+                saladSelect.innerHTML = '';
+                toppings.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.name;
+                    option.textContent = t.name + ' (' + t.category + ')';
+                    saladSelect.appendChild(option);
+                });
+            }
         } catch (err) {
-            console.error('Failed to load toppings for pizza form:', err);
+            console.error('Failed to load toppings for pizza/salad form:', err);
         }
     }
     populatePizzaToppingsSelect();
@@ -652,11 +663,14 @@ async function renderSectionsList() {
         }
         // Send new pizza to backend
         const glutenFreeCheckbox = document.getElementById('pizza-glutenfree-checkbox');
+        const saladToppingsSelect = document.getElementById('salad-toppings-select');
+        const selectedSaladToppings = saladToppingsSelect ? Array.from(saladToppingsSelect.selectedOptions).map(opt => opt.value) : [];
         const newPizza = {
             name: pizzaNameInput.value,
             description: pizzaDescriptionInput.value.trim() || undefined,
             sizes: sizes,
             toppings: toppings,
+            saladToppings: selectedSaladToppings,
             section: sectionSelect.value || 'Other',
             allowMasterToppings: (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) ? !!includeMasterToppingsCheckbox.checked : false,
             masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {

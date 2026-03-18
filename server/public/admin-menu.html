@@ -54,9 +54,14 @@
             <input type="text" id="pizza-name" placeholder="Pizza Name" required><br>
             <textarea id="pizza-description" placeholder="Description (optional)" style="width:100%;margin-top:6px;margin-bottom:8px;" rows="2"></textarea>
             <div style="margin:8px 0;">
-                <label for="pizza-toppings-select"><b>Toppings:</b></label>
+                <label for="pizza-toppings-select"><b>Pizza Toppings:</b></label>
                 <select id="pizza-toppings-select" multiple style="width:100%;min-height:60px;margin-top:4px;"></select>
-                <small>Select toppings from the master list. Hold Ctrl to select multiple.</small>
+                <small>Select pizza toppings from the master list. Hold Ctrl to select multiple.</small>
+            </div>
+            <div style="margin:8px 0;">
+                <label for="salad-toppings-select"><b>Salad Toppings:</b></label>
+                <select id="salad-toppings-select" multiple style="width:100%;min-height:60px;margin-top:4px;"></select>
+                <small>Select salad toppings from the master list. Hold Ctrl to select multiple.</small>
             </div>
             <button type="button" id="add-size-btn">Add Size</button>
             <div id="sizes-list"></div>

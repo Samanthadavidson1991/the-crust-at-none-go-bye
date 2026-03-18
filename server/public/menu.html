@@ -216,14 +216,25 @@
                 });
               });
           // --- Toppings UI ---
-          // Pizza-specific toppings (from admin)
-          if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Remove Toppings:</b></small><br>`;
-            item.toppings.forEach(topping => {
-              html += `<label class="topping-label"><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
-            });
-            html += `</form>`;
+          // Show pizza toppings for pizzas, salad toppings for salads
+          if (sectionName.toLowerCase().includes('salad')) {
+            if (item.saladToppings && Array.isArray(item.saladToppings) && item.saladToppings.length) {
+              html += `<form class='toppings-form' data-name='${item.name}'>`;
+              html += `<small><b>Salad Toppings:</b></small><br>`;
+              item.saladToppings.forEach(topping => {
+                html += `<label class="topping-label"><input type='checkbox' class='salad-topping' value='${topping}' checked> ${topping}</label>`;
+              });
+              html += `</form>`;
+            }
+          } else {
+            if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
+              html += `<form class='toppings-form' data-name='${item.name}'>`;
+              html += `<small><b>Pizza Toppings:</b></small><br>`;
+              item.toppings.forEach(topping => {
+                html += `<label class="topping-label"><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
+              });
+              html += `</form>`;
+            }
           }
           // (No duplicate Add Toppings button here)
           if (outOfStock) {
