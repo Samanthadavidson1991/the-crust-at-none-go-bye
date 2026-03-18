@@ -28,7 +28,7 @@ const menuItemSchema = new mongoose.Schema({
   glutenFree: Boolean,
   stock: Number
 });
-const MenuItem = mongoose.model('MenuItem', menuItemSchema);
+const MenuItem = mongoose.models.MenuItem || mongoose.model('MenuItem', menuItemSchema);
 
 // Load menu-clean.json
 const menuPath = path.resolve(__dirname, '../menu-clean.json');
