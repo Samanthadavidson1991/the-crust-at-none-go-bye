@@ -443,20 +443,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             const sections = data.sections || [];
             sectionSelect.innerHTML = '';
-            let foundSalad = false;
             sections.forEach(sec => {
                 const opt = document.createElement('option');
                 opt.value = sec.name;
                 opt.textContent = sec.name;
                 sectionSelect.appendChild(opt);
-                if (sec.name.toLowerCase() === 'salad') foundSalad = true;
             });
-            if (!foundSalad) {
-                const saladOpt = document.createElement('option');
-                saladOpt.value = 'Salad';
-                saladOpt.textContent = 'Salad';
-                sectionSelect.appendChild(saladOpt);
-            }
         } catch (err) {
             sectionSelect.innerHTML = '<option value="Other">Other</option>';
         }
