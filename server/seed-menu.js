@@ -12,7 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const dbUser = process.env.MONGO_ATLAS_USERNAME;
 const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
-const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
+  const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/thecrustngb?retryWrites=true&w=majority&appName=Cluster0`;
 
 mongoose.connect(atlasUri);
 
