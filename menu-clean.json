@@ -22,5 +22,17 @@
     "sizes": [],
     "sideOptions": [],
     "glutenFree": false
+  },
+  {
+    "name": "gf veggie pizza",
+    "category": "Pizza",
+    "description": "gluten free veggie pizza",
+    "price": 10.99,
+    "toppings": ["peppers", "onions", "mushrooms"],
+    "sizes": [
+      { "name": "Gluten Free", "price": 10.99 }
+    ],
+    "sideOptions": [],
+    "glutenFree": true
   }
 ]

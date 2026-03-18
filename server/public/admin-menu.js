@@ -116,6 +116,25 @@
             html += '</div>';
         });
         masterToppingsListDiv.innerHTML = html;
+        // Attach GF checkbox handlers after rendering
+        document.querySelectorAll('.gf-checkbox').forEach(checkbox => {
+            checkbox.onchange = async function() {
+                const id = checkbox.getAttribute('data-id');
+                const checked = checkbox.checked;
+                try {
+                    const res = await fetch(`/api/master-toppings/${id}/gluten-free`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ glutenFree: checked })
+                    });
+                    if (!res.ok) throw new Error('Failed to update GF status');
+                    await loadMasterToppingsAndPrices(); // reload to reflect DB state
+                } catch (err) {
+                    alert('Error updating GF status: ' + err.message);
+                    checkbox.checked = !checked; // revert
+                }
+            };
+        });
         document.querySelectorAll('.delete-master-topping-btn').forEach(btn => {
             btn.onclick = async function() {
                 if (!confirm('Are you sure you want to delete this topping?')) return;
@@ -632,6 +651,7 @@ async function renderSectionsList() {
             return;
         }
         // Send new pizza to backend
+        const glutenFreeCheckbox = document.getElementById('pizza-glutenfree-checkbox');
         const newPizza = {
             name: pizzaNameInput.value,
             description: pizzaDescriptionInput.value.trim() || undefined,
@@ -646,7 +666,8 @@ async function renderSectionsList() {
                     category,
                     price: selectedMasterToppingPrices && selectedMasterToppingPrices[key] ? selectedMasterToppingPrices[key] : 0
                 };
-            }) : []
+            }) : [],
+            glutenFree: glutenFreeCheckbox ? glutenFreeCheckbox.checked : false
         };
         if (sizes.length === 0 && directPrice && !isNaN(parseFloat(directPrice))) {
             newPizza.price = parseFloat(directPrice);
