@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const MasterToppingSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
-  category: { type: String, enum: ['Meat', 'Veg', 'Other'], required: true },
+  category: { type: String, enum: ['Meat', 'Veg', 'Other', 'Salad'], required: true },
   price: { type: Number, required: function() { return this.category === 'Other'; } }, // Only required for 'Other'
   glutenFree: { type: Boolean, default: false },
 });
