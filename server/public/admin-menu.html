@@ -24,6 +24,7 @@
         <form id="add-master-topping-form" style="margin-bottom:12px;">
             <input type="text" id="master-topping-name" placeholder="Topping Name" required>
             <select id="master-topping-category" required>
+                                <option value="Salad">Salad</option>
                 <option value="Veg">Vegetable</option>
                 <option value="Meat">Meat</option>
                 <option value="Other">Other</option>
@@ -32,6 +33,7 @@
         </form>
         <div style="margin-bottom:12px;">
             <label>Vegetable Price: <input type="number" id="master-veg-price" step="0.01" min="0" style="width:80px;"></label>
+                        <label style="margin-left:16px;">Salad Price: <input type="number" id="master-salad-price" step="0.01" min="0" style="width:80px;"></label>
             <label style="margin-left:16px;">Meat Price: <input type="number" id="master-meat-price" step="0.01" min="0" style="width:80px;"></label>
             <label style="margin-left:16px;">Other Price: <input type="number" id="master-other-price" step="0.01" min="0" style="width:80px;"></label>
             <button type="button" id="save-master-topping-prices" style="margin-left:16px;">Save Prices</button>

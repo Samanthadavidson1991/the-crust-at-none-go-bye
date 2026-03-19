@@ -9,6 +9,13 @@ const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
 const mongoUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
 
 const toppings = [
+    // Salad toppings
+    { name: 'Cucumber', category: 'Salad', price: 0.6 },
+    { name: 'Tomato', category: 'Salad', price: 0.6 },
+    { name: 'Red onion', category: 'Salad', price: 0.6 },
+    { name: 'Lettuce', category: 'Salad', price: 0.6 },
+    { name: 'Olives', category: 'Salad', price: 0.6 },
+    { name: 'Feta cheese', category: 'Salad', price: 0.6 },
   { name: 'Pepperoni', category: 'Meat', price: 1 },
   { name: 'Sausage', category: 'Meat', price: 1 },
   { name: 'Bacon', category: 'Meat', price: 1 },
