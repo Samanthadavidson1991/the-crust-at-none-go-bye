@@ -553,6 +553,19 @@ app.post('/api/sections', async (req, res) => {
     }
   }
 });
+
+// PATCH /api/sections/:id/order - update section order
+app.patch('/api/sections/:id/order', async (req, res) => {
+  try {
+    const { order } = req.body;
+    if (typeof order !== 'number') return res.status(400).json({ error: 'Order is required and must be a number' });
+    const section = await Section.findByIdAndUpdate(req.params.id, { order }, { new: true });
+    if (!section) return res.status(404).json({ error: 'Section not found' });
+    res.json({ section });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update section order', details: err.message });
+  }
+});
 app.use('/api/offers', require('./offers'));
 app.use('/api/section-topping-assignments', require('./section-topping-assignments'));
 // Dummy pizza-topping-stock endpoint for now (returns empty array)
