@@ -534,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Render section list with delete buttons
 
 // --- Render Sections List (moved to very top of file) ---
-async function renderSectionsList() {
+window.renderSectionsList = async function renderSectionsList() {
     const sectionsListDiv = document.getElementById('sections-list');
     sectionsListDiv.innerHTML = '<em>Loading sections...</em>';
     try {
