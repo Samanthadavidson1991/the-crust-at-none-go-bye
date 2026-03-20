@@ -536,6 +536,23 @@ app.get('/api/sections', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch sections', details: err.message });
   }
 });
+
+// Add new section
+app.post('/api/sections', async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: 'Section name is required' });
+    const section = new Section({ name });
+    await section.save();
+    res.status(201).json({ section });
+  } catch (err) {
+    if (err.code === 11000) {
+      res.status(400).json({ error: 'Section already exists' });
+    } else {
+      res.status(500).json({ error: 'Failed to add section', details: err.message });
+    }
+  }
+});
 app.use('/api/offers', require('./offers'));
 app.use('/api/section-topping-assignments', require('./section-topping-assignments'));
 // Dummy pizza-topping-stock endpoint for now (returns empty array)
