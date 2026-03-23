@@ -48,7 +48,9 @@ const initialMenu = menuArr.map(item => {
   return {
     ...item,
     section,
-    category
+    category,
+    toppings: Array.isArray(item.toppings) ? item.toppings : [],
+    saladToppings: Array.isArray(item.saladToppings) ? item.saladToppings : [],
   };
 });
 
