@@ -322,6 +322,7 @@
         const pizzaDescriptionInput = document.getElementById('pizza-description');
         const sectionSelect = document.getElementById('pizza-section-select');
         const glutenFreeCheckbox = document.getElementById('pizza-glutenfree-checkbox');
+        const allowMasterToppingsCheckbox = document.getElementById('allow-master-toppings-checkbox');
         const saladToppingsSelect = document.getElementById('salad-toppings-select');
         const selectedSaladToppings = saladToppingsSelect ? Array.from(saladToppingsSelect.selectedOptions).map(opt => opt.value) : [];
         // ...existing code for sizes, etc...
@@ -336,7 +337,7 @@
             toppings: selectedToppings,
             saladToppings: selectedSaladToppings,
             section: sectionSelect.value || 'Other',
-            allowMasterToppings: (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) ? !!includeMasterToppingsCheckbox.checked : false,
+            allowMasterToppings: allowMasterToppingsCheckbox ? !!allowMasterToppingsCheckbox.checked : false,
             masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {
                 const [name, category] = key.split('|');
                 return {
