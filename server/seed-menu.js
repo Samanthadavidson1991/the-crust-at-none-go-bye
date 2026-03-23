@@ -51,6 +51,7 @@ const initialMenu = menuArr.map(item => {
     category,
     toppings: Array.isArray(item.toppings) ? item.toppings : [],
     saladToppings: Array.isArray(item.saladToppings) ? item.saladToppings : [],
+    allowMasterToppings: true,
   };
 });
 
