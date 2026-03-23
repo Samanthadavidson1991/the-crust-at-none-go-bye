@@ -271,8 +271,63 @@
         // ...existing code for name, section, etc...
         const toppingsSelect = document.getElementById('pizza-toppings-select');
         const selectedToppings = Array.from(toppingsSelect.selectedOptions).map(opt => opt.value);
-        // Use selectedToppings in pizza creation logic
-        // ...existing code...
+        // ...existing code for collecting other fields...
+        const directPrice = document.getElementById('pizza-direct-price')?.value;
+        const pizzaNameInput = document.getElementById('pizza-name');
+        const pizzaDescriptionInput = document.getElementById('pizza-description');
+        const sectionSelect = document.getElementById('pizza-section-select');
+        const glutenFreeCheckbox = document.getElementById('pizza-glutenfree-checkbox');
+        const saladToppingsSelect = document.getElementById('salad-toppings-select');
+        const selectedSaladToppings = saladToppingsSelect ? Array.from(saladToppingsSelect.selectedOptions).map(opt => opt.value) : [];
+        // ...existing code for sizes, etc...
+        if (!pizzaNameInput.value || (sizes.length === 0 && (!directPrice || isNaN(parseFloat(directPrice))))) {
+            alert('Please enter a pizza name and at least one size or a direct price.');
+            return;
+        }
+        const newPizza = {
+            name: pizzaNameInput.value,
+            description: pizzaDescriptionInput.value.trim() || undefined,
+            sizes: sizes,
+            toppings: selectedToppings,
+            saladToppings: selectedSaladToppings,
+            section: sectionSelect.value || 'Other',
+            allowMasterToppings: (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) ? !!includeMasterToppingsCheckbox.checked : false,
+            masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {
+                const [name, category] = key.split('|');
+                return {
+                    name,
+                    category,
+                    price: selectedMasterToppingPrices && selectedMasterToppingPrices[key] ? selectedMasterToppingPrices[key] : 0
+                };
+            }) : [],
+            glutenFree: glutenFreeCheckbox ? glutenFreeCheckbox.checked : false
+        };
+        if (sizes.length === 0 && directPrice && !isNaN(parseFloat(directPrice))) {
+            newPizza.price = parseFloat(directPrice);
+        }
+        fetch('/api/menu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newPizza)
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to add pizza'); });
+            return res.json();
+        })
+        .then(data => {
+            alert('Pizza added to live menu!');
+            pizzaNameInput.value = '';
+            pizzaDescriptionInput.value = '';
+            if (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) includeMasterToppingsCheckbox.checked = false;
+            sizes = [];
+            toppings = [];
+            renderSizes();
+            renderPreview();
+        })
+        .catch(err => {
+            alert('Error adding pizza: ' + err.message);
+        });
+        setTimeout(fetchAndRenderAdminMenuPreview, 500);
     });
 document.addEventListener('DOMContentLoaded', () => {
                         // --- Admin Menu Preview ---
