@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const path = require('path');
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
@@ -608,6 +607,17 @@ app.post('/api/menu', async (req, res) => {
     console.error('Error adding menu item:', err);
     res.status(500).json({ error: 'Failed to add menu item', details: err.message });
   }
+});
+
+// --- Special Pizza API ---
+app.get('/api/special-pizza', async (req, res) => {
+  // Example: return a hardcoded special pizza, or fetch from DB if you want
+  // You can later make this dynamic or admin-editable
+  res.json({
+    name: 'Truffle Funghi',
+    desc: 'White base, truffle oil, wild mushrooms, mozzarella',
+    price: 13.99
+  });
 });
 
 // End of API and server setup
