@@ -23,10 +23,15 @@ const menuItemSchema = new mongoose.Schema({
   description: String,
   price: Number,
   toppings: [String],
+  saladToppings: [String],
   sizes: Array,
   sideOptions: Array,
   glutenFree: Boolean,
-  stock: Number
+  stock: Number,
+  stockAmount: { type: Number, required: false },
+  showsToppings: { type: Boolean, default: false },
+  allowMasterToppings: { type: Boolean, default: false },
+  hidden: { type: Boolean, default: false }
 });
 const MenuItem = mongoose.models.MenuItem || mongoose.model('MenuItem', menuItemSchema);
 
