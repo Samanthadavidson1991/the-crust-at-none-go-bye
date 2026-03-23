@@ -240,13 +240,21 @@
             const toppings = data.toppings || [];
             const pizzaSelect = document.getElementById('pizza-toppings-select');
             const saladSelect = document.getElementById('salad-toppings-select');
+            // Get currently selected salad toppings (if any)
+            let selectedSaladToppings = [];
+            if (saladSelect) {
+                selectedSaladToppings = Array.from(saladSelect.selectedOptions).map(opt => opt.value);
+            }
             if (pizzaSelect) {
                 pizzaSelect.innerHTML = '';
                 toppings.forEach(t => {
-                    const option = document.createElement('option');
-                    option.value = t.name;
-                    option.textContent = t.name + ' (' + t.category + ')';
-                    pizzaSelect.appendChild(option);
+                    // Only show non-Salad toppings, unless already in saladToppings
+                    if (t.category !== 'Salad' || selectedSaladToppings.includes(t.name)) {
+                        const option = document.createElement('option');
+                        option.value = t.name;
+                        option.textContent = t.name + ' (' + t.category + ')';
+                        pizzaSelect.appendChild(option);
+                    }
                 });
             }
             if (saladSelect) {
@@ -266,11 +274,48 @@
 
     // Use selected toppings when adding pizza
     const addPizzaForm = document.getElementById('add-pizza-form');
+    // --- Enhanced toppings selection UI ---
+    let chosenToppings = [];
+    const toppingsSelect = document.getElementById('pizza-toppings-select');
+    // Create a div to show chosen toppings with remove buttons
+    const chosenToppingsDiv = document.createElement('div');
+    chosenToppingsDiv.id = 'chosen-toppings-list';
+    chosenToppingsDiv.style.margin = '8px 0';
+    toppingsSelect.parentNode.insertBefore(chosenToppingsDiv, toppingsSelect.nextSibling);
+
+    function renderChosenToppings() {
+        chosenToppingsDiv.innerHTML = '';
+        chosenToppings.forEach((topping, idx) => {
+            const span = document.createElement('span');
+            span.textContent = topping;
+            span.style.marginRight = '8px';
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'x';
+            removeBtn.style.marginLeft = '4px';
+            removeBtn.onclick = () => {
+                chosenToppings.splice(idx, 1);
+                renderChosenToppings();
+                // Also update select
+                Array.from(toppingsSelect.options).forEach(opt => {
+                    if (opt.value === topping) opt.selected = false;
+                });
+            };
+            span.appendChild(removeBtn);
+            chosenToppingsDiv.appendChild(span);
+        });
+    }
+
+    // When user selects toppings in the select, update chosenToppings
+    toppingsSelect.addEventListener('change', () => {
+        chosenToppings = Array.from(toppingsSelect.selectedOptions).map(opt => opt.value);
+        renderChosenToppings();
+    });
+
     addPizzaForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         // ...existing code for name, section, etc...
-        const toppingsSelect = document.getElementById('pizza-toppings-select');
-        const selectedToppings = Array.from(toppingsSelect.selectedOptions).map(opt => opt.value);
+        // Use chosenToppings instead of direct select
+        const selectedToppings = chosenToppings;
         // ...existing code for collecting other fields...
         const directPrice = document.getElementById('pizza-direct-price')?.value;
         const pizzaNameInput = document.getElementById('pizza-name');
@@ -320,8 +365,9 @@
             pizzaDescriptionInput.value = '';
             if (typeof includeMasterToppingsCheckbox !== 'undefined' && includeMasterToppingsCheckbox) includeMasterToppingsCheckbox.checked = false;
             sizes = [];
-            toppings = [];
+            chosenToppings = [];
             renderSizes();
+            renderChosenToppings();
             renderPreview();
         })
         .catch(err => {
