@@ -18,6 +18,8 @@ const menuItemSchema = new mongoose.Schema({
   stockAmount: { type: Number, required: false },
   showsToppings: { type: Boolean, default: false },
   allowMasterToppings: { type: Boolean, default: false },
+  allowAddToppings: { type: Boolean, default: false },
+  allowRemoveToppings: { type: Boolean, default: false },
   hidden: { type: Boolean, default: false }
 });
 

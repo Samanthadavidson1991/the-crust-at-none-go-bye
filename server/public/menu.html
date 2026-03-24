@@ -320,7 +320,7 @@
     }
 
     function showMasterToppingsPopup(item, selectedSize) {
-      let popupHtml = `<h3>Add Toppings</h3>`;
+      let popupHtml = `<h3>Add/Remove Toppings</h3>`;
       popupHtml += `<form id='master-toppings-popup-form'>`;
       const isSalad = (item.category && item.category.toLowerCase() === 'salad') || (item.section && item.section.toLowerCase().includes('salad'));
       // Section 1: Pizza/Salad toppings (checked by default)
@@ -330,7 +330,8 @@
       } else {
         mainToppings = Array.isArray(item.toppings) && item.toppings.length ? item.toppings : [];
       }
-      if (mainToppings.length) {
+      // Remove Toppings section (untick to remove from pizza)
+      if (mainToppings.length && item.allowRemoveToppings) {
         popupHtml += `<div style='margin-bottom:8px;'><b>${isSalad ? 'Salad' : 'Pizza'} Toppings</b> <small>(included, removable)</small></div>`;
         mainToppings.forEach(toppingName => {
           const mt = masterToppings.find(mt => mt.name === toppingName) || { name: toppingName, category: '', price: 0, glutenFree: false };
@@ -341,8 +342,7 @@
           let gfLabel = mt.glutenFree ? " <span class='gf-label' style='color:green;font-weight:bold;font-size:0.95em;'>(GF)</span>" : "";
           popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-main-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}' checked> ${mt.name}${gfLabel} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
         });
-        // Add a remove toppings section (shows unchecked toppings from mainToppings)
-        popupHtml += `<div style='margin:10px 0 8px 0;'><b>Remove Toppings</b> <small>(untick to remove from pizza)</small></div>`;
+        popupHtml += `<div style='margin:10px 0 8px 0;'><b>Remove Toppings</b> <small>(untick to remove from ${isSalad ? 'salad' : 'pizza'})</small></div>`;
       }
       // Section 2: Extra toppings (unchecked by default)
       let extraToppings = [];
@@ -351,7 +351,7 @@
       } else {
         extraToppings = masterToppings.filter(mt => mt.category !== 'Salad' && (!mainToppings.includes(mt.name)));
       }
-      if (extraToppings.length) {
+      if (extraToppings.length && item.allowAddToppings) {
         popupHtml += `<div style='margin:10px 0 8px 0;'><b>Extra Toppings</b> <small>(add more)</small></div>`;
         extraToppings.forEach(mt => {
           let price = '0.00';

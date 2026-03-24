@@ -323,6 +323,8 @@
         const sectionSelect = document.getElementById('pizza-section-select');
         const glutenFreeCheckbox = document.getElementById('pizza-glutenfree-checkbox');
         const allowMasterToppingsCheckbox = document.getElementById('allow-master-toppings-checkbox');
+        const allowAddToppingsCheckbox = document.getElementById('allow-add-toppings-checkbox');
+        const allowRemoveToppingsCheckbox = document.getElementById('allow-remove-toppings-checkbox');
         const saladToppingsSelect = document.getElementById('salad-toppings-select');
         const selectedSaladToppings = saladToppingsSelect ? Array.from(saladToppingsSelect.selectedOptions).map(opt => opt.value) : [];
         // ...existing code for sizes, etc...
@@ -338,6 +340,8 @@
             saladToppings: selectedSaladToppings,
             section: sectionSelect.value || 'Other',
             allowMasterToppings: allowMasterToppingsCheckbox ? !!allowMasterToppingsCheckbox.checked : false,
+            allowAddToppings: allowAddToppingsCheckbox ? !!allowAddToppingsCheckbox.checked : false,
+            allowRemoveToppings: allowRemoveToppingsCheckbox ? !!allowRemoveToppingsCheckbox.checked : false,
             masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {
                 const [name, category] = key.split('|');
                 return {
