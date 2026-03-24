@@ -341,16 +341,46 @@
     }
 
     function showMasterToppingsPopup(item, selectedSize) {
-      let popupHtml = `<h3>Add Master Toppings</h3>`;
+      let popupHtml = `<h3>Add Toppings</h3>`;
       popupHtml += `<form id='master-toppings-popup-form'>`;
-        masterToppings.forEach(mt => {
+      const isSalad = (item.category && item.category.toLowerCase() === 'salad') || (item.section && item.section.toLowerCase().includes('salad'));
+      // Section 1: Pizza/Salad toppings (checked by default)
+      let mainToppings = [];
+      if (isSalad) {
+        mainToppings = Array.isArray(item.saladToppings) && item.saladToppings.length ? item.saladToppings : [];
+      } else {
+        mainToppings = Array.isArray(item.toppings) && item.toppings.length ? item.toppings : [];
+      }
+      if (mainToppings.length) {
+        popupHtml += `<div style='margin-bottom:8px;'><b>${isSalad ? 'Salad' : 'Pizza'} Toppings</b> <small>(included, removable)</small></div>`;
+        mainToppings.forEach(toppingName => {
+          const mt = masterToppings.find(mt => mt.name === toppingName) || { name: toppingName, category: '', price: 0, glutenFree: false };
           let price = '0.00';
           if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
           else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
           else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
           let gfLabel = mt.glutenFree ? " <span class='gf-label' style='color:green;font-weight:bold;font-size:0.95em;'>(GF)</span>" : "";
-          popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-master-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}'> ${mt.name}${gfLabel} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
+          popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-main-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}' checked> ${mt.name}${gfLabel} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
         });
+      }
+      // Section 2: Extra toppings (unchecked by default)
+      let extraToppings = [];
+      if (isSalad) {
+        extraToppings = masterToppings.filter(mt => mt.category === 'Salad' && (!mainToppings.includes(mt.name)));
+      } else {
+        extraToppings = masterToppings.filter(mt => mt.category !== 'Salad' && (!mainToppings.includes(mt.name)));
+      }
+      if (extraToppings.length) {
+        popupHtml += `<div style='margin:10px 0 8px 0;'><b>Extra Toppings</b> <small>(add more)</small></div>`;
+        extraToppings.forEach(mt => {
+          let price = '0.00';
+          if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
+          else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
+          else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+          let gfLabel = mt.glutenFree ? " <span class='gf-label' style='color:green;font-weight:bold;font-size:0.95em;'>(GF)</span>" : "";
+          popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-extra-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}'> ${mt.name}${gfLabel} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
+        });
+      }
       popupHtml += `</form>`;
       popupHtml += `<button id='master-toppings-popup-add'>Add Selected Toppings</button> <button id='master-toppings-popup-cancel'>Cancel</button>`;
       masterToppingsPopup.innerHTML = popupHtml;
@@ -361,9 +391,11 @@
       };
       document.getElementById('master-toppings-popup-add').onclick = function() {
         // Gather selected toppings and prices
-        const selected = Array.from(masterToppingsPopup.querySelectorAll('.popup-master-topping-cb:checked'));
-        const extraToppings = selected.map(cb => cb.getAttribute('data-name'));
-        const extraToppingPrices = selected.map(cb => parseFloat(cb.getAttribute('data-price')) || 0);
+        const selectedMain = Array.from(masterToppingsPopup.querySelectorAll('.popup-main-topping-cb:checked'));
+        const selectedExtra = Array.from(masterToppingsPopup.querySelectorAll('.popup-extra-topping-cb:checked'));
+        const allSelected = selectedMain.concat(selectedExtra);
+        const extraToppingsNames = allSelected.map(cb => cb.getAttribute('data-name'));
+        const extraToppingPrices = allSelected.map(cb => parseFloat(cb.getAttribute('data-price')) || 0);
         let totalPrice = 0;
         if (selectedSize && selectedSize.price) {
           totalPrice = parseFloat(selectedSize.price) || 0;
@@ -371,7 +403,7 @@
           totalPrice = parseFloat(item.price) || 0;
         }
         extraToppingPrices.forEach(p => { totalPrice += p; });
-        const orderObj = { ...item, price: totalPrice, quantity: 1, masterToppings: extraToppings };
+        const orderObj = { ...item, price: totalPrice, quantity: 1, masterToppings: extraToppingsNames };
         if (selectedSize) orderObj.selectedSize = selectedSize;
         addToOrder(orderObj);
         masterToppingsPopupBg.style.display = 'none';
