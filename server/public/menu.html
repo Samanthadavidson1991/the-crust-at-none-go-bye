@@ -513,6 +513,8 @@
       const toppingStockData = await toppingStockRes.json();
       const doughStock = null;
       const gfDoughStock = null;
+      // Debug: print raw menu data before filtering
+      console.log("Menu data (raw):", menuData);
       // Build out-of-stock topping set
       const toppingStock = Array.isArray(toppingStockData) ? toppingStockData : (Array.isArray(toppingStockData.toppings) ? toppingStockData.toppings : []);
       const outOfStockToppings = new Set(toppingStock.filter(t => t.stock === 0).map(t => t.name));
