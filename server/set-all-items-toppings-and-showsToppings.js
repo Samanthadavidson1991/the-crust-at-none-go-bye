@@ -15,6 +15,7 @@ const Topping = require('./topping.model');
   for (const item of items) {
     item.toppings = toppingNames;
     item.showsToppings = true;
+    item.allowMasterToppings = true;
     await item.save();
     updated++;
   }
