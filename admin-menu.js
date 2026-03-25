@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // State
     let sizes = [];
     let toppings = [];
+    // DEBUG: Log when DOMContentLoaded fires
+    console.debug('[DEBUG] DOMContentLoaded fired');
     let liveMenu = [];
     let sections = [];
     // Section management elements
@@ -167,12 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Edit modal logic
     function openEditModal(item) {
+        console.debug('[DEBUG] openEditModal called for item:', item);
         modalBg.style.display = 'flex';
         modal.querySelector('#modal-size-input').value = '';
         modal.querySelector('#modal-price-input').value = '';
         toppings = Array.isArray(item.toppings) ? [...item.toppings] : [];
         sizes = Array.isArray(item.sizes) ? item.sizes.map(s => ({...s})) : [];
         pizzaNameInput.value = item.name;
+        console.debug('[DEBUG] openEditModal toppings:', toppings);
         renderToppings();
         renderSizes();
         renderPreview();
@@ -291,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderToppings() {
         const toppingsList = modal.querySelector('#toppings-list');
         toppingsList.innerHTML = '';
+        console.debug('[DEBUG] renderToppings called. Current toppings:', toppings);
         toppings.forEach((topping, idx) => {
             const span = document.createElement('span');
             span.textContent = topping;
@@ -299,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             removeBtn.textContent = 'x';
             removeBtn.style.marginLeft = '4px';
             removeBtn.onclick = () => {
+                console.debug('[DEBUG] Removing topping:', topping, 'at index', idx);
                 toppings.splice(idx, 1);
                 renderToppings();
                 renderPreview();
@@ -310,15 +316,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modal.querySelector('#add-topping-btn').onclick = function() {
         const topping = modal.querySelector('#topping-input').value.trim();
+        console.debug('[DEBUG] Add Topping button clicked. Input value:', topping);
         if (topping && !toppings.includes(topping)) {
             toppings.push(topping);
+            console.debug('[DEBUG] Added topping:', topping, 'New toppings array:', toppings);
             modal.querySelector('#topping-input').value = '';
             renderToppings();
             renderPreview();
+        } else if (topping) {
+            console.debug('[DEBUG] Topping already exists or is empty:', topping);
         }
     };
 
     function showModal() {
+        console.debug('[DEBUG] showModal called. Resetting toppings and modal fields.');
         modalBg.style.display = 'flex';
         modal.querySelector('#modal-size-input').value = '';
         modal.querySelector('#modal-price-input').value = '';
