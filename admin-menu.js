@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // State
+    // State (moved to top for global scope in handler)
     let sizes = [];
     let toppings = [];
     // DEBUG: Log when DOMContentLoaded fires
