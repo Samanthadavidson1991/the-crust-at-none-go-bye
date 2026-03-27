@@ -339,9 +339,10 @@
             toppings: selectedToppings,
             saladToppings: selectedSaladToppings,
             section: sectionSelect.value || 'Other',
-            allowMasterToppings: allowMasterToppingsCheckbox ? !!allowMasterToppingsCheckbox.checked : false,
-            allowAddToppings: allowAddToppingsCheckbox ? !!allowAddToppingsCheckbox.checked : false,
-            allowRemoveToppings: allowRemoveToppingsCheckbox ? !!allowRemoveToppingsCheckbox.checked : false,
+            // Force all toppings options to true for new items
+            allowMasterToppings: true,
+            allowAddToppings: true,
+            allowRemoveToppings: true,
             masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {
                 const [name, category] = key.split('|');
                 return {

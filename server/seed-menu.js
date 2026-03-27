@@ -64,16 +64,5 @@ async function seedMenu() {
   await mongoose.connection.close();
 }
 
+// Only one export and one function definition
 module.exports = seedMenu;
-    allowRemoveToppings: true,
-  };
-});
-
-async function seedMenu() {
-  await MenuItem.deleteMany({});
-  await MenuItem.insertMany(initialMenu);
-  // Menu seeded from menu-clean.json
-  mongoose.connection.close();
-}
-
-seedMenu();
