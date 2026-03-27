@@ -1,19 +1,12 @@
 
-import mongoose from 'mongoose';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-import dotenv from 'dotenv';
-// Fix __dirname for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
 const dbUser = process.env.MONGO_ATLAS_USERNAME;
 const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
-  const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
-
+const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
 mongoose.connect(atlasUri);
 
 const menuItemSchema = new mongoose.Schema({
@@ -43,6 +36,7 @@ try {
   menuArr = JSON.parse(raw);
 } catch (e) {
   // Failed to load menu-clean.json
+  console.error('Failed to load menu-clean.json:', e);
   process.exit(1);
 }
 
@@ -58,6 +52,19 @@ const initialMenu = menuArr.map(item => {
     saladToppings: Array.isArray(item.saladToppings) ? item.saladToppings : [],
     allowMasterToppings: true,
     allowAddToppings: true,
+    allowRemoveToppings: true,
+  };
+});
+
+// Remove all existing menu items and insert initial menu
+async function seedMenu() {
+  await MenuItem.deleteMany({});
+  await MenuItem.insertMany(initialMenu);
+  console.log('Menu seeded!');
+  await mongoose.connection.close();
+}
+
+module.exports = seedMenu;
     allowRemoveToppings: true,
   };
 });
