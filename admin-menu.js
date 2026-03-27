@@ -415,7 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
             name: pizzaNameInput.value,
             sizes: sizes,
             toppings: toppings,
-            section: section
+            section: section,
+            allowMasterToppings: true // Always allow toppings for new items
         };
         fetch('/api/menu', {
             method: 'POST',
