@@ -119,6 +119,13 @@
   // --- Restore renderMenu function ---
   function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
     const masterToppings = masterToppingsData.toppings || [];
+    // DEBUG: Log masterToppings and menu items
+    console.log('[DEBUG] masterToppings:', masterToppings);
+    if (menuData.items && Array.isArray(menuData.items)) {
+      menuData.items.forEach(item => {
+        console.log(`[DEBUG] Menu item: ${item.name} | allowMasterToppings:`, item.allowMasterToppings, '| allowAddToppings:', item.allowAddToppings, '| allowRemoveToppings:', item.allowRemoveToppings);
+      });
+    }
     const content = document.getElementById('menu-content');
     if (!menuData.items || !Array.isArray(menuData.items) || menuData.items.length === 0) {
       content.innerHTML = '<em>No menu items found.</em>';
