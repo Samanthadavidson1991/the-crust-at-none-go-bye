@@ -336,6 +336,11 @@
         const allowMasterToppings = document.getElementById('allow-master-toppings-checkbox')?.checked || false;
         const allowAddToppings = document.getElementById('allow-add-toppings-checkbox')?.checked || false;
         const allowRemoveToppings = document.getElementById('allow-remove-toppings-checkbox')?.checked || false;
+        console.log('[DEBUG] Checkbox values:', {
+            allowMasterToppings,
+            allowAddToppings,
+            allowRemoveToppings
+        });
         const newPizza = {
             name: pizzaNameInput.value,
             description: pizzaDescriptionInput.value.trim() || undefined,
