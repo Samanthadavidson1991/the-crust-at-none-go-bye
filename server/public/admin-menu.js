@@ -579,7 +579,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // ...existing code...
         console.log('admin-menu.js loaded and DOMContentLoaded fired');
     // State
-    let sizes = [];
+    // Ensure sizes is always defined in the global scope for addPizzaForm
+    let sizes = Array.isArray(window.sizes) ? window.sizes : [];
+    window.sizes = sizes;
     let toppings = [];
 
     // Elements
