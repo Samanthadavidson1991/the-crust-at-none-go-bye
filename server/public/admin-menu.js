@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     };
                                 });
 
-                                // Attach edit handlers (basic modal)
+                                // Attach edit handlers (enhanced modal)
                                 document.querySelectorAll('.edit-menu-item-btn').forEach(btn => {
                                     btn.onclick = async function() {
                                         const id = btn.getAttribute('data-id');
@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             const item = (data.items || []).find(i => i._id === id);
                                             if (!item) return alert('Menu item not found');
                                             // Prompt for name
-                                            const newName = prompt('Edit pizza name:', item.name);
+                                            const newName = prompt('Edit item name:', item.name);
                                             if (!newName) return;
                                             // Prompt for toppings (comma-separated)
                                             const newToppingsStr = prompt('Edit toppings (comma-separated):', (item.toppings || []).join(", "));
@@ -462,16 +462,31 @@ document.addEventListener('DOMContentLoaded', () => {
                                             }
                                             // Prompt for description
                                             const newDescription = prompt('Edit description:', item.description || '');
+                                            // Prompt for topping options
+                                            const newAllowMasterToppings = confirm('Allow master toppings? (OK = Yes, Cancel = No)\nCurrent: ' + (item.allowMasterToppings ? 'Yes' : 'No'));
+                                            const newAllowAddToppings = confirm('Allow customer to add toppings? (OK = Yes, Cancel = No)\nCurrent: ' + (item.allowAddToppings ? 'Yes' : 'No'));
+                                            const newAllowRemoveToppings = confirm('Allow customer to remove toppings? (OK = Yes, Cancel = No)\nCurrent: ' + (item.allowRemoveToppings ? 'Yes' : 'No'));
                                             // Only update if changed
                                             if (
                                                 newName !== item.name ||
                                                 JSON.stringify(newToppings) !== JSON.stringify(item.toppings) ||
-                                                (newDescription !== null && newDescription !== item.description)
+                                                (newDescription !== null && newDescription !== item.description) ||
+                                                newAllowMasterToppings !== item.allowMasterToppings ||
+                                                newAllowAddToppings !== item.allowAddToppings ||
+                                                newAllowRemoveToppings !== item.allowRemoveToppings
                                             ) {
                                                 const updateRes = await fetch(`/api/menu`, {
                                                     method: 'PUT',
                                                     headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ ...item, name: newName, toppings: newToppings, description: newDescription })
+                                                    body: JSON.stringify({
+                                                        ...item,
+                                                        name: newName,
+                                                        toppings: newToppings,
+                                                        description: newDescription,
+                                                        allowMasterToppings: newAllowMasterToppings,
+                                                        allowAddToppings: newAllowAddToppings,
+                                                        allowRemoveToppings: newAllowRemoveToppings
+                                                    })
                                                 });
                                                 if (!updateRes.ok) throw new Error('Failed to update');
                                                 fetchAndRenderAdminMenuPreview();
