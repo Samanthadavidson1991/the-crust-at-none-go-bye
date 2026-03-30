@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 newAllowAddToppings !== item.allowAddToppings ||
                                                 newAllowRemoveToppings !== item.allowRemoveToppings
                                             ) {
-                                                const updateRes = await fetch(`/api/menu`, {
+                                                const updateRes = await fetch(`/api/menu/${item._id}`, {
                                                     method: 'PUT',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({
