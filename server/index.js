@@ -609,6 +609,22 @@ app.post('/api/menu', async (req, res) => {
   }
 });
 
+// PUT /api/menu/:id - Update an existing menu item by ID
+app.put('/api/menu/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const update = req.body;
+    const item = await MenuItem.findByIdAndUpdate(id, update, { new: true });
+    if (!item) {
+      return res.status(404).json({ error: 'Menu item not found' });
+    }
+    res.json({ success: true, item });
+  } catch (err) {
+    console.error('Error updating menu item:', err);
+    res.status(500).json({ error: 'Failed to update menu item', details: err.message });
+  }
+});
+
 // --- Special Pizza API ---
 app.get('/api/special-pizza', async (req, res) => {
   // Example: return a hardcoded special pizza, or fetch from DB if you want
