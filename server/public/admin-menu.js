@@ -451,46 +451,78 @@ document.addEventListener('DOMContentLoaded', () => {
                                             const data = await res.json();
                                             const item = (data.items || []).find(i => i._id === id);
                                             if (!item) return alert('Menu item not found');
-                                            // Prompt for name
-                                            const newName = prompt('Edit item name:', item.name);
-                                            if (!newName) return;
-                                            // Prompt for toppings (comma-separated)
-                                            const newToppingsStr = prompt('Edit toppings (comma-separated):', (item.toppings || []).join(", "));
-                                            let newToppings = item.toppings;
-                                            if (newToppingsStr !== null) {
-                                                newToppings = newToppingsStr.split(',').map(t => t.trim()).filter(Boolean);
-                                            }
-                                            // Prompt for description
-                                            const newDescription = prompt('Edit description:', item.description || '');
-                                            // Prompt for topping options
-                                            const newAllowMasterToppings = confirm('Allow master toppings? (OK = Yes, Cancel = No)\nCurrent: ' + (item.allowMasterToppings ? 'Yes' : 'No'));
-                                            const newAllowAddToppings = confirm('Allow customer to add toppings? (OK = Yes, Cancel = No)\nCurrent: ' + (item.allowAddToppings ? 'Yes' : 'No'));
-                                            const newAllowRemoveToppings = confirm('Allow customer to remove toppings? (OK = Yes, Cancel = No)\nCurrent: ' + (item.allowRemoveToppings ? 'Yes' : 'No'));
-                                            // Only update if changed
-                                            if (
-                                                newName !== item.name ||
-                                                JSON.stringify(newToppings) !== JSON.stringify(item.toppings) ||
-                                                (newDescription !== null && newDescription !== item.description) ||
-                                                newAllowMasterToppings !== item.allowMasterToppings ||
-                                                newAllowAddToppings !== item.allowAddToppings ||
-                                                newAllowRemoveToppings !== item.allowRemoveToppings
-                                            ) {
-                                                const updateRes = await fetch(`/api/menu/${item._id}`, {
-                                                    method: 'PUT',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({
-                                                        ...item,
-                                                        name: newName,
-                                                        toppings: newToppings,
-                                                        description: newDescription,
-                                                        allowMasterToppings: newAllowMasterToppings,
-                                                        allowAddToppings: newAllowAddToppings,
-                                                        allowRemoveToppings: newAllowRemoveToppings
-                                                    })
-                                                });
-                                                if (!updateRes.ok) throw new Error('Failed to update');
-                                                fetchAndRenderAdminMenuPreview();
-                                            }
+
+                                            // Create a modal for editing
+                                            let modal = document.getElementById('edit-menu-modal');
+                                            if (modal) modal.remove();
+                                            modal = document.createElement('div');
+                                            modal.id = 'edit-menu-modal';
+                                            modal.style.position = 'fixed';
+                                            modal.style.top = '0';
+                                            modal.style.left = '0';
+                                            modal.style.width = '100vw';
+                                            modal.style.height = '100vh';
+                                            modal.style.background = 'rgba(0,0,0,0.5)';
+                                            modal.style.display = 'flex';
+                                            modal.style.justifyContent = 'center';
+                                            modal.style.alignItems = 'center';
+                                            modal.style.zIndex = '2000';
+                                            modal.innerHTML = `
+                                                <div style="background:#fff;padding:24px;border-radius:8px;min-width:320px;max-width:90vw;box-shadow:0 2px 16px rgba(0,0,0,0.2);border:3px solid #0074d9;">
+                                                    <h3>Edit Menu Item</h3>
+                                                    <label>Name:<br><input type="text" id="edit-menu-name" value="${item.name}"></label><br><br>
+                                                    <label>Toppings (comma-separated):<br><input type="text" id="edit-menu-toppings" value="${(item.toppings || []).join(', ')}"></label><br><br>
+                                                    <label>Description:<br><textarea id="edit-menu-description" rows="2" style="width:100%">${item.description || ''}</textarea></label><br><br>
+                                                    <label><input type="checkbox" id="edit-allow-master-toppings" ${item.allowMasterToppings ? 'checked' : ''}> Allow master toppings</label><br>
+                                                    <label><input type="checkbox" id="edit-allow-add-toppings" ${item.allowAddToppings ? 'checked' : ''}> Allow customer to add toppings</label><br>
+                                                    <label><input type="checkbox" id="edit-allow-remove-toppings" ${item.allowRemoveToppings ? 'checked' : ''}> Allow customer to remove toppings</label><br><br>
+                                                    <button id="edit-menu-save-btn">Save</button>
+                                                    <button id="edit-menu-cancel-btn">Cancel</button>
+                                                </div>
+                                            `;
+                                            document.body.appendChild(modal);
+                                            document.getElementById('edit-menu-cancel-btn').onclick = () => modal.remove();
+                                            document.getElementById('edit-menu-save-btn').onclick = async () => {
+                                                const newName = document.getElementById('edit-menu-name').value.trim();
+                                                const newToppingsStr = document.getElementById('edit-menu-toppings').value;
+                                                const newToppings = newToppingsStr.split(',').map(t => t.trim()).filter(Boolean);
+                                                const newDescription = document.getElementById('edit-menu-description').value;
+                                                const newAllowMasterToppings = document.getElementById('edit-allow-master-toppings').checked;
+                                                const newAllowAddToppings = document.getElementById('edit-allow-add-toppings').checked;
+                                                const newAllowRemoveToppings = document.getElementById('edit-allow-remove-toppings').checked;
+                                                // Only update if changed
+                                                if (
+                                                    newName !== item.name ||
+                                                    JSON.stringify(newToppings) !== JSON.stringify(item.toppings) ||
+                                                    (newDescription !== null && newDescription !== item.description) ||
+                                                    newAllowMasterToppings !== item.allowMasterToppings ||
+                                                    newAllowAddToppings !== item.allowAddToppings ||
+                                                    newAllowRemoveToppings !== item.allowRemoveToppings
+                                                ) {
+                                                    try {
+                                                        const updateRes = await fetch(`/api/menu/${item._id}`, {
+                                                            method: 'PUT',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                ...item,
+                                                                name: newName,
+                                                                toppings: newToppings,
+                                                                description: newDescription,
+                                                                allowMasterToppings: newAllowMasterToppings,
+                                                                allowAddToppings: newAllowAddToppings,
+                                                                allowRemoveToppings: newAllowRemoveToppings
+                                                            })
+                                                        });
+                                                        if (!updateRes.ok) throw new Error('Failed to update');
+                                                        modal.remove();
+                                                        fetchAndRenderAdminMenuPreview();
+                                                    } catch (err) {
+                                                        alert('Error editing item: ' + err.message);
+                                                    }
+                                                } else {
+                                                    modal.remove();
+                                                }
+                                            };
                                         } catch (err) {
                                             alert('Error editing item: ' + err.message);
                                         }
