@@ -1,13 +1,19 @@
 
+
+console.log('--- Seeder script starting ---');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+
 const dbUser = process.env.MONGO_ATLAS_USERNAME;
 const dbPassword = process.env.MONGO_ATLAS_PASSWORD;
 const atlasUri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.qec8gul.mongodb.net/pizzaShop?retryWrites=true&w=majority&appName=Cluster0`;
-mongoose.connect(atlasUri);
+console.log('Connecting to MongoDB...');
+mongoose.connect(atlasUri)
+  .then(() => console.log('MongoDB connected!'))
+  .catch(err => { console.error('MongoDB connection error:', err); process.exit(1); });
 
 const menuItemSchema = new mongoose.Schema({
   name: String,
@@ -58,11 +64,25 @@ const initialMenu = menuArr.map(item => {
 
 // Remove all existing menu items and insert initial menu
 async function seedMenu() {
-  await MenuItem.deleteMany({});
-  await MenuItem.insertMany(initialMenu);
-  console.log('Menu seeded!');
-  await mongoose.connection.close();
+  try {
+    console.log('Deleting existing menu items...');
+    await MenuItem.deleteMany({});
+    console.log('Existing menu items deleted.');
+    console.log('Inserting new menu items...');
+    await MenuItem.insertMany(initialMenu);
+    console.log('Menu seeded!');
+  } catch (err) {
+    console.error('Seeding error:', err);
+  } finally {
+    await mongoose.connection.close();
+  }
 }
 
 // Only one export and one function definition
+// Run the seeder if this script is executed directly
+if (require.main === module) {
+  mongoose.connection.once('open', () => {
+    seedMenu();
+  });
+}
 module.exports = seedMenu;

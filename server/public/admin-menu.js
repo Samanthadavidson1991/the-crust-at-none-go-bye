@@ -327,10 +327,21 @@
         const allowRemoveToppingsCheckbox = document.getElementById('allow-remove-toppings-checkbox');
         const saladToppingsSelect = document.getElementById('salad-toppings-select');
         const selectedSaladToppings = saladToppingsSelect ? Array.from(saladToppingsSelect.selectedOptions).map(opt => opt.value) : [];
+        const allowSaladToppingsCheckbox = document.getElementById('allow-salad-toppings-checkbox');
         // ...existing code for sizes, etc...
         if (!pizzaNameInput.value || (sizes.length === 0 && (!directPrice || isNaN(parseFloat(directPrice))))) {
             alert('Please enter a pizza name and at least one size or a direct price.');
             return;
+        }
+        // Salad toppings logic
+        let allowMasterToppings = allowMasterToppingsCheckbox ? allowMasterToppingsCheckbox.checked : true;
+        let allowAddToppings = allowAddToppingsCheckbox ? allowAddToppingsCheckbox.checked : true;
+        let allowRemoveToppings = allowRemoveToppingsCheckbox ? allowRemoveToppingsCheckbox.checked : true;
+        // If salad toppings box is checked, force all to true
+        if (allowSaladToppingsCheckbox && allowSaladToppingsCheckbox.checked) {
+            allowMasterToppings = true;
+            allowAddToppings = true;
+            allowRemoveToppings = true;
         }
         const newPizza = {
             name: pizzaNameInput.value,
@@ -339,10 +350,9 @@
             toppings: selectedToppings,
             saladToppings: selectedSaladToppings,
             section: sectionSelect.value || 'Other',
-            // Force all toppings options to true for new items
-            allowMasterToppings: true,
-            allowAddToppings: true,
-            allowRemoveToppings: true,
+            allowMasterToppings,
+            allowAddToppings,
+            allowRemoveToppings,
             masterToppings: selectedMasterToppings && Array.isArray(selectedMasterToppings) ? selectedMasterToppings.map(key => {
                 const [name, category] = key.split('|');
                 return {

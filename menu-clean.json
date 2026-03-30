@@ -11,7 +11,10 @@
       { "name": "Gluten Free", "price": 9.99 }
     ],
     "sideOptions": [],
-    "glutenFree": true
+    "glutenFree": true,
+    "allowMasterToppings": true,
+    "allowAddToppings": true,
+    "allowRemoveToppings": true
   },
   {
     "name": "caesar salad",
@@ -21,7 +24,10 @@
     "toppings": ["lettuce", "croutons"],
     "sizes": [],
     "sideOptions": [],
-    "glutenFree": false
+    "glutenFree": false,
+    "allowMasterToppings": true,
+    "allowAddToppings": true,
+    "allowRemoveToppings": true
   },
   {
     "name": "gf veggie pizza",
@@ -33,6 +39,9 @@
       { "name": "Gluten Free", "price": 10.99 }
     ],
     "sideOptions": [],
-    "glutenFree": true
+    "glutenFree": true,
+    "allowMasterToppings": true,
+    "allowAddToppings": true,
+    "allowRemoveToppings": true
   }
 ]
