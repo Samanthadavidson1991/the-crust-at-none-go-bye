@@ -599,6 +599,7 @@ app.delete('/api/menu/:id', async (req, res) => {
 app.post('/api/menu', async (req, res) => {
   try {
     const data = req.body;
+    console.log('[DEBUG] Received new menu item:', data);
     // Create and save new menu item
     const item = new MenuItem(data);
     await item.save();
