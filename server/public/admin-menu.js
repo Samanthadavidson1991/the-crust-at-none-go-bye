@@ -332,10 +332,10 @@
             alert('Please enter a pizza name and at least one size or a direct price.');
             return;
         }
-        // Salad toppings logic
-        let allowMasterToppings = allowMasterToppingsCheckbox ? allowMasterToppingsCheckbox.checked : true;
-        let allowAddToppings = allowAddToppingsCheckbox ? allowAddToppingsCheckbox.checked : true;
-        let allowRemoveToppings = allowRemoveToppingsCheckbox ? allowRemoveToppingsCheckbox.checked : true;
+        // Always read checkboxes directly at submit time
+        const allowMasterToppings = document.getElementById('allow-master-toppings-checkbox')?.checked || false;
+        const allowAddToppings = document.getElementById('allow-add-toppings-checkbox')?.checked || false;
+        const allowRemoveToppings = document.getElementById('allow-remove-toppings-checkbox')?.checked || false;
         const newPizza = {
             name: pizzaNameInput.value,
             description: pizzaDescriptionInput.value.trim() || undefined,
