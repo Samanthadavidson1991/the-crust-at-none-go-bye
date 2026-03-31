@@ -115,6 +115,22 @@
       document.body.appendChild(msg);
       setTimeout(() => { msg.remove(); }, 2500);
     }
+    // Unselect all toppings checkboxes in all toppings forms after adding to order
+    document.querySelectorAll('.toppings-form input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+    });
+    // Also update the live summary for each form
+    document.querySelectorAll('.toppings-form').forEach(form => {
+      const summaryDiv = form.querySelector('.toppings-summary');
+      if (summaryDiv) {
+        const checked = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        const unchecked = Array.from(form.querySelectorAll('input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
+        let msg = '';
+        if (checked.length) msg += `<b>Selected:</b> ${checked.join(', ')}`;
+        if (unchecked.length) msg += (msg ? '<br>' : '') + `<b>Removed:</b> ${unchecked.join(', ')}`;
+        summaryDiv.innerHTML = msg;
+      }
+    });
   }
   // --- Restore renderMenu function ---
   function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
@@ -210,6 +226,7 @@
               item.saladToppings.forEach(topping => {
                 html += `<label class="topping-label"><input type='checkbox' class='salad-topping' value='${topping}' checked> ${topping}</label>`;
               });
+              html += `<div class='toppings-summary' style='margin-top:6px;color:#0074d9;font-size:0.97em;'></div>`;
               html += `</form>`;
             }
           } else {
@@ -219,9 +236,27 @@
               item.toppings.forEach(topping => {
                 html += `<label class="topping-label"><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
               });
+              html += `<div class='toppings-summary' style='margin-top:6px;color:#0074d9;font-size:0.97em;'></div>`;
               html += `</form>`;
             }
           }
+              // --- Live toppings summary for each toppings form ---
+              document.querySelectorAll('.toppings-form').forEach(form => {
+                const summaryDiv = form.querySelector('.toppings-summary');
+                if (!summaryDiv) return;
+                function updateSummary() {
+                  const checked = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+                  const unchecked = Array.from(form.querySelectorAll('input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
+                  let msg = '';
+                  if (checked.length) msg += `<b>Selected:</b> ${checked.join(', ')}`;
+                  if (unchecked.length) msg += (msg ? '<br>' : '') + `<b>Removed:</b> ${unchecked.join(', ')}`;
+                  summaryDiv.innerHTML = msg;
+                }
+                form.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                  cb.addEventListener('change', updateSummary);
+                });
+                updateSummary();
+              });
           // (No duplicate Add Toppings button here)
           if (outOfStock) {
             html += `<div class='out-of-stock-label'>Out of stock</div>`;
