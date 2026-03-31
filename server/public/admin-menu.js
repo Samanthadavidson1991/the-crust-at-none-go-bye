@@ -341,10 +341,20 @@
             allowAddToppings,
             allowRemoveToppings
         });
+        // Sort sizes: 12IN, 9IN, then Gluten Free (case-insensitive)
+        const sizeOrder = ["12IN", "9IN", "GLUTEN FREE"];
+        const sortedSizes = [...sizes].sort((a, b) => {
+            const aIdx = sizeOrder.findIndex(s => a.name && a.name.toUpperCase().includes(s));
+            const bIdx = sizeOrder.findIndex(s => b.name && b.name.toUpperCase().includes(s));
+            if (aIdx === -1 && bIdx === -1) return 0;
+            if (aIdx === -1) return 1;
+            if (bIdx === -1) return -1;
+            return aIdx - bIdx;
+        });
         const newPizza = {
             name: pizzaNameInput.value,
             description: pizzaDescriptionInput.value.trim() || undefined,
-            sizes: sizes,
+            sizes: sortedSizes,
             toppings: selectedToppings,
             saladToppings: selectedSaladToppings,
             section: sectionSelect.value || 'Other',
