@@ -372,17 +372,22 @@
       } else {
         mainToppings = Array.isArray(item.toppings) && item.toppings.length ? item.toppings : [];
       }
-      // Remove Toppings section (untick to remove from pizza)
+      // Always show assigned toppings for removal, even if not in masterToppings
       if (mainToppings.length && item.allowRemoveToppings) {
         popupHtml += `<div style='margin-bottom:8px;'><b>${isSalad ? 'Salad' : 'Pizza'} Toppings</b> <small>(included, removable)</small></div>`;
         mainToppings.forEach(toppingName => {
-          const mt = masterToppings.find(mt => mt.name === toppingName) || { name: toppingName, category: '', price: 0, glutenFree: false };
+          const mt = masterToppings.find(mt => mt.name === toppingName);
           let price = '0.00';
-          if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
-          else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
-          else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
-          let gfLabel = mt.glutenFree ? " <span class='gf-label' style='color:green;font-weight:bold;font-size:0.95em;'>(GF)</span>" : "";
-          popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-main-topping-cb' data-name='${mt.name}' data-category='${mt.category}' data-price='${price}' checked> ${mt.name}${gfLabel} <span style='font-size:0.95em;color:#888;'>(${mt.category} • £${price})</span></label>`;
+          let category = '';
+          let gfLabel = '';
+          if (mt) {
+            category = mt.category || '';
+            if (mt.category === 'Meat') price = masterToppingsData.settings.masterMeatPrice?.toFixed(2) || '0.00';
+            else if (mt.category === 'Veg') price = masterToppingsData.settings.masterVegPrice?.toFixed(2) || '0.00';
+            else if (typeof mt.price === 'number') price = mt.price.toFixed(2);
+            gfLabel = mt.glutenFree ? " <span class='gf-label' style='color:green;font-weight:bold;font-size:0.95em;'>(GF)</span>" : "";
+          }
+          popupHtml += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' class='popup-main-topping-cb' data-name='${toppingName}' data-category='${category}' data-price='${price}' checked> ${toppingName}${gfLabel} <span style='font-size:0.95em;color:#888;'>${category ? '('+category+' • £'+price+')' : ''}</span></label>`;
         });
         popupHtml += `<div style='margin:10px 0 8px 0;'><b>Remove Toppings</b> <small>(untick to remove from ${isSalad ? 'salad' : 'pizza'})</small></div>`;
       }
