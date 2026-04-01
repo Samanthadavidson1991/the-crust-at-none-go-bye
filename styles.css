@@ -261,9 +261,11 @@
 }
 
 .menu-card-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 32px 24px;
+}
+#dynamic-menu .menu-card-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 32px 24px !important;
     padding: 0;
     margin: 0 0 32px 0;
     list-style: none;
