@@ -110,6 +110,16 @@ app.get('/', (req, res) => {
 });
 
 // Serve all static files from public directory (must be after admin and root routes)
+// Add no-cache headers to all static files
+app.use((req, res, next) => {
+  if (req.url.match(/\.(js|css|html|json|png|jpg|jpeg|gif|svg|ico)$/)) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+  }
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 // PORT is already declared above, do not redeclare
