@@ -348,12 +348,13 @@ function chooseOfferById(offerId) {
           if (item.selectedSize) line += ` <span class='selected-size'>[${item.selectedSize.name}]</span>`;
           if (item.selectedSide) line += ` <span class='selected-size'>[${item.selectedSide.name}]</span>`;
           // For all items, show both added and removed toppings clearly
-          if (item.masterToppings && Array.isArray(item.masterToppings)) {
-            line += ` <span class='toppings-list-inline'>Added: ${item.masterToppings.length ? item.masterToppings.join(', ') : 'None'}</span>`;
-          }
-          if (item.removed && Array.isArray(item.removed) && item.removed.length) {
-            line += ` <span class='removed-list'>Removed: ${item.removed.join(', ')}</span>`;
-          }
+          // Always show Added/Removed, even if empty, and show debug info
+          const added = Array.isArray(item.masterToppings) ? item.masterToppings : [];
+          const removed = Array.isArray(item.removed) ? item.removed : [];
+          line += ` <span class='toppings-list-inline'>Added: ${added.length ? added.join(', ') : 'None'}</span>`;
+          line += ` <span class='removed-list'>Removed: ${removed.length ? removed.join(', ') : 'None'}</span>`;
+          // Debug output for troubleshooting
+          line += `<div style='font-size:0.8em;color:#888;margin-top:2px;'>[debug: ${JSON.stringify({added, removed})}]</div>`;
           line += `<br>x${item.quantity} - £${(parseFloat(item.price) * item.quantity).toFixed(2)}`;
           line += ` <button class='remove-item-btn'>Remove</button>`;
           line += `</div>`;
