@@ -347,11 +347,21 @@ function chooseOfferById(offerId) {
           line += `<b>${item.name}</b>`;
           if (item.selectedSize) line += ` <span class='selected-size'>[${item.selectedSize.name}]</span>`;
           if (item.selectedSide) line += ` <span class='selected-size'>[${item.selectedSide.name}]</span>`;
-          // Only show the toppings actually added (masterToppings) to avoid confusion when printing
-          if (item.masterToppings && Array.isArray(item.masterToppings) && item.masterToppings.length) {
-            line += ` <span class='toppings-list-inline'>Toppings: ${item.masterToppings.join(', ')}</span>`;
+          // For salads, show both added and removed toppings clearly
+          const isSalad = (item.category && item.category.toLowerCase() === 'salad') || (item.section && typeof item.section === 'string' && item.section.toLowerCase().includes('salad'));
+          if (isSalad) {
+            if (item.masterToppings && Array.isArray(item.masterToppings)) {
+              line += ` <span class='toppings-list-inline'>Added: ${item.masterToppings.join(', ') || 'None'}</span>`;
+            }
+            if (item.removed && Array.isArray(item.removed) && item.removed.length) {
+              line += ` <span class='removed-list'>Removed: ${item.removed.join(', ')}</span>`;
+            }
+          } else {
+            if (item.masterToppings && Array.isArray(item.masterToppings) && item.masterToppings.length) {
+              line += ` <span class='toppings-list-inline'>Toppings: ${item.masterToppings.join(', ')}</span>`;
+            }
+            if (item.removed && Array.isArray(item.removed) && item.removed.length) line += ` <span class='removed-list'>Removed: ${item.removed.join(', ')}</span>`;
           }
-          if (item.removed && Array.isArray(item.removed) && item.removed.length) line += ` <span class='removed-list'>Removed: ${item.removed.join(', ')}</span>`;
           line += `<br>x${item.quantity} - £${(parseFloat(item.price) * item.quantity).toFixed(2)}`;
           line += ` <button class='remove-item-btn'>Remove</button>`;
           line += `</div>`;
