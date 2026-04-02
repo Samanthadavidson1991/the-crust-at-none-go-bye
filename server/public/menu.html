@@ -211,12 +211,21 @@
                     alert('Error: This menu item is missing a name and cannot be added.');
                     return;
                   }
-                  // Salad toppings fix: if salad, treat all default toppings as added
                   let orderObj = { ...item, price, quantity: 1 };
-                  const isSalad = (item.category && item.category.toLowerCase() === 'salad') || (item.section && typeof item.section === 'string' && item.section.toLowerCase().includes('salad'));
-                  if (isSalad && Array.isArray(item.saladToppings) && item.saladToppings.length) {
-                    orderObj.masterToppings = [...item.saladToppings];
-                    orderObj.removed = [];
+                  // Find the toppings form for this item (if any)
+                  const form = document.querySelector(`.toppings-form[data-name="${item.name.replace(/"/g, '\"')}"]`);
+                  if (form) {
+                    const checked = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+                    const unchecked = Array.from(form.querySelectorAll('input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
+                    orderObj.masterToppings = checked;
+                    orderObj.removed = unchecked;
+                  } else {
+                    // If no form, fallback for salads
+                    const isSalad = (item.category && item.category.toLowerCase() === 'salad') || (item.section && typeof item.section === 'string' && item.section.toLowerCase().includes('salad'));
+                    if (isSalad && Array.isArray(item.saladToppings) && item.saladToppings.length) {
+                      orderObj.masterToppings = [...item.saladToppings];
+                      orderObj.removed = [];
+                    }
                   }
                   addToOrder(orderObj);
                   btn.style.background = '#e9ece5';
