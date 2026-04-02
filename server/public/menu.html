@@ -211,7 +211,14 @@
                     alert('Error: This menu item is missing a name and cannot be added.');
                     return;
                   }
-                  addToOrder({ ...item, price, quantity: 1 });
+                  // Salad toppings fix: if salad, treat all default toppings as added
+                  let orderObj = { ...item, price, quantity: 1 };
+                  const isSalad = (item.category && item.category.toLowerCase() === 'salad') || (item.section && typeof item.section === 'string' && item.section.toLowerCase().includes('salad'));
+                  if (isSalad && Array.isArray(item.saladToppings) && item.saladToppings.length) {
+                    orderObj.masterToppings = [...item.saladToppings];
+                    orderObj.removed = [];
+                  }
+                  addToOrder(orderObj);
                   btn.style.background = '#e9ece5';
                   setTimeout(() => { btn.style.background = ''; }, 300);
                   e.stopPropagation();
