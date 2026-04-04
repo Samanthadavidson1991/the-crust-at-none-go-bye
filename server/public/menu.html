@@ -217,6 +217,7 @@
                   if (form) {
                     const checked = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
                     const unchecked = Array.from(form.querySelectorAll('input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
+                    console.log('[DEBUG][AddToCart] Form found for', item.name, '| checked:', checked, '| unchecked:', unchecked, '| form data-name:', form.getAttribute('data-name'));
                     orderObj.masterToppings = checked;
                     orderObj.removed = unchecked;
                   } else {
@@ -225,6 +226,9 @@
                     if (isSalad && Array.isArray(item.saladToppings) && item.saladToppings.length) {
                       orderObj.masterToppings = [...item.saladToppings];
                       orderObj.removed = [];
+                      console.log('[DEBUG][AddToCart] No form found for', item.name, '| Using fallback: all salad toppings added:', orderObj.masterToppings);
+                    } else {
+                      console.log('[DEBUG][AddToCart] No form found for', item.name, '| Not a salad or no toppings.');
                     }
                   }
                   addToOrder(orderObj);
