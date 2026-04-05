@@ -132,7 +132,7 @@
     });
   }
   // --- Restore renderMenu function ---
-  function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
+  function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock, activeSection) {
     const masterToppings = masterToppingsData.toppings || [];
     // DEBUG: Log masterToppings and menu items
     console.log('[DEBUG] masterToppings:', masterToppings);
@@ -591,7 +591,7 @@
         console.error('No menu items found after filtering:', menuData);
         return;
       }
-      renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock);
+      renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock, activeSection);
       if (menuContent) menuContent.classList.remove('d-none');
     } catch (err) {
       const menuContent = document.getElementById('menu-content');
@@ -602,6 +602,62 @@
       console.error('Menu load error:', err);
     }
   });
-  </script>
+  // --- Section Tabs Logic ---
+  document.addEventListener('DOMContentLoaded', function() {
+    const sectionTabsDiv = document.getElementById('menu-section-tabs');
+    if (!sectionTabsDiv) return;
+    fetch('/api/sections')
+      .then(res => res.json())
+      .then(sectionsData => {
+        if (sectionsData.sections && sectionsData.sections.length > 0) {
+          sectionTabsDiv.innerHTML = sectionsData.sections.map(sec =>
+            `<button class="menu-section-tab" data-section="${sec.name}">${sec.name}</button>`
+          ).join('');
+          sectionTabsDiv.style.display = 'flex';
+          sectionTabsDiv.style.justifyContent = 'center';
+          sectionTabsDiv.style.gap = '16px';
+          // Tab click handler
+          sectionTabsDiv.querySelectorAll('.menu-section-tab').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const activeSection = btn.getAttribute('data-section');
+              window.renderMenuSection(activeSection);
+              sectionTabsDiv.querySelectorAll('.menu-section-tab').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+            });
+          });
+          // Set first tab active and render
+          sectionTabsDiv.querySelector('.menu-section-tab').classList.add('active');
+          window.renderMenuSection(sectionsData.sections[0].name);
+        }
+      });
+  });
+
+  // Helper to render only the selected section
+  window.renderMenuSection = function(activeSection) {
+    fetch('/api/menu')
+      .then(res => res.json())
+      .then(menuData => {
+        fetch('/api/sections')
+          .then(res => res.json())
+          .then(sectionsData => {
+            fetch('/api/master-toppings')
+              .then(res => res.json())
+              .then(masterToppingsData => {
+                fetch('/api/section-topping-assignments')
+                  .then(res => res.json())
+                  .then(sectionAssignmentsData => {
+                    fetch('/api/pizza-topping-stock')
+                      .then(res => res.json())
+                      .then(toppingStockData => {
+                        const doughStock = null;
+                        const gfDoughStock = null;
+                        renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock, activeSection);
+                      });
+                  });
+              });
+          });
+      });
+  };
+</script>
 </body>
 </html>
