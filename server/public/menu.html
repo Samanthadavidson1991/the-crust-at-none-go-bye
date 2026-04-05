@@ -115,9 +115,9 @@
       document.body.appendChild(msg);
       setTimeout(() => { msg.remove(); }, 2500);
     }
-    // Unselect all toppings checkboxes in all toppings forms after adding to order
+    // Reset all toppings checkboxes to checked after adding to order
     document.querySelectorAll('.toppings-form input[type="checkbox"]').forEach(cb => {
-      cb.checked = false;
+      cb.checked = true;
     });
     // Also update the live summary for each form
     document.querySelectorAll('.toppings-form').forEach(form => {
