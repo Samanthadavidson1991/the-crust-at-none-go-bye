@@ -127,7 +127,6 @@
         const unchecked = Array.from(form.querySelectorAll('input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
         let msg = '';
         if (checked.length) msg += `<b>Selected:</b> ${checked.join(', ')}`;
-        if (unchecked.length) msg += (msg ? '<br>' : '') + `<b>Removed:</b> ${unchecked.join(', ')}`;
         summaryDiv.innerHTML = msg;
       }
     });
