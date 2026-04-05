@@ -634,29 +634,42 @@
 
   // Helper to render only the selected section
   window.renderMenuSection = function(activeSection) {
-    fetch('/api/menu')
-      .then(res => res.json())
-      .then(menuData => {
-        fetch('/api/sections')
-          .then(res => res.json())
-          .then(sectionsData => {
-            fetch('/api/master-toppings')
-              .then(res => res.json())
-              .then(masterToppingsData => {
-                fetch('/api/section-topping-assignments')
-                  .then(res => res.json())
-                  .then(sectionAssignmentsData => {
-                    fetch('/api/pizza-topping-stock')
-                      .then(res => res.json())
-                      .then(toppingStockData => {
-                        const doughStock = null;
-                        const gfDoughStock = null;
-                        renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock, activeSection);
-                      });
-                  });
-              });
-          });
-      });
+    // Defensive: default to showing all sections if activeSection is not provided
+    if (typeof activeSection === 'undefined' || activeSection === null) {
+      activeSection = null;
+    }
+
+    // Only render the active section if provided
+    let renderSections = sectionsData.sections;
+    if (activeSection) {
+      renderSections = sectionsData.sections.filter(sec => sec.name === activeSection);
+    }
+
+    renderSections.forEach(sec => {
+      fetch('/api/menu')
+        .then(res => res.json())
+        .then(menuData => {
+          fetch('/api/sections')
+            .then(res => res.json())
+            .then(sectionsData => {
+              fetch('/api/master-toppings')
+                .then(res => res.json())
+                .then(masterToppingsData => {
+                  fetch('/api/section-topping-assignments')
+                    .then(res => res.json())
+                    .then(sectionAssignmentsData => {
+                      fetch('/api/pizza-topping-stock')
+                        .then(res => res.json())
+                        .then(toppingStockData => {
+                          const doughStock = null;
+                          const gfDoughStock = null;
+                          renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock, activeSection);
+                        });
+                    });
+                });
+            });
+        });
+    });
   };
 </script>
 </body>
