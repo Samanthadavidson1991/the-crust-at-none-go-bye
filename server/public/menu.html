@@ -57,74 +57,10 @@
               html += `<label class="topping-label"><input type='checkbox' class='salad-topping' value='${topping}' checked> ${topping}</label>`;
             });
             html += `<div class='toppings-summary' style='margin-top:6px;color:#0074d9;font-size:0.97em;'></div>`;
-            html += `</form>`;
-          }
-        } else {
-          if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Pizza Toppings:</b></small><br>`;
-            item.toppings.forEach(topping => {
-              html += `<label class="topping-label"><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
-            });
-            html += `<div class='toppings-summary' style='margin-top:6px;color:#0074d9;font-size:0.97em;'></div>`;
-            html += `</form>`;
-          }
-        }
-        // --- Live toppings summary for each toppings form ---
-        document.querySelectorAll('.toppings-form').forEach(form => {
-          const summaryDiv = form.querySelector('.toppings-summary');
-          if (!summaryDiv) return;
-          function updateSummary() {
-            const checked = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-            const unchecked = Array.from(form.querySelectorAll('input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
-            let msg = '';
-            // If this is a salad toppings form, use 'Added' and 'Removed' labels
-            const isSaladForm = form.innerHTML.includes('Salad Toppings:');
-            if (isSaladForm) {
-              if (checked.length) msg += `<b>Added:</b> ${checked.join(', ')}`;
-              if (unchecked.length) msg += (msg ? '<br>' : '') + `<b>Removed:</b> ${unchecked.join(', ')}`;
-            } else {
-              if (checked.length) msg += `<b>Selected:</b> ${checked.join(', ')}`;
-              if (unchecked.length) msg += (msg ? '<br>' : '') + `<b>Removed:</b> ${unchecked.join(', ')}`;
-            }
-            summaryDiv.innerHTML = msg;
-          }
-          form.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.addEventListener('change', updateSummary);
-          });
-          updateSummary();
-        });
-        // (No duplicate Add Toppings button here)
-        if (outOfStock) {
-          html += `<div class='out-of-stock-label'>Out of stock</div>`;
-          html += `<div class='out-of-stock-label'>Out of stock</div>`;
-        }
-        html += `</li>`;
-      });
-      html += '</ul>';
-    }
-    // Render any sections not in DB (fallback)
-    Object.keys(sectionMap).forEach(section => {
-      if (!sectionsData.sections.find(sec => sec.name === section)) {
-        html += `<h2>${section}</h2>`;
-        html += `<ul class='menu-card-list'>`;
-        sectionMap[section].forEach(item => {
-          const isDoughTracked = !!item.doughTracked;
-          const isGFDoughTracked = !!item.gfDoughTracked;
-          let outOfStock = false;
-          if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
-          if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
-          // Always set data-item attribute with at least name and price for fallback/other sections
-          const dataItemAttr = `data-item='${JSON.stringify({ name: item.name, price: item.price }).replace(/'/g, "&apos;")}'`;
-          html += `<li class='menu-item-card' ${dataItemAttr}><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
-          if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-            html += '<ul class="menu-size-list">';
-            item.sizes.forEach(size => {
-              html += `<li class="menu-size-list-item">
-                <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
-                  <span class="menu-size-name">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                </button>`;
-              // Add toppings button for sizes in fallback sections
+    </main>
+    <script>
+    // All JavaScript code that was previously outside script tags has been moved here.
+    </script>
               if (item.allowMasterToppings && masterToppings.length > 0) {
                 html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
               }
