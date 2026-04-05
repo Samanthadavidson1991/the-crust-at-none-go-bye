@@ -132,6 +132,7 @@
   // --- Restore renderMenu function ---
   function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
     const masterToppings = masterToppingsData.toppings || [];
+    window.masterToppings = masterToppings;
     // DEBUG: Log masterToppings and menu items
     console.log('[DEBUG] masterToppings:', masterToppings);
     if (menuData.items && Array.isArray(menuData.items)) {
