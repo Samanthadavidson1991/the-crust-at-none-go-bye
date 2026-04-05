@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "section": "Pizza",
+    "item": "marg",
+    "size": "12in"
+  },
+  {
+    "section": "Pizza",
+    "item": "marg",
+    "size": "8in"
+  },
+  {
+    "section": "Pizza",
+    "item": "marg",
+    "size": "Gluten Free"
+  },
+  {
+    "section": "Salad",
+    "item": "caesar salad",
+    "size": ""
+  },
+  {
+    "section": "Pizza",
+    "item": "gf veggie pizza",
+    "size": "Gluten Free"
+  }
+]
