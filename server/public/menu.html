@@ -29,15 +29,6 @@
   </header>
   <main id="main-content">
     <div id="section-tabs" class="section-tabs"></div>
-        let msg = '';
-        if (checked.length) msg += `<b>Selected:</b> ${checked.join(', ')}`;
-        summaryDiv.innerHTML = msg;
-      }
-    });
-  }
-  // --- Restore renderMenu function ---
-  function renderMenu(menuData, sectionsData, masterToppingsData, sectionAssignmentsData, doughStock, gfDoughStock) {
-    const masterToppings = masterToppingsData.toppings || [];
     window.masterToppings = masterToppings;
     // DEBUG: Log masterToppings and menu items
     console.log('[DEBUG] masterToppings:', masterToppings);
