@@ -634,8 +634,8 @@
 
   // Helper to render only the selected section
   window.renderMenuSection = function(activeSection) {
-    // Defensive: default to showing all sections if activeSection is not provided
-    if (typeof activeSection === 'undefined' || activeSection === null) {
+    // Defensive: always define activeSection
+    if (typeof activeSection === 'undefined') {
       activeSection = null;
     }
 
