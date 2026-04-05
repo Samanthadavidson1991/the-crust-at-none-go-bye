@@ -1,127 +1,46 @@
 <!DOCTYPE html>
-    function renderTabs() {
-      tabBar.innerHTML = allSections.map(sec =>
-        `<button class="menu-tab${sec === selectedSection ? ' active' : ''}" data-section="${sec}">${sec}</button>`
-      ).join('');
-      Array.from(tabBar.querySelectorAll('.menu-tab')).forEach(btn => {
-        btn.onclick = function() {
-          selectedSection = btn.getAttribute('data-section');
-          window.location.hash = encodeURIComponent(selectedSection);
-          renderTabs();
-          renderSection();
-        };
-      });
-    }
-
-    function renderSection() {
-      const content = document.getElementById('menu-content');
-      content.style.display = 'block';
-      // Helper to render menu items for a section (from original renderMenu logic)
-      function renderMenuItemsForSection(sectionName) {
-        // Group items by section name
-        const sectionMap = {};
-        menuData.items.forEach(item => {
-          const section = item.section || 'Other';
-          if (!sectionMap[section]) sectionMap[section] = [];
-          sectionMap[section].push(item);
-        });
-        let html = '';
-        if (sectionMap[sectionName]) {
-          html += `<h2>${sectionName}</h2>`;
-          html += `<ul class='menu-card-list'>`;
-          sectionMap[sectionName].forEach(item => {
-            // Track gluten free dough for any item with gfDoughTracked or size name containing 'gluten free'
-            let isDoughTracked = !!item.doughTracked;
-            let isGFDoughTracked = !!item.gfDoughTracked;
-            if (item.sizes && Array.isArray(item.sizes)) {
-              item.sizes.forEach(size => {
-                if (typeof size.name === 'string' && size.name.toLowerCase().includes('gluten free')) {
-                  isGFDoughTracked = true;
-                }
-              });
-            }
-            let outOfStock = false;
-            if (isDoughTracked && (doughStock !== null && doughStock <= 0)) outOfStock = true;
-            if (isGFDoughTracked && (gfDoughStock !== null && gfDoughStock <= 0)) outOfStock = true;
-            const dataItemAttr = `data-item='${JSON.stringify({ name: item.name, price: item.price }).replace(/'/g, "&apos;")}'`;
-            html += `<li class='menu-item-card' ${dataItemAttr}><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
-            if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
-              html += '<ul class="menu-size-list">';
-              item.sizes.forEach(size => {
-                html += `<li class="menu-size-list-item">
-                  <button type="button" class="menu-size-option" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >
-                    <span class="menu-size-name">${size.name}</span>: <span class='price'>£${parseFloat(size.price).toFixed(2)}</span>
-                  </button>`;
-                if (item.allowMasterToppings && masterToppingsData.toppings.length > 0) {
-                  html += `<button type="button" class="show-master-toppings-popup add-toppings-btn" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
-                }
-                html += '</li>';
-              });
-              html += '</ul>';
-            }
-            if (typeof item.price === 'number' && (!item.sizes || !item.sizes.length)) {
-              html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
-              html += `<button type="button" class="menu-direct-add add-toppings-btn" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-price='${item.price.toFixed(2)}'>Add to Cart</button>`;
-            }
-            if (item.allowMasterToppings && masterToppingsData.toppings.length > 0 && (!item.sizes || !item.sizes.length)) {
-              html += `<button type="button" class="show-master-toppings-popup add-toppings-btn" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
-            }
-            // --- Toppings UI ---
-            if (sectionName.toLowerCase().includes('salad')) {
-              if (item.saladToppings && Array.isArray(item.saladToppings) && item.saladToppings.length) {
-                html += `<form class='toppings-form' data-name='${item.name}'>`;
-                html += `<small><b>Salad Toppings:</b></small><br>`;
-                item.saladToppings.forEach(topping => {
-                  html += `<label class="topping-label"><input type='checkbox' class='salad-topping' value='${topping}' checked> ${topping}</label>`;
-                });
-                html += `<div class='toppings-summary' style='margin-top:6px;color:#0074d9;font-size:0.97em;'></div>`;
-                html += `</form>`;
-              }
-            } else {
-              if (item.toppings && Array.isArray(item.toppings) && item.toppings.length) {
-                html += `<form class='toppings-form' data-name='${item.name}'>`;
-                html += `<small><b>Pizza Toppings:</b></small><br>`;
-                item.toppings.forEach(topping => {
-                  html += `<label class="topping-label"><input type='checkbox' class='pizza-topping' value='${topping}' checked> ${topping}</label>`;
-                });
-                html += `<div class='toppings-summary' style='margin-top:6px;color:#0074d9;font-size:0.97em;'></div>`;
-                html += `</form>`;
-              }
-            }
-            if (outOfStock) {
-              html += `<div class='out-of-stock-label'>Out of stock</div>`;
-              html += `<div class='out-of-stock-label'>Out of stock</div>`;
-            }
-            html += `</li>`;
-          });
-          html += '</ul>';
-        } else {
-          html += '<em>No menu items found for this section.</em>';
-        }
-        return html;
-      }
-      content.innerHTML = renderMenuItemsForSection(selectedSection);
-      updateCartBadge();
-      // Re-run toppings summary logic for new content
-      document.querySelectorAll('.toppings-form').forEach(form => {
-        const summaryDiv = form.querySelector('.toppings-summary');
-        if (!summaryDiv) return;
-        function updateSummary() {
-          const checked = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-          let msg = '';
-          if (checked.length) msg += `<b>Selected:</b> ${checked.join(', ')}`;
-          summaryDiv.innerHTML = msg;
-        }
-        form.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-          cb.addEventListener('change', updateSummary);
-        });
-        updateSummary();
-      });
-      // Re-attach add-to-cart and toppings popup logic as needed (if required)
-    }
-    renderTabs();
-    renderSection();
-    return;
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>None Go Bye – Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body class="menu-page app-body" id="menu-page">
+  <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
+  <div id="cart-badge" class="cart-badge d-none">
+    <button id="cart-badge-btn" class="cart-badge-btn no-style-btn" aria-label="View checkout cart" tabindex="0">
+      🛒 <span id="cart-count">0</span> in checkout
+    </button>
+  </div>
+  <header>
+    <h1 class="main-heading underline">Inspired by Naples, perfected at None Go Bye.</h1>
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="offers-customer.html">Special Offers</a>
+      <a href="allergens.html">Allergens</a>
+    </nav>
+  </header>
+  <main id="main-content">
+    <div id="special-offers-banner" class="special-offers-banner"></div>
+    <div id="selected-offer-banner" class="selected-offer-banner"></div>
+    <section id="dynamic-menu">
+      <div id="menu-tabs" class="menu-tabs"></div>
+      <div id="menu-content" class="d-none"></div>
+    </section>
+  </main>
+  <script>
+    // ...existing JavaScript code for menu rendering, tabs, and all logic goes here...
+    // (This is the code you already have, but it must be inside this <script> tag, not in the HTML body)
+  </script>
+</body>
+</html>
           let dateStr = '';
           if (offer.startDate || offer.endDate) {
             dateStr = `<span style='color:#888;font-size:0.95em'>${offer.startDate ? 'From ' + new Date(offer.startDate).toLocaleDateString() : ''}${offer.endDate ? ' to ' + new Date(offer.endDate).toLocaleDateString() : ''}</span>`;
