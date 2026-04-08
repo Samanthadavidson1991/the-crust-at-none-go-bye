@@ -31,8 +31,95 @@
     <div id="section-tabs" class="section-tabs"></div>
   </main>
   <script>
-// All JavaScript code for menu.html goes here. (Paste your full working JS here, after the HTML, before </body>.)
-// ...existing code...
+// --- MENU PAGE LOGIC ---
+document.addEventListener('DOMContentLoaded', async function() {
+  // Fetch menu, sections, master toppings, assignments, and topping stock
+  const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes, toppingStockRes] = await Promise.all([
+    fetch('/api/menu'),
+    fetch('/api/sections'),
+    fetch('/api/master-toppings'),
+    fetch('/api/section-topping-assignments'),
+    fetch('/api/pizza-topping-stock')
+  ]);
+  const menuData = await menuRes.json();
+  const sectionsData = await sectionsRes.json();
+  const masterToppingsData = await masterToppingsRes.json();
+  const sectionAssignmentsData = await sectionAssignmentsRes.json();
+  const toppingStockData = await toppingStockRes.json();
+  window._menuData = menuData;
+  window._sectionsData = sectionsData;
+  window._masterToppingsData = masterToppingsData;
+  window._sectionAssignmentsData = sectionAssignmentsData;
+  // Build out-of-stock topping set
+  const toppingStock = Array.isArray(toppingStockData) ? toppingStockData : (Array.isArray(toppingStockData.toppings) ? toppingStockData.toppings : []);
+  const outOfStockToppings = new Set(toppingStock.filter(t => t.stock === 0).map(t => t.name));
+  // Filter menu items: hide any item with a topping in outOfStockToppings
+  if (menuData.items && Array.isArray(menuData.items)) {
+    menuData.items = menuData.items.filter(item => {
+      if (!item.toppings || !Array.isArray(item.toppings) || item.toppings.length === 0) return true;
+      return !item.toppings.some(t => outOfStockToppings.has(t));
+    });
+  }
+  renderSectionTabs(sectionsData, menuData);
+  renderMenu(menuData, sectionsData);
+});
+
+let activeSection = null;
+function renderSectionTabs(sectionsData, menuData) {
+  const sectionTabsDiv = document.getElementById('section-tabs');
+  sectionTabsDiv.innerHTML = '';
+  if (sectionsData.sections && Array.isArray(sectionsData.sections) && sectionsData.sections.length > 0) {
+    activeSection = activeSection || sectionsData.sections[0].name;
+    sectionTabsDiv.innerHTML = sectionsData.sections.map(sec =>
+      `<button class="section-tab-btn${activeSection === sec.name ? ' active' : ''}" data-section="${sec.name}">${sec.name}</button>`
+    ).join('');
+    sectionTabsDiv.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        activeSection = btn.getAttribute('data-section');
+        sectionTabsDiv.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderMenu(window._menuData, window._sectionsData);
+      });
+    });
+  }
+}
+
+function renderMenu(menuData, sectionsData) {
+  const content = document.getElementById('main-content');
+  // Group items by section name
+  const sectionMap = {};
+  menuData.items.forEach(item => {
+    const section = item.section || 'Other';
+    if (!sectionMap[section]) sectionMap[section] = [];
+    sectionMap[section].push(item);
+  });
+  let html = '';
+  // Only render the active section
+  if (activeSection && sectionMap[activeSection]) {
+    const sectionName = activeSection;
+    html += `<h2>${sectionName}</h2>`;
+    html += `<ul class='menu-card-list'>`;
+    sectionMap[sectionName].forEach(item => {
+      html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+      if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+        html += '<ul class="menu-size-list">';
+        item.sizes.forEach(size => {
+          html += `<li class="menu-size-list-item">
+            <button type="button" class="menu-size-option">${size.name}: £${parseFloat(size.price).toFixed(2)}</button>
+          </li>`;
+        });
+        html += '</ul>';
+      }
+      if (typeof item.price === 'number' && (!item.sizes || !item.sizes.length)) {
+        html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
+        html += `<button type="button" class="menu-direct-add">Add to Cart</button>`;
+      }
+      html += `</li>`;
+    });
+    html += '</ul>';
+  }
+  content.innerHTML = html;
+}
   </script>
 </body>
 </html>
