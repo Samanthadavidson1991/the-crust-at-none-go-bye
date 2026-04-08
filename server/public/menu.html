@@ -29,79 +29,10 @@
   </header>
   <main id="main-content">
     <div id="section-tabs" class="section-tabs"></div>
-
-                </main>
-                <script>
-                // All JavaScript code that was previously outside script tags should be moved here.
-                </script>
-                orderObj.masterToppings = [...item.saladToppings];
-                orderObj.removed = [];
-                console.log('[DEBUG][AddToCart] No form found for', item.name, '| Using fallback: all salad toppings added:', orderObj.masterToppings);
-              } else {
-                console.log('[DEBUG][AddToCart] No form found for', item.name, '| Not a salad or no toppings.');
-              }
-              addToOrder(orderObj);
-              btn.style.background = '#e9ece5';
-              setTimeout(() => { btn.style.background = ''; }, 300);
-              e.stopPropagation();
-            }
-          });
-        });
-        // --- Toppings UI ---
-        // Show pizza toppings for pizzas, salad toppings for salads
-        if (sectionName.toLowerCase().includes('salad')) {
-          if (item.saladToppings && Array.isArray(item.saladToppings) && item.saladToppings.length) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Salad Toppings:</b></small><br>`;
-            item.saladToppings.forEach(topping => {
-              html += `<label class="topping-label"><input type='checkbox' class='salad-topping' value='${topping}' checked> ${topping}</label>`;
-            });
-            html += `<div class='toppings-summary' style='margin-top:6px;color:#0074d9;font-size:0.97em;'></div>`;
-    </main>
-    <script>
-    // All JavaScript code that was previously outside script tags has been moved here.
-    </script>
-              if (item.allowMasterToppings && masterToppings.length > 0) {
-                html += `<button type="button" class="show-master-toppings-popup" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}' data-size='${JSON.stringify(size).replace(/'/g, "&apos;")}' >Add Toppings</button>`;
-              }
-              html += '</li>';
-            });
-            html += '</ul>';
-          }
-          // Section-based toppings assignment for fallback sections
-          const assignedToppingIds = (sectionAssignmentsData.assignments && sectionAssignmentsData.assignments[section]) || [];
-          const assignedToppings = masterToppings.filter(mt => assignedToppingIds.includes(mt._id));
-          if (assignedToppings.length > 0) {
-            html += `<form class='toppings-form' data-name='${item.name}'>`;
-            html += `<small><b>Add Toppings:</b></small><br>`;
-            assignedToppings.forEach(mt => {
-              let price = '0.00';
-              if (mt.category === 'Meat') {
-                price = masterToppingsData.settings.masterMeatPrice;
-                price = (typeof price === 'number' && !isNaN(price)) ? price.toFixed(2) : '0.00';
-              } else if (mt.category === 'Veg') {
-                price = masterToppingsData.settings.masterVegPrice;
-                price = (typeof price === 'number' && !isNaN(price)) ? price.toFixed(2) : '0.60';
-              } else if (typeof mt.price === 'number') {
-                price = mt.price.toFixed(2);
-              }
-              html += `<label class="topping-label"><input type='checkbox' class='add-topping' value='${mt.name}' data-price='${price}'> ${mt.name}`;
-              html += ` <span class="topping-meta">(${mt.category} • £${price})</span>`;
-              html += `</label>`;
-            });
-            html += `</form>`;
-          }
-          if (outOfStock) {
-            html += `<div class='out-of-stock-label'>Out of stock</div>`;
-            html += `<div class='out-of-stock-label'>Out of stock</div>`;
-          }
-          html += `</li>`;
-        });
-        html += '</ul>';
-      }
-    });
-    content.innerHTML = html;
-    updateCartBadge();
+  </main>
+  <script>
+// All JavaScript code for menu.html goes here. (Paste your full working JS here, after the HTML, before </body>.)
+  </script>
 
     // --- Master Toppings Popup ---
     let masterToppingsPopupBg = document.getElementById('master-toppings-popup-bg');
