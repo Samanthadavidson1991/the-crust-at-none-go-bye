@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>None Go Bye – Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<style>
+  .section-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0 24px 0;
+    flex-wrap: wrap;
+  }
+  .section-tab-btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    background: #e9ece5;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .section-tab-btn.active {
+    background: #b9472e;
+    color: #fff;
+  }
+</style>
+</head>
+<body class="menu-page app-body" id="menu-page">
+  <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
+  <div id="cart-badge" class="cart-badge d-none">
+    <button id="cart-badge-btn" class="cart-badge-btn no-style-btn" aria-label="View checkout cart" tabindex="0">
+      🛒 <span id="cart-count">0</span> in checkout
+    </button>
+  </div>
+  <header>
+    <h1 class="main-heading underline">Inspired by Naples, perfected at None Go Bye.</h1>
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="offers-customer.html">Special Offers</a>
+      <a href="allergens.html">Allergens</a>
+    </nav>
+  </header>
+  <main id="main-content">
+    <div id="section-tabs" class="section-tabs"></div>
+  </main>
+  <script>
+// --- MENU PAGE LOGIC ---
+let activeSection = null;
+document.addEventListener('DOMContentLoaded', async function() {
+  // Fetch menu, sections, master toppings, assignments, and topping stock
+  const [menuRes, sectionsRes, masterToppingsRes, sectionAssignmentsRes, toppingStockRes] = await Promise.all([
+    fetch('/api/menu'),
+    fetch('/api/sections'),
+    fetch('/api/master-toppings'),
+    fetch('/api/section-topping-assignments'),
+    fetch('/api/pizza-topping-stock')
+  ]);
+  const menuData = await menuRes.json();
+  const sectionsData = await sectionsRes.json();
+  const masterToppingsData = await masterToppingsRes.json();
+  const sectionAssignmentsData = await sectionAssignmentsRes.json();
+  const toppingStockData = await toppingStockRes.json();
+  window._menuData = menuData;
+  window._sectionsData = sectionsData;
+  window._masterToppingsData = masterToppingsData;
+  window._sectionAssignmentsData = sectionAssignmentsData;
+  // Build out-of-stock topping set
+  const toppingStock = Array.isArray(toppingStockData) ? toppingStockData : (Array.isArray(toppingStockData.toppings) ? toppingStockData.toppings : []);
+  const outOfStockToppings = new Set(toppingStock.filter(t => t.stock === 0).map(t => t.name));
+  // Filter menu items: hide any item with a topping in outOfStockToppings
+  if (menuData.items && Array.isArray(menuData.items)) {
+    menuData.items = menuData.items.filter(item => {
+      if (!item.toppings || !Array.isArray(item.toppings) || item.toppings.length === 0) return true;
+      return !item.toppings.some(t => outOfStockToppings.has(t));
+    });
+  }
+  renderSectionTabs(sectionsData, menuData);
+  renderMenu(menuData, sectionsData);
+});
+
+function renderSectionTabs(sectionsData, menuData) {
+  const sectionTabsDiv = document.getElementById('section-tabs');
+  sectionTabsDiv.innerHTML = '';
+  if (sectionsData.sections && Array.isArray(sectionsData.sections) && sectionsData.sections.length > 0) {
+    activeSection = activeSection || sectionsData.sections[0].name;
+    sectionTabsDiv.innerHTML = sectionsData.sections.map(sec =>
+      `<button class="section-tab-btn${activeSection === sec.name ? ' active' : ''}" data-section="${sec.name}">${sec.name}</button>`
+    ).join('');
+    sectionTabsDiv.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        activeSection = btn.getAttribute('data-section');
+        sectionTabsDiv.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderMenu(window._menuData, window._sectionsData);
+      });
+    });
+  }
+}
+
+function renderMenu(menuData, sectionsData) {
+  const content = document.getElementById('main-content');
+  // Group items by section name
+  const sectionMap = {};
+  menuData.items.forEach(item => {
+    const section = item.section || 'Other';
+    if (!sectionMap[section]) sectionMap[section] = [];
+    sectionMap[section].push(item);
+  });
+  let html = '';
+  // Only render the active section
+  if (activeSection && sectionMap[activeSection]) {
+    const sectionName = activeSection;
+    html += `<h2>${sectionName}</h2>`;
+    html += `<ul class='menu-card-list'>`;
+    sectionMap[sectionName].forEach(item => {
+      html += `<li class='menu-item-card'><b>${item.name}</b><br>${item.description ? item.description + '<br>' : ''}`;
+      if(item.sizes && Array.isArray(item.sizes) && item.sizes.length) {
+        html += '<ul class="menu-size-list">';
+        item.sizes.forEach(size => {
+          html += `<li class="menu-size-list-item">
+            <button type="button" class="menu-size-option">${size.name}: £${parseFloat(size.price).toFixed(2)}</button>
+          </li>`;
+        });
+        html += '</ul>';
+      }
+      if (typeof item.price === 'number' && (!item.sizes || !item.sizes.length)) {
+        html += `<div class="menu-direct-price">Price: <span class='price'>£${item.price.toFixed(2)}</span></div>`;
+        html += `<button type="button" class="menu-direct-add">Add to Cart</button>`;
+      }
+      html += `</li>`;
+    });
+    html += '</ul>';
+  }
+  content.innerHTML = html;
+}
